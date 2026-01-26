@@ -1,0 +1,2206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loup-Garou - Animateur</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const ROLES = {
+            // Loups
+            LOUP: { name: 'Loup-Garou', emoji: '🐺', team: 'loups', description: 'Se réveille chaque nuit avec les autres loups pour dévorer un villageois. Gagne si égalité loups/village.' },
+            LOUP_BLANC: { name: 'Loup Blanc', emoji: '🤍', team: 'solo', description: 'Loup solitaire. Peut tuer un loup une nuit sur deux (non obligatoire). Gagne seul quand il est le dernier survivant (loups ET village éliminés).' },
+            GRAND_MECHANT_LOUP: { name: 'Grand Méchant Loup', emoji: '👹', team: 'loups', description: 'Peut dévorer une 2ème victime tant qu\'aucun loup n\'est mort. Perd ce pouvoir dès qu\'un loup meurt.' },
+            INFECT_PERE: { name: 'Infect Père des Loups', emoji: '🦠', team: 'loups', description: 'Une fois dans la partie, peut transformer un villageois en loup-garou au lieu de le tuer. La victime rejoint les loups.' },
+            
+            // Village
+            VILLAGEOIS: { name: 'Simple Villageois', emoji: '👨‍🌾', team: 'village', description: 'Aucun pouvoir spécial. Vote le jour pour éliminer les suspects. Gagne si tous les loups sont éliminés.' },
+            VOYANTE: { name: 'Voyante', emoji: '🔮', team: 'village', description: 'Chaque nuit, espionne la carte d\'un joueur pour connaître son identité (loup ou non). Doit rester discrète.' },
+            CUPIDON: { name: 'Cupidon', emoji: '💘', team: 'village', description: 'La 1ère nuit, désigne 2 amoureux. Si l\'un meurt, l\'autre meurt de chagrin. Peuvent être de camps différents.' },
+            SORCIERE: { name: 'Sorcière', emoji: '🧪', team: 'village', description: 'Possède 2 potions (à usage unique) : Une de résurrection pour sauver la victime des loups, une de mort pour tuer quelqu\'un.' },
+            CHASSEUR: { name: 'Chasseur', emoji: '🏹', team: 'village', description: 'Quand il meurt (vote ou loups), désigne un joueur qui meurt immédiatement avec lui. Puissant jusqu\'à la fin.' },
+            SALVATORE: { name: 'Salvateur', emoji: '🛡️', team: 'village', description: 'Chaque nuit, protège un joueur (pas le même 2 fois de suite). Le joueur protégé ne peut pas être dévoré cette nuit.' },
+            ANCIEN: { name: 'Ancien', emoji: '👴', team: 'village', description: 'Résiste à 2 attaques de loups. MAIS si tué par le village, tous les villageois à pouvoir les perdent. Très dangereux d\'éliminer.' },
+            IDIOT: { name: 'Idiot du village', emoji: '🤪', team: 'village', description: 'Si éliminé par vote, révèle sa carte et reste en vie. Mais perd son droit de vote définitivement.' },
+            PETITE_FILLE: { name: 'Petite Fille', emoji: '👧', team: 'village', description: 'Peut espionner les loups la nuit en entrouvrant les yeux. Risqué : si repérée, peut être tuée immédiatement.' },
+            RENARD: { name: 'Renard', emoji: '🦊', team: 'village', description: 'Une fois par partie, peut inspecter 3 joueurs côte à côte. Si au moins 1 loup parmi eux, il le sait. Sinon perd son pouvoir.' },
+            CORBEAU: { name: 'Corbeau', emoji: '🦅', team: 'village', description: 'Chaque nuit, place un curseur de vote sur un joueur. Ce joueur aura 2 voix contre lui au vote suivant (peut être décisif).' },
+            MONTREUR_OURS: { name: 'Montreur d\'Ours', emoji: '🐻', team: 'village', description: 'Chaque matin, son ours grogne si au moins un de ses voisins directs vivants est un loup. Indicateur automatique.' },
+            VOLEUR: { name: 'Voleur', emoji: '🃏', team: 'village', description: 'La 1ère nuit, doit choisir une des 2 cartes non distribuées et prend ce rôle. Devient ce personnage pour toute la partie.' },
+            BOUC: { name: 'Bouc Émissaire', emoji: '🐐', team: 'village', description: 'En cas d\'égalité au vote, c\'est lui qui meurt à la place. Peut forcer les joueurs à trancher.' },
+            TROIS_FRERES: { name: 'Trois frères', emoji: '👨‍👨‍👦', team: 'village', description: 'Se reconnaissent la 1ère nuit. Savent qu\'ils sont tous village. Alliance puissante mais évidente.' },
+            DEUX_SOEURS: { name: 'Deux sœurs', emoji: '👭', team: 'village', description: 'Se reconnaissent la 1ère nuit. Savent qu\'elles sont toutes village. Alliance de confiance.' },
+            COMEDIEN: { name: 'Comédien', emoji: '🎭', team: 'village', description: 'Avant la partie, le meneur choisit 3 cartes non-loup à pouvoir spécial et les place visibles au centre. Chaque nuit, le Comédien peut utiliser le pouvoir d\'une carte jusqu\'à la nuit suivante. Une fois utilisée, la carte est retirée (max 3 nuits).' },
+            CHEVALIER: { name: 'Chevalier à l\'épée rouillée', emoji: '⚔️', team: 'village', description: 'Si dévoré par les loups, tue le loup vivant à sa gauche. Ce loup mourra la nuit suivante sans manger. Épée vengeresse.' },
+            JUGE_BEGUE: { name: 'Juge bègue', emoji: '⚖️', team: 'village', description: 'Une fois par partie, peut annuler le vote en cours et imposer un nouveau vote immédiat sans débat. Décision finale.' },
+            
+            // Variables
+            CHIEN_LOUP: { name: 'Chien-Loup', emoji: '🐕', team: 'variable', description: 'La 1ère nuit, choisit de rejoindre les loups OU le village. Change de camp et d\'objectif selon son choix.' },
+            ENFANT_SAUVAGE: { name: 'Enfant Sauvage', emoji: '🧒', team: 'variable', description: 'La 1ère nuit, choisit un modèle. Tant que le modèle vit, il est village. Si le modèle meurt, devient loup immédiatement.' },
+            
+            // Solo
+            ANGE: { name: 'Ange', emoji: '😇', team: 'solo', description: 'Objectif unique : Se faire tuer par VOTE au 1er tour. Si réussi, victoire immédiate. Sinon devient simple villageois.' },
+            ANGE_DECHU: { name: 'Ange déchu', emoji: '😈', team: 'solo', description: 'La 1ère nuit, désigne secrètement une victime. Si elle meurt au 1er tour (vote OU loups), victoire immédiate. Sinon devient villageois.' },
+            JOUEUR_FLUTE: { name: 'Joueur de Flûte', emoji: '🎵', team: 'solo', description: 'Chaque nuit, enchante 2 joueurs. Gagne quand tous les survivants sont enchantés (devient une secte). Le fait d\'être enchanté ne change rien pour le joueur, cela ne le tue pas directement.' }
+        };
+
+        const WerewolfGame = () => {
+            const [screen, setScreen] = useState('home');
+            const [playerCount, setPlayerCount] = useState(8);
+            const [players, setPlayers] = useState([]);
+            const [selectedPlayer, setSelectedPlayer] = useState(null);
+            const [editingPlayer, setEditingPlayer] = useState(null);
+            const [activeRoles, setActiveRoles] = useState({});
+            const [timerMinutes, setTimerMinutes] = useState(5);
+            const [timerSeconds, setTimerSeconds] = useState(0);
+            const [isTimerRunning, setIsTimerRunning] = useState(false);
+            const [showTimerConfig, setShowTimerConfig] = useState(false);
+            const [showNightOrder, setShowNightOrder] = useState(false);
+            const [isListening, setIsListening] = useState(false);
+            const [recognition, setRecognition] = useState(null);
+            const [showResetModal, setShowResetModal] = useState(false);
+            const [tempPlayers, setTempPlayers] = useState([]);
+            const [showFirstNight, setShowFirstNight] = useState(true);
+            const [showNightPanel, setShowNightPanel] = useState(false);
+            const [victoryModal, setVictoryModal] = useState(null);
+            const [showRoleInfo, setShowRoleInfo] = useState(null);
+
+            useEffect(() => {
+                // Initialiser les joueurs au chargement initial
+                if (players.length === 0) {
+                    initializePlayers();
+                } 
+                // Si on change le nombre depuis l'écran d'accueil et qu'on a jamais commencé la partie
+                else if (screen === 'home' && players.length !== playerCount) {
+                    initializePlayers();
+                }
+            }, [playerCount, screen]);
+            
+            useEffect(() => {
+                // Initialiser la reconnaissance vocale
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    const recognitionInstance = new SpeechRecognition();
+                    recognitionInstance.continuous = false;
+                    recognitionInstance.lang = 'fr-FR';
+                    recognitionInstance.interimResults = false;
+                    recognitionInstance.maxAlternatives = 1;
+                    
+                    setRecognition(recognitionInstance);
+                }
+            }, []);
+            
+            const startVoiceRecognition = (playerId) => {
+                if (recognition && playerId) {
+                    // Arrêter toute reconnaissance en cours
+                    if (isListening) {
+                        try {
+                            recognition.abort();
+                        } catch (e) {}
+                    }
+                    
+                    // Configurer les callbacks pour ce joueur spécifique
+                    recognition.onresult = (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        // Capitaliser la première lettre
+                        const name = transcript.charAt(0).toUpperCase() + transcript.slice(1).toLowerCase();
+                        updatePlayer(playerId, { name: name });
+                        setIsListening(false);
+                    };
+                    
+                    recognition.onerror = (event) => {
+                        console.error('Erreur reconnaissance vocale:', event.error);
+                        setIsListening(false);
+                        if (event.error === 'not-allowed') {
+                            alert('⚠️ Accès au microphone refusé.\n\nPour activer :\n1. Cliquez sur le cadenas 🔒 à gauche de l\'adresse du site\n2. Activez le microphone\n3. Rechargez la page');
+                        } else if (event.error === 'no-speech') {
+                            alert('Aucune parole détectée. Réessayez.');
+                        }
+                    };
+                    
+                    recognition.onend = () => {
+                        setIsListening(false);
+                    };
+                    
+                    recognition.onstart = () => {
+                        setIsListening(true);
+                    };
+                    
+                    try {
+                        recognition.start();
+                    } catch (error) {
+                        // Si déjà démarré, on le redémarre
+                        if (error.message?.includes('already started')) {
+                            recognition.abort();
+                            setTimeout(() => {
+                                try {
+                                    recognition.start();
+                                } catch (e) {
+                                    console.error('Erreur redémarrage:', e);
+                                    setIsListening(false);
+                                }
+                            }, 100);
+                        } else {
+                            console.error('Erreur démarrage:', error);
+                            setIsListening(false);
+                        }
+                    }
+                }
+            };
+            
+            const stopVoiceRecognition = () => {
+                if (recognition && isListening) {
+                    try {
+                        recognition.abort();
+                    } catch (error) {
+                        console.error('Erreur arrêt:', error);
+                    }
+                    setIsListening(false);
+                }
+            };
+            
+            
+            useEffect(() => {
+                let interval;
+                if (isTimerRunning && (timerMinutes > 0 || timerSeconds > 0)) {
+                    interval = setInterval(() => {
+                        if (timerSeconds === 0) {
+                            if (timerMinutes === 0) {
+                                setIsTimerRunning(false);
+                            } else {
+                                setTimerMinutes(prev => prev - 1);
+                                setTimerSeconds(59);
+                            }
+                        } else {
+                            setTimerSeconds(prev => prev - 1);
+                        }
+                    }, 1000);
+                } else if (timerMinutes === 0 && timerSeconds === 0) {
+                    setIsTimerRunning(false);
+                }
+                return () => clearInterval(interval);
+            }, [isTimerRunning, timerMinutes, timerSeconds]);
+
+            // Mise à jour automatique du grognement du Montreur d'Ours
+            useEffect(() => {
+                setPlayers(prev => prev.map(player => {
+                    if (player.role !== 'MONTREUR_OURS') return player;
+                    
+                    // Trouver les voisins VIVANTS les plus proches
+                    const playerIndex = prev.findIndex(p => p.id === player.id);
+                    
+                    // Chercher voisin gauche vivant
+                    let leftNeighbor = null;
+                    for (let i = 1; i <= prev.length; i++) {
+                        const checkIndex = (playerIndex - i + prev.length) % prev.length;
+                        if (prev[checkIndex].alive && prev[checkIndex].id !== player.id) {
+                            leftNeighbor = prev[checkIndex];
+                            break;
+                        }
+                    }
+                    
+                    // Chercher voisin droit vivant
+                    let rightNeighbor = null;
+                    for (let i = 1; i <= prev.length; i++) {
+                        const checkIndex = (playerIndex + i) % prev.length;
+                        if (prev[checkIndex].alive && prev[checkIndex].id !== player.id) {
+                            rightNeighbor = prev[checkIndex];
+                            break;
+                        }
+                    }
+                    
+                    // Vérifier si un voisin VIVANT est loup
+                    const isLeftWolf = leftNeighbor && (
+                        ROLES[leftNeighbor.role]?.team === 'loups' || 
+                        leftNeighbor.role === 'LOUP_BLANC' ||
+                        leftNeighbor.isInfected ||
+                        (leftNeighbor.role === 'CHIEN_LOUP' && leftNeighbor.team === 'loups') ||
+                        (leftNeighbor.role === 'ENFANT_SAUVAGE' && leftNeighbor.model && !prev.find(pl => pl.id === leftNeighbor.model)?.alive)
+                    );
+                    
+                    const isRightWolf = rightNeighbor && (
+                        ROLES[rightNeighbor.role]?.team === 'loups' || 
+                        rightNeighbor.role === 'LOUP_BLANC' ||
+                        rightNeighbor.isInfected ||
+                        (rightNeighbor.role === 'CHIEN_LOUP' && rightNeighbor.team === 'loups') ||
+                        (rightNeighbor.role === 'ENFANT_SAUVAGE' && rightNeighbor.model && !prev.find(pl => pl.id === rightNeighbor.model)?.alive)
+                    );
+                    
+                    const shouldGrowl = isLeftWolf || isRightWolf;
+                    
+                    // Mettre à jour uniquement si changement
+                    if (player.bearGrowl !== shouldGrowl) {
+                        return { ...player, bearGrowl: shouldGrowl };
+                    }
+                    return player;
+                }));
+            }, [players]);
+
+            // Désactivation automatique du Grand Méchant Loup si un loup meurt
+            useEffect(() => {
+                setPlayers(prev => {
+                    // Vérifier si un loup est mort
+                    const wolfDead = prev.some(p => 
+                        !p.alive && (
+                            ROLES[p.role]?.team === 'loups' ||
+                            p.role === 'LOUP_BLANC' ||
+                            p.isInfected ||
+                            (p.role === 'CHIEN_LOUP' && p.team === 'loups')
+                        )
+                    );
+                    
+                    // Désactiver le Grand Méchant Loup si loup mort
+                    return prev.map(player => {
+                        if (player.role === 'GRAND_MECHANT_LOUP' && wolfDead && player.doublePower) {
+                            return { ...player, doublePower: false };
+                        }
+                        return player;
+                    });
+                });
+            }, [players]);
+
+            const initializePlayers = () => {
+                const newPlayers = Array.from({ length: playerCount }, (_, i) => ({
+                    id: i + 1,
+                    name: `Joueur ${i + 1}`,
+                    role: null,
+                    alive: true,
+                    protected: false,
+                    cursed: false,
+                    enchanted: false,
+                    lover: false,
+                    loverId: null,
+                    bearGrowl: false,
+                    seen: false,
+                    seenByVoyante: false,
+                    lives: 2,
+                    idiotProtection: true,
+                    idiotCantVote: false,
+                    potionLife: true,
+                    potionDeath: true,
+                    infected: false,
+                    doublePower: true,
+                    foxPower: true,
+                    model: null,
+                    team: null,
+                    target: null,
+                    whiteLoupKills: [],
+                    isMayor: false,
+                    isInfected: false,
+                    comedienCards: 3,
+                    angelTarget: null,
+                    firstTurnDeath: false
+                }));
+                setPlayers(newPlayers);
+            };
+
+            const updatePlayer = (id, updates) => {
+                setPlayers(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
+            };
+
+            const toggleAlive = (id) => {
+                const player = players.find(p => p.id === id);
+                const newAliveStatus = !player.alive;
+                
+                setPlayers(prev => prev.map(p => {
+                    // Tuer le joueur sélectionné
+                    if (p.id === id) {
+                        return { ...p, alive: newAliveStatus };
+                    }
+                    // Si le joueur meurt et qu'il a un amoureux, tuer l'amoureux aussi
+                    if (!newAliveStatus && player.lover && p.id === player.loverId) {
+                        return { ...p, alive: false };
+                    }
+                    return p;
+                }));
+            };
+
+            const setPlayerRole = (id, roleKey) => {
+                const updates = { role: roleKey };
+                
+                if (roleKey === 'ANCIEN') updates.lives = 2;
+                if (roleKey === 'SORCIERE') {
+                    updates.potionLife = true;
+                    updates.potionDeath = true;
+                }
+                if (roleKey === 'IDIOT') updates.idiotProtection = true;
+                if (roleKey === 'INFECT_PERE') updates.infected = false;
+                if (roleKey === 'GRAND_MECHANT_LOUP') updates.doublePower = true;
+                if (roleKey === 'RENARD') updates.foxPower = true;
+                if (roleKey === 'LOUP_BLANC') updates.whiteLoupKills = [];
+                
+                updatePlayer(id, updates);
+            };
+
+            const setLovers = (id1, id2) => {
+                setPlayers(prev => prev.map(p => {
+                    if (p.id === id1) return { ...p, lover: true, loverId: id2 };
+                    if (p.id === id2) return { ...p, lover: true, loverId: id1 };
+                    return { ...p, lover: false, loverId: null };
+                }));
+            };
+
+            const resetGame = () => {
+                // Ouvrir la popup avec les joueurs actuels (garder toutes leurs données)
+                setTempPlayers(players.map(p => ({ 
+                    id: p.id,
+                    name: p.name,
+                    role: p.role,
+                    kept: true 
+                })));
+                setShowResetModal(true);
+            };
+            
+            const confirmReset = () => {
+                // Garder uniquement les joueurs cochés
+                const keptPlayers = tempPlayers
+                    .filter(p => p.kept)
+                    .map((p, index) => ({
+                        id: index + 1,
+                        name: p.name, // Garder le nom original
+                        role: null,
+                        alive: true,
+                        protected: false,
+                        cursed: false,
+                        enchanted: false,
+                        lover: false,
+                        loverId: null,
+                        bearGrowl: false,
+                        seen: false,
+                        lives: 2,
+                        idiotProtection: true,
+                        potionLife: true,
+                        potionDeath: true,
+                        infected: false,
+                        doublePower: true,
+                        foxPower: true,
+                        model: null,
+                        team: null,
+                        target: null,
+                        whiteLoupKills: [],
+                        isMayor: false,
+                        isInfected: false
+                    }));
+                
+                // D'abord réinitialiser tout
+                setActiveRoles({});
+                setTimerMinutes(5);
+                setTimerSeconds(0);
+                setIsTimerRunning(false);
+                setSelectedPlayer(null);
+                setShowResetModal(false);
+                
+                // Ensuite mettre les joueurs ET le count en même temps
+                // Utiliser un setTimeout pour que ça se fasse après la fermeture de la modal
+                setTimeout(() => {
+                    setPlayers(keptPlayers);
+                    setPlayerCount(keptPlayers.length);
+                    setScreen('list');
+                }, 100);
+            };
+            
+            const addNewPlayer = () => {
+                const newId = tempPlayers.length + 1;
+                setTempPlayers([...tempPlayers, {
+                    id: newId,
+                    name: `Joueur ${newId}`,
+                    role: null,
+                    kept: true
+                }]);
+            };
+            
+            const togglePlayerKeep = (id) => {
+                setTempPlayers(prev => prev.map(p => 
+                    p.id === id ? { ...p, kept: !p.kept } : p
+                ));
+            };
+
+            const getStats = () => {
+                const alive = players.filter(p => p.alive);
+                const dead = players.filter(p => !p.alive);
+                const loupsAlive = alive.filter(p => {
+                    const role = ROLES[p.role];
+                    return role?.team === 'loups' || (p.role === 'ENFANT_SAUVAGE' && p.model && !players.find(pl => pl.id === p.model)?.alive);
+                });
+                const villageAlive = alive.filter(p => ROLES[p.role]?.team === 'village');
+                
+                return { alive: alive.length, dead: dead.length, loups: loupsAlive.length, village: villageAlive.length };
+            };
+
+            const renderHome = () => (
+                <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-black p-6 flex items-center justify-center">
+                    <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 max-w-md w-full border border-white/20 shadow-2xl">
+                        <h1 className="text-4xl font-bold text-white mb-8 text-center">🐺 Loup-Garou</h1>
+                        
+                        <div className="mb-8">
+                            <label className="block text-white mb-3 text-lg">Nombre de joueurs</label>
+                            <input
+                                type="range"
+                                min="5"
+                                max="24"
+                                value={playerCount}
+                                onChange={(e) => setPlayerCount(parseInt(e.target.value))}
+                                className="w-full"
+                            />
+                            <div className="text-center text-3xl font-bold text-white mt-2">{playerCount}</div>
+                        </div>
+
+                        <button
+                            onClick={() => setScreen('list')}
+                            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-xl transition-all transform hover:scale-105"
+                        >
+                            Commencer la partie
+                        </button>
+                        
+                        {/* Logo Play Thau'Gether */}
+                        <div className="mt-8 flex flex-col items-center gap-3 opacity-80">
+                            <img 
+                                src="logo-ptg.png" 
+                                alt="Play Thau'Gether" 
+                                className="w-40 h-40 object-contain bg-transparent"
+                            />
+                            <p className="text-white text-sm text-center">
+                                Créé par l'association<br/>
+                                <span className="font-bold">Play Thau'Gether</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            const renderList = () => {
+                const incrementRole = (roleKey) => {
+                    const totalSelected = Object.values(activeRoles).reduce((sum, count) => sum + count, 0);
+                    if (totalSelected < playerCount) {
+                        setActiveRoles(prev => ({
+                            ...prev,
+                            [roleKey]: (prev[roleKey] || 0) + 1
+                        }));
+                    }
+                };
+
+                const decrementRole = (roleKey) => {
+                    setActiveRoles(prev => {
+                        const newCount = (prev[roleKey] || 0) - 1;
+                        if (newCount <= 0) {
+                            const { [roleKey]: _, ...rest } = prev;
+                            return rest;
+                        }
+                        return { ...prev, [roleKey]: newCount };
+                    });
+                };
+
+                const totalSelected = Object.values(activeRoles).reduce((sum, count) => sum + count, 0);
+                const remaining = playerCount - totalSelected;
+
+                const rolesByTeam = {
+                    loups: Object.entries(ROLES).filter(([_, r]) => r.team === 'loups'),
+                    village: Object.entries(ROLES).filter(([_, r]) => r.team === 'village'),
+                    variable: Object.entries(ROLES).filter(([_, r]) => r.team === 'variable'),
+                    solo: Object.entries(ROLES).filter(([_, r]) => r.team === 'solo')
+                };
+
+                return (
+                    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-black p-6">
+                        <div className="max-w-6xl mx-auto">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-3xl font-bold text-white">⚙️ Sélection des rôles</h2>
+                                <button
+                                    onClick={() => setScreen('plan')}
+                                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2"
+                                >
+                                    Commencer ✓
+                                </button>
+                            </div>
+
+                            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-6 border border-white/20">
+                                <div className="flex justify-between items-center">
+                                    <p className="text-white">
+                                        <span className="font-bold text-2xl">{totalSelected}</span> / {playerCount} rôles sélectionnés
+                                    </p>
+                                    <p className={`text-xl font-bold ${remaining === 0 ? 'text-green-400' : 'text-yellow-400'}`}>
+                                        {remaining === 0 ? '✓ Complet' : `Reste ${remaining}`}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-6">
+                                {/* Loups */}
+                                <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-red-500/50">
+                                    <h3 className="text-2xl font-bold text-red-400 mb-4">🐺 Loups-Garous</h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        {rolesByTeam.loups.map(([key, role]) => {
+                                            const count = activeRoles[key] || 0;
+                                            return (
+                                                <div key={key} className={`p-4 rounded-lg border-2 ${
+                                                    count > 0 ? 'bg-red-600/30 border-red-400' : 'bg-white/5 border-white/20'
+                                                }`}>
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <div className="text-4xl text-center flex-1">{role.emoji}</div>
+                                                        <button
+                                                            onClick={() => setShowRoleInfo(showRoleInfo === key ? null : key)}
+                                                            className="text-blue-400 hover:text-blue-300 text-sm"
+                                                        >
+                                                            ℹ️
+                                                        </button>
+                                                    </div>
+                                                    <div className="text-white font-bold text-sm text-center mb-2">{role.name}</div>
+                                                    {showRoleInfo === key && (
+                                                        <div className="bg-black/50 p-2 rounded text-xs text-gray-300 mb-2">
+                                                            {role.description}
+                                                        </div>
+                                                    )}
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <button
+                                                            onClick={() => decrementRole(key)}
+                                                            disabled={count === 0}
+                                                            className="bg-red-700 hover:bg-red-600 disabled:bg-gray-600 text-white w-8 h-8 rounded font-bold"
+                                                        >
+                                                            -
+                                                        </button>
+                                                        <span className="text-white font-bold text-xl w-8 text-center">{count}</span>
+                                                        <button
+                                                            onClick={() => incrementRole(key)}
+                                                            disabled={remaining === 0}
+                                                            className="bg-green-700 hover:bg-green-600 disabled:bg-gray-600 text-white w-8 h-8 rounded font-bold"
+                                                        >
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* Village */}
+                                <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-blue-500/50">
+                                    <h3 className="text-2xl font-bold text-blue-400 mb-4">👨‍🌾 Village</h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        {rolesByTeam.village.map(([key, role]) => {
+                                            const count = activeRoles[key] || 0;
+                                            return (
+                                                <div key={key} className={`p-4 rounded-lg border-2 ${
+                                                    count > 0 ? 'bg-blue-600/30 border-blue-400' : 'bg-white/5 border-white/20'
+                                                }`}>
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <div className="text-4xl text-center flex-1">{role.emoji}</div>
+                                                        <button
+                                                            onClick={() => setShowRoleInfo(showRoleInfo === key ? null : key)}
+                                                            className="text-blue-400 hover:text-blue-300 text-sm"
+                                                        >
+                                                            ℹ️
+                                                        </button>
+                                                    </div>
+                                                    <div className="text-white font-bold text-sm text-center mb-2">{role.name}</div>
+                                                    {showRoleInfo === key && (
+                                                        <div className="bg-black/50 p-2 rounded text-xs text-gray-300 mb-2">
+                                                            {role.description}
+                                                        </div>
+                                                    )}
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <button
+                                                            onClick={() => decrementRole(key)}
+                                                            disabled={count === 0}
+                                                            className="bg-red-700 hover:bg-red-600 disabled:bg-gray-600 text-white w-8 h-8 rounded font-bold"
+                                                        >
+                                                            -
+                                                        </button>
+                                                        <span className="text-white font-bold text-xl w-8 text-center">{count}</span>
+                                                        <button
+                                                            onClick={() => incrementRole(key)}
+                                                            disabled={remaining === 0}
+                                                            className="bg-green-700 hover:bg-green-600 disabled:bg-gray-600 text-white w-8 h-8 rounded font-bold"
+                                                        >
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* Variables */}
+                                <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-yellow-500/50">
+                                    <h3 className="text-2xl font-bold text-yellow-400 mb-4">🔀 Variables</h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        {rolesByTeam.variable.map(([key, role]) => {
+                                            const count = activeRoles[key] || 0;
+                                            return (
+                                                <div key={key} className={`p-4 rounded-lg border-2 ${
+                                                    count > 0 ? 'bg-yellow-600/30 border-yellow-400' : 'bg-white/5 border-white/20'
+                                                }`}>
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <div className="text-4xl text-center flex-1">{role.emoji}</div>
+                                                        <button
+                                                            onClick={() => setShowRoleInfo(showRoleInfo === key ? null : key)}
+                                                            className="text-blue-400 hover:text-blue-300 text-sm"
+                                                        >
+                                                            ℹ️
+                                                        </button>
+                                                    </div>
+                                                    <div className="text-white font-bold text-sm text-center mb-2">{role.name}</div>
+                                                    {showRoleInfo === key && (
+                                                        <div className="bg-black/50 p-2 rounded text-xs text-gray-300 mb-2">
+                                                            {role.description}
+                                                        </div>
+                                                    )}
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <button
+                                                            onClick={() => decrementRole(key)}
+                                                            disabled={count === 0}
+                                                            className="bg-red-700 hover:bg-red-600 disabled:bg-gray-600 text-white w-8 h-8 rounded font-bold"
+                                                        >
+                                                            -
+                                                        </button>
+                                                        <span className="text-white font-bold text-xl w-8 text-center">{count}</span>
+                                                        <button
+                                                            onClick={() => incrementRole(key)}
+                                                            disabled={remaining === 0}
+                                                            className="bg-green-700 hover:bg-green-600 disabled:bg-gray-600 text-white w-8 h-8 rounded font-bold"
+                                                        >
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* Solo */}
+                                <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-purple-500/50">
+                                    <h3 className="text-2xl font-bold text-purple-400 mb-4">😈 Solo</h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        {rolesByTeam.solo.map(([key, role]) => {
+                                            const count = activeRoles[key] || 0;
+                                            return (
+                                                <div key={key} className={`p-4 rounded-lg border-2 ${
+                                                    count > 0 ? 'bg-purple-600/30 border-purple-400' : 'bg-white/5 border-white/20'
+                                                }`}>
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <div className="text-4xl text-center flex-1">{role.emoji}</div>
+                                                        <button
+                                                            onClick={() => setShowRoleInfo(showRoleInfo === key ? null : key)}
+                                                            className="text-blue-400 hover:text-blue-300 text-sm"
+                                                        >
+                                                            ℹ️
+                                                        </button>
+                                                    </div>
+                                                    <div className="text-white font-bold text-sm text-center mb-2">{role.name}</div>
+                                                    {showRoleInfo === key && (
+                                                        <div className="bg-black/50 p-2 rounded text-xs text-gray-300 mb-2">
+                                                            {role.description}
+                                                        </div>
+                                                    )}
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <button
+                                                            onClick={() => decrementRole(key)}
+                                                            disabled={count === 0}
+                                                            className="bg-red-700 hover:bg-red-600 disabled:bg-gray-600 text-white w-8 h-8 rounded font-bold"
+                                                        >
+                                                            -
+                                                        </button>
+                                                        <span className="text-white font-bold text-xl w-8 text-center">{count}</span>
+                                                        <button
+                                                            onClick={() => incrementRole(key)}
+                                                            disabled={remaining === 0}
+                                                            className="bg-green-700 hover:bg-green-600 disabled:bg-gray-600 text-white w-8 h-8 rounded font-bold"
+                                                        >
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                                
+                                {/* Logo Play Thau'Gether */}
+                                <div className="mt-8 flex flex-col items-center gap-3 opacity-70">
+                                    <img 
+                                        src="logo-ptg.png" 
+                                        alt="Play Thau'Gether" 
+                                        className="w-24 h-24 object-contain bg-transparent"
+                                    />
+                                    <p className="text-white text-xs text-center">
+                                        Créé par l'association <span className="font-bold">Play Thau'Gether</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
+
+            const renderPlan = () => {
+                const stats = getStats();
+                const radius = 40;
+                const centerX = 50;
+                const centerY = 60;
+                
+                // Fonction pour récupérer les joueurs avec un rôle donné
+                const getPlayersWithRole = (roleKey) => {
+                    if (roleKey === 'LOVER') {
+                        return players.filter(p => p.lover && p.alive);
+                    }
+                    if (roleKey === 'CHARMED') {
+                        return players.filter(p => p.enchanted && p.alive);
+                    }
+                    if (roleKey === 'LOUP') {
+                        return players.filter(p => (ROLES[p.role]?.team === 'loups' || p.isInfected) && p.alive);
+                    }
+                    return players.filter(p => p.role === roleKey && p.alive);
+                };
+                
+                // Définir nightOrder pour le panneau latéral
+                const nightOrder = {
+                    everyNight: [
+                        { role: 'COMEDIEN', name: 'Comédien' },
+                        { role: 'VOYANTE', name: 'Voyante' },
+                        { role: 'RENARD', name: 'Renard' },
+                        { role: 'SALVATORE', name: 'Salvateur' },
+                        { role: 'LOUP', name: 'Tous les Loups-Garous' },
+                        { role: 'GRAND_MECHANT_LOUP', name: 'Grand Méchant Loup' },
+                        { role: 'LOUP_BLANC', name: 'Loup Blanc' },
+                        { role: 'INFECT_PERE', name: 'Infect Père' },
+                        { role: 'SORCIERE', name: 'Sorcière' },
+                        { role: 'JOUEUR_FLUTE', name: 'Joueur de Flûte' },
+                        { role: 'CHARMED', name: 'Joueurs charmés' },
+                        { role: 'CORBEAU', name: 'Corbeau' }
+                    ]
+                };
+
+                return (
+                    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-black p-4">
+                        <div className="max-w-6xl mx-auto">
+                            {/* Header */}
+                            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-2 sm:p-4 mb-4 border border-white/20">
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+                                    <div className="flex flex-wrap gap-3 sm:gap-6 text-white items-center w-full sm:w-auto">
+                                        <div className="text-sm sm:text-base">🐺 Loups: <span className="font-bold">{stats.loups}</span></div>
+                                        <div className="text-sm sm:text-base">👨‍🌾 Village: <span className="font-bold">{stats.village}</span></div>
+                                        <div className="text-sm sm:text-base">💚 Vivants: <span className="font-bold">{stats.alive}</span></div>
+                                        <div className="text-sm sm:text-base">💀 Morts: <span className="font-bold">{stats.dead}</span></div>
+                                    </div>
+                                    
+                                    {/* Boutons */}
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => setShowNightOrder(true)}
+                                            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                                        >
+                                            📋 1ère nuit
+                                        </button>
+                                        <button
+                                            onClick={() => setScreen('list')}
+                                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+                                        >
+                                            🎭 Rôles
+                                        </button>
+                                        <button
+                                            onClick={resetGame}
+                                            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+                                        >
+                                            🔄 Reset
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Panneau "Chaque nuit" - Au-dessus du plan */}
+                            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-3 sm:p-4 mb-4 border border-white/20">
+                                <h3 className="text-lg sm:text-xl font-bold text-yellow-300 mb-2 sm:mb-3">🌙 Chaque nuit</h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-40 overflow-y-auto">
+                                    {nightOrder.everyNight.map((item, idx) => {
+                                        const rolePlayers = getPlayersWithRole(item.role);
+                                        if (rolePlayers.length === 0) return null;
+                                        
+                                        // Filtrer le Comédien si toutes ses cartes sont à 0
+                                        if (item.role === 'COMEDIEN') {
+                                            const hasCards = rolePlayers.some(p => p.comedienCards > 0);
+                                            if (!hasCards) return null;
+                                        }
+                                        
+                                        // Avertissement pour le Grand Méchant Loup si un loup est mort
+                                        let gmWarning = null;
+                                        if (item.role === 'GRAND_MECHANT_LOUP') {
+                                            const wolfDead = players.some(p => 
+                                                !p.alive && (
+                                                    ROLES[p.role]?.team === 'loups' ||
+                                                    p.role === 'LOUP_BLANC' ||
+                                                    p.isInfected ||
+                                                    (p.role === 'CHIEN_LOUP' && p.team === 'loups')
+                                                )
+                                            );
+                                            if (wolfDead) {
+                                                gmWarning = '⚠️ PLUS DE 2ème VOTE !';
+                                            }
+                                        }
+                                        
+                                        return (
+                                            <div key={idx} className="bg-white/5 p-2 rounded text-xs">
+                                                <div className="text-white font-bold truncate">
+                                                    {idx + 1}. {item.name}
+                                                </div>
+                                                {gmWarning && (
+                                                    <div className="text-red-400 font-bold text-[10px]">{gmWarning}</div>
+                                                )}
+                                                <div className="text-yellow-300 text-[10px] truncate">
+                                                    {rolePlayers.map(p => p.name).join(', ')}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Plan circulaire */}
+                            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
+                                <svg viewBox="0 0 100 120" className="w-full h-auto">
+                                    {/* Définition de la flèche */}
+                                    <defs>
+                                        <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto">
+                                            <polygon points="0 0, 10 3, 0 6" fill="rgb(168, 85, 247)" />
+                                        </marker>
+                                    </defs>
+                                    
+                                    {/* Table centrale */}
+                                    <circle cx={centerX} cy={centerY} r="15" fill="rgba(139, 92, 246, 0.3)" stroke="rgba(255,255,255,0.5)" strokeWidth="0.5" />
+                                    
+                                    {/* Timer au centre - affichage seulement */}
+                                    {/* Timer au centre - design minimaliste */}
+                                    <g>
+                                        {/* Temps - cliquable pour ouvrir config */}
+                                        <text
+                                            x={centerX}
+                                            y={centerY - 2}
+                                            textAnchor="middle"
+                                            className="text-[6px] fill-white font-bold cursor-pointer hover:fill-purple-300"
+                                            onClick={() => setShowTimerConfig(true)}
+                                            style={{cursor: 'pointer'}}
+                                        >
+                                            {String(timerMinutes).padStart(2, '0')}:{String(timerSeconds).padStart(2, '0')}
+                                        </text>
+                                        
+                                        {/* Boutons Play/Pause et Stop - minimalistes */}
+                                        <g>
+                                            {/* Bouton Play/Pause */}
+                                            <text
+                                                x={centerX - 5}
+                                                y={centerY + 7}
+                                                textAnchor="middle"
+                                                className="text-[4px] fill-white cursor-pointer hover:fill-green-400"
+                                                onClick={() => setIsTimerRunning(!isTimerRunning)}
+                                                style={{cursor: 'pointer'}}
+                                            >
+                                                {isTimerRunning ? '⏸' : '▶'}
+                                            </text>
+                                            
+                                            {/* Bouton Stop (reset) */}
+                                            <text
+                                                x={centerX + 5}
+                                                y={centerY + 7}
+                                                textAnchor="middle"
+                                                className="text-[4px] fill-white cursor-pointer hover:fill-orange-400"
+                                                onClick={() => {
+                                                    setIsTimerRunning(false);
+                                                    const initialMinutes = parseInt(localStorage.getItem('timerInitialMinutes') || '5');
+                                                    const initialSeconds = parseInt(localStorage.getItem('timerInitialSeconds') || '0');
+                                                    setTimerMinutes(initialMinutes);
+                                                    setTimerSeconds(initialSeconds);
+                                                }}
+                                                style={{cursor: 'pointer'}}
+                                            >
+                                                ⏹
+                                            </text>
+                                        </g>
+                                    </g>
+                                    
+                                    {/* Lignes entre amoureux */}
+                                    {players.filter(p => p.lover && p.loverId).map(p => {
+                                        const lover = players.find(pl => pl.id === p.loverId);
+                                        if (!lover || p.id > lover.id) return null;
+                                        
+                                        const angle1 = (360 / players.length) * (p.id - 1) - 90;
+                                        const angle2 = (360 / players.length) * (lover.id - 1) - 90;
+                                        const x1 = centerX + radius * Math.cos((angle1 * Math.PI) / 180);
+                                        const y1 = centerY + radius * Math.sin((angle1 * Math.PI) / 180);
+                                        const x2 = centerX + radius * Math.cos((angle2 * Math.PI) / 180);
+                                        const y2 = centerY + radius * Math.sin((angle2 * Math.PI) / 180);
+                                        
+                                        return (
+                                            <line
+                                                key={`love-${p.id}-${lover.id}`}
+                                                x1={x1}
+                                                y1={y1}
+                                                x2={x2}
+                                                y2={y2}
+                                                stroke="rgb(236, 72, 153)"
+                                                strokeWidth="0.3"
+                                                strokeDasharray="1,0.5"
+                                            />
+                                        );
+                                    })}
+
+                                    {/* Flèche Ange Déchu vers sa cible */}
+                                    {players.filter(p => p.role === 'ANGE_DECHU' && p.angelTarget).map(p => {
+                                        const target = players.find(pl => pl.id === p.angelTarget);
+                                        if (!target) return null;
+                                        
+                                        const angle1 = (360 / players.length) * (p.id - 1) - 90;
+                                        const angle2 = (360 / players.length) * (target.id - 1) - 90;
+                                        const x1 = centerX + radius * Math.cos((angle1 * Math.PI) / 180);
+                                        const y1 = centerY + radius * Math.sin((angle1 * Math.PI) / 180);
+                                        const x2 = centerX + radius * Math.cos((angle2 * Math.PI) / 180);
+                                        const y2 = centerY + radius * Math.sin((angle2 * Math.PI) / 180);
+                                        
+                                        return (
+                                            <line
+                                                key={`angel-${p.id}-${target.id}`}
+                                                x1={x1}
+                                                y1={y1}
+                                                x2={x2}
+                                                y2={y2}
+                                                stroke="rgb(168, 85, 247)"
+                                                strokeWidth="0.4"
+                                                strokeDasharray="2,1"
+                                                markerEnd="url(#arrowhead)"
+                                            />
+                                        );
+                                    })}
+
+                                    {/* Joueurs */}
+                                    {players.map((player, index) => {
+                                        const angle = (360 / players.length) * index - 90;
+                                        const x = centerX + radius * Math.cos((angle * Math.PI) / 180);
+                                        const y = centerY + radius * Math.sin((angle * Math.PI) / 180);
+                                        const role = ROLES[player.role];
+                                        
+                                        // Déterminer si le joueur est devenu loup
+                                        const isTransformedToWolf = player.isInfected || 
+                                            (player.role === 'ENFANT_SAUVAGE' && player.model && !players.find(pl => pl.id === player.model)?.alive) ||
+                                            (player.role === 'CHIEN_LOUP' && player.team === 'loups');
+                                        
+                                        // Si Chien-Loup devient village, on force l'équipe village
+                                        const actualTeam = (player.role === 'CHIEN_LOUP' && player.team === 'village') ? 'village' : 
+                                                          (isTransformedToWolf ? 'loups' : role?.team);
+                                        
+                                        const teamColor = player.alive ? actualTeam : 'dead';
+
+                                        let fillColor, strokeColor;
+                                        if (!player.alive) {
+                                            fillColor = 'rgba(107, 114, 128, 0.3)';
+                                            strokeColor = 'rgb(107, 114, 128)';
+                                        } else if (teamColor === 'loups') {
+                                            fillColor = 'rgba(239, 68, 68, 0.3)';
+                                            strokeColor = 'rgb(239, 68, 68)';
+                                        } else if (teamColor === 'village') {
+                                            fillColor = 'rgba(34, 197, 94, 0.3)';
+                                            strokeColor = 'rgb(34, 197, 94)';
+                                        } else if (teamColor === 'solo') {
+                                            fillColor = 'rgba(168, 85, 247, 0.3)';
+                                            strokeColor = 'rgb(168, 85, 247)';
+                                        } else {
+                                            fillColor = 'rgba(234, 179, 8, 0.3)';
+                                            strokeColor = 'rgb(234, 179, 8)';
+                                        }
+
+                                        return (
+                                            <g key={player.id} onClick={() => setSelectedPlayer(player.id)}>
+                                                {/* Cercle joueur */}
+                                                <circle
+                                                    cx={x}
+                                                    cy={y}
+                                                    r="4"
+                                                    className="cursor-pointer"
+                                                    fill={fillColor}
+                                                    stroke={strokeColor}
+                                                    strokeWidth="0.5"
+                                                    opacity={player.alive ? "1" : "0.5"}
+                                                />
+                                                
+                                                {/* Nom */}
+                                                <text
+                                                    x={x}
+                                                    y={y - 5.5}
+                                                    textAnchor="middle"
+                                                    className="text-[3.5px] fill-white font-bold pointer-events-none"
+                                                    style={{fontSize: players.length > 23 ? '2.4px' : players.length > 19 ? '2.6px' : players.length > 15 ? '2.8px' : players.length > 12 ? '3.2px' : '3.5px'}}
+                                                >
+                                                    {player.name.length > 13 ? player.name.substring(0, 13) + '.' : player.name}
+                                                </text>
+                                                
+                                                {/* Emoji rôle */}
+                                                <text
+                                                    x={x}
+                                                    y={y + 1}
+                                                    textAnchor="middle"
+                                                    className="text-[4px] pointer-events-none"
+                                                >
+                                                    {player.alive ? (player.role ? role?.emoji : '❓') : '💀'}
+                                                </text>
+
+                                                {/* Indicateurs */}
+                                                {player.protected && (
+                                                    <text x={x - 2.5} y={y - 2} textAnchor="middle" className="text-[2.5px]">🛡️</text>
+                                                )}
+                                                {player.cursed && (
+                                                    <text x={x + 2.5} y={y - 2} textAnchor="middle" className="text-[2.5px]">🦅</text>
+                                                )}
+                                                {player.enchanted && (
+                                                    <text x={x + 2.5} y={y - 1.5} className="text-[2px]">🎵</text>
+                                                )}
+                                                {player.seenByVoyante && player.alive && (
+                                                    <text x={x} y={y + 6.5} textAnchor="middle" className="text-[2px]">👁️</text>
+                                                )}
+                                                {player.bearGrowl && (
+                                                    <>
+                                                        <circle cx={x} cy={y} r="5" fill="none" stroke="rgb(249, 115, 22)" strokeWidth="0.4" className="animate-pulse" />
+                                                        <text x={x} y={y + 7} textAnchor="middle" className="text-[2.5px] fill-orange-500 font-bold">GROGNE</text>
+                                                    </>
+                                                )}
+                                                {player.role === 'ANCIEN' && player.lives === 1 && player.alive && (
+                                                    <text x={x} y={y + 5} textAnchor="middle" className="text-[2px]">⚠️</text>
+                                                )}
+                                                
+                                                {/* Indicateur Enfant Sauvage transformé */}
+                                                {player.role === 'ENFANT_SAUVAGE' && player.model && !players.find(pl => pl.id === player.model)?.alive && (
+                                                    <text x={x - 3} y={y - 2} textAnchor="middle" className="text-[2.5px]">🐺</text>
+                                                )}
+                                                
+                                                {/* Indicateur joueur infecté */}
+                                                {player.isInfected && player.alive && (
+                                                    <text x={x + 3} y={y - 2} textAnchor="middle" className="text-[2.5px]">🐺</text>
+                                                )}
+                                                
+                                                {/* Indicateur Maire */}
+                                                {player.isMayor && player.alive && (
+                                                    <text x={x} y={y - 8} textAnchor="middle" className="text-[3px]">👑</text>
+                                                )}
+                                                
+                                                {/* Indicateur Chien-Loup camp choisi */}
+                                                {player.role === 'CHIEN_LOUP' && player.team === 'loups' && (
+                                                    <text x={x - 3} y={y + 3} textAnchor="middle" className="text-[2.5px]">🐺</text>
+                                                )}
+                                                {player.role === 'CHIEN_LOUP' && player.team === 'village' && (
+                                                    <text x={x - 3} y={y + 3} textAnchor="middle" className="text-[2.5px]">👨‍🌾</text>
+                                                )}
+                                                
+                                                {/* Indicateurs pouvoirs utilisés */}
+                                                {player.role === 'SORCIERE' && !player.potionLife && !player.potionDeath && (
+                                                    <text x={x + 3} y={y + 3} textAnchor="middle" className="text-[2px]">🧪❌</text>
+                                                )}
+                                                {player.role === 'INFECT_PERE' && player.infected && (
+                                                    <text x={x + 3} y={y + 3} textAnchor="middle" className="text-[2.5px]">🦠❌</text>
+                                                )}
+                                                {player.role === 'RENARD' && !player.foxPower && (
+                                                    <text x={x + 3} y={y + 3} textAnchor="middle" className="text-[2.5px]">🦊❌</text>
+                                                )}
+                                                {player.role === 'IDIOT' && !player.idiotProtection && (
+                                                    <text x={x + 3} y={y + 3} textAnchor="middle" className="text-[2.5px]">🤪❌</text>
+                                                )}
+                                                {player.role === 'IDIOT' && player.idiotCantVote && player.alive && (
+                                                    <text x={x - 3} y={y - 2} textAnchor="middle" className="text-[2.5px]">❌</text>
+                                                )}
+                                                
+                                                {/* Grand Méchant Loup - pouvoir perdu si loup mort */}
+                                                {player.role === 'GRAND_MECHANT_LOUP' && !player.doublePower && player.alive && (
+                                                    <text x={x - 3} y={y + 3} textAnchor="middle" className="text-[2.5px]">👹❌</text>
+                                                )}
+                                                
+                                                {/* Comédien cartes */}
+                                                {player.role === 'COMEDIEN' && player.alive && (
+                                                    <text x={x} y={y + 5.5} textAnchor="middle" className="text-[2px]">
+                                                        {'🃏'.repeat(player.comedienCards || 0)}
+                                                    </text>
+                                                )}
+                                                {player.role === 'COMEDIEN' && player.comedienCards === 0 && player.alive && (
+                                                    <text x={x + 3} y={y + 3} textAnchor="middle" className="text-[2.5px]">🎭❌</text>
+                                                )}
+
+                                                {/* Potions sorcière */}
+                                                {player.role === 'SORCIERE' && (
+                                                    <text x={x} y={y + 5.5} textAnchor="middle" className="text-[2px]">
+                                                        {player.potionLife ? '💚' : ''}{player.potionDeath ? '☠️' : ''}
+                                                    </text>
+                                                )}
+                                            </g>
+                                        );
+                                    })}
+                                </svg>
+                            </div>
+
+                            {/* Panneau joueur sélectionné */}
+                            {selectedPlayer && (() => {
+                                const player = players.find(p => p.id === selectedPlayer);
+                                const role = ROLES[player.role];
+                                
+                                return (
+                                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setSelectedPlayer(null)}>
+                                        <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 max-w-md w-full border border-white/20 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div className="flex-1">
+                                                    {/* Édition du nom avec micro */}
+                                                    <div className="flex gap-2 mb-2">
+                                                        <input
+                                                            type="text"
+                                                            value={player.name}
+                                                            onChange={(e) => updatePlayer(player.id, { name: e.target.value })}
+                                                            className="text-2xl font-bold text-white bg-white/10 px-2 py-1 rounded border border-white/20 flex-1"
+                                                            placeholder="Entrer un prénom..."
+                                                        />
+                                                        {recognition && (
+                                                            <button
+                                                                onClick={() => isListening ? stopVoiceRecognition() : startVoiceRecognition(player.id)}
+                                                                className={`px-3 py-1 rounded ${isListening ? 'bg-red-600 animate-pulse' : 'bg-purple-600 hover:bg-purple-700'} text-white font-bold text-xl`}
+                                                                title={isListening ? 'Cliquez pour arrêter' : 'Cliquez et parlez'}
+                                                            >
+                                                                {isListening ? '⏹️' : '🎤'}
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                    {isListening && (
+                                                        <p className="text-yellow-300 text-sm mb-2 animate-pulse">
+                                                            🎤 Parlez maintenant...
+                                                        </p>
+                                                    )}
+                                                    <p className="text-purple-300">
+                                                        {player.role ? `${role?.emoji} ${role?.name}` : '❓ Rôle non défini'}
+                                                    </p>
+                                                    
+                                                    {/* Changement de rôle */}
+                                                    <select
+                                                        value={player.role || ''}
+                                                        onChange={(e) => {
+                                                            if (e.target.value) {
+                                                                setPlayerRole(player.id, e.target.value);
+                                                            }
+                                                        }}
+                                                        className="mt-2 bg-gray-800 text-white px-3 py-2 rounded text-sm w-full border border-purple-500"
+                                                        style={{color: 'white', backgroundColor: '#1f2937'}}
+                                                    >
+                                                        <option value="" style={{color: 'white', backgroundColor: '#374151'}}>
+                                                            -- Choisir un rôle --
+                                                        </option>
+                                                        {Object.entries(ROLES)
+                                                            .filter(([key]) => Object.keys(activeRoles).length === 0 || activeRoles[key] > 0)
+                                                            .map(([key, r]) => (
+                                                                <option key={key} value={key} style={{color: 'white', backgroundColor: '#374151'}}>
+                                                                    {r.emoji} {r.name}
+                                                                </option>
+                                                            ))
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <button
+                                                    onClick={() => setSelectedPlayer(null)}
+                                                    className="text-white hover:text-red-400 text-2xl ml-2"
+                                                >
+                                                    ✕
+                                                </button>
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                {/* Statut vie/mort */}
+                                                <button
+                                                    onClick={() => toggleAlive(player.id)}
+                                                    className={`w-full py-3 rounded-lg font-bold ${player.alive ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 hover:bg-gray-700'} text-white`}
+                                                >
+                                                    {player.alive ? '💚 VIVANT' : '💀 MORT'}
+                                                </button>
+                                                
+                                                {/* Bouton Maire */}
+                                                <button
+                                                    onClick={() => {
+                                                        setPlayers(prev => prev.map(p => ({
+                                                            ...p,
+                                                            isMayor: p.id === player.id ? !p.isMayor : false
+                                                        })));
+                                                    }}
+                                                    className={`w-full py-2 rounded-lg font-bold ${player.isMayor ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-white/10 hover:bg-white/20'} text-white`}
+                                                >
+                                                    👑 {player.isMayor ? 'MAIRE' : 'Nommer Maire'}
+                                                </button>
+
+                                                {/* Bouton spécial si ciblé par Ange Déchu */}
+                                                {(() => {
+                                                    const angelDechu = players.find(p => p.role === 'ANGE_DECHU' && p.angelTarget === player.id);
+                                                    if (angelDechu) {
+                                                        return (
+                                                            <button
+                                                                onClick={() => {
+                                                                    updatePlayer(player.id, { firstTurnDeath: true });
+                                                                    setVictoryModal({
+                                                                        title: '🎉 VICTOIRE DE L\'ANGE DÉCHU ! 😈',
+                                                                        message: player.name + ' est mort au premier tour !\n' + angelDechu.name + ' remporte la victoire !'
+                                                                    });
+                                                                }}
+                                                                className="w-full py-3 rounded-lg font-bold bg-purple-600 hover:bg-purple-700 text-white"
+                                                            >
+                                                                😈 Mort 1er tour (Cible de {angelDechu.name})
+                                                            </button>
+                                                        );
+                                                    }
+                                                    return null;
+                                                })()}
+
+                                                {/* Pouvoirs spécifiques - seulement si un rôle est défini */}
+                                                {player.role && (
+                                                    <>
+                                                {player.role === 'SORCIERE' && (
+                                                    <div className="bg-white/5 p-3 rounded-lg">
+                                                        <p className="text-white font-bold mb-2">Potions</p>
+                                                        <div className="flex gap-2">
+                                                            <button
+                                                                onClick={() => updatePlayer(player.id, { potionLife: !player.potionLife })}
+                                                                className={`flex-1 py-2 rounded ${player.potionLife ? 'bg-green-600' : 'bg-gray-600'} text-white`}
+                                                            >
+                                                                💚 Vie
+                                                            </button>
+                                                            <button
+                                                                onClick={() => updatePlayer(player.id, { potionDeath: !player.potionDeath })}
+                                                                className={`flex-1 py-2 rounded ${player.potionDeath ? 'bg-red-600' : 'bg-gray-600'} text-white`}
+                                                            >
+                                                                ☠️ Mort
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {player.role === 'ANCIEN' && (
+                                                    <div className="bg-white/5 p-3 rounded-lg">
+                                                        <p className="text-white">Vies: {player.lives === 2 ? '❤️❤️' : player.lives === 1 ? '❤️' : '💀'}</p>
+                                                        <button
+                                                            onClick={() => updatePlayer(player.id, { lives: Math.max(0, player.lives - 1) })}
+                                                            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded mt-2 w-full"
+                                                        >
+                                                            Perdre une vie
+                                                        </button>
+                                                    </div>
+                                                )}
+
+                                                {player.role === 'CUPIDON' && (
+                                                    <div className="bg-white/5 p-3 rounded-lg">
+                                                        <p className="text-white font-bold mb-2">Sélectionner les amoureux</p>
+                                                        <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+                                                            {players.filter(p => p.id !== player.id).map(p => (
+                                                                <button
+                                                                    key={p.id}
+                                                                    onClick={() => {
+                                                                        if (p.lover) {
+                                                                            // Décocher ce joueur
+                                                                            const otherId = p.loverId;
+                                                                            setPlayers(prev => prev.map(pl => {
+                                                                                if (pl.id === p.id || pl.id === otherId) {
+                                                                                    return { ...pl, lover: false, loverId: null };
+                                                                                }
+                                                                                return pl;
+                                                                            }));
+                                                                            updatePlayer(player.id, { loverId: null });
+                                                                        } else {
+                                                                            // Cocher ce joueur
+                                                                            const currentLover = player.loverId;
+                                                                            if (!currentLover) {
+                                                                                updatePlayer(player.id, { loverId: p.id });
+                                                                            } else if (currentLover !== p.id) {
+                                                                                setLovers(currentLover, p.id);
+                                                                                updatePlayer(player.id, { loverId: null });
+                                                                            }
+                                                                        }
+                                                                    }}
+                                                                    className={`py-2 rounded text-sm ${p.lover ? 'bg-pink-600 text-white' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
+                                                                >
+                                                                    {p.name} {p.lover ? '💘' : ''}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {player.role === 'VOLEUR' && (
+                                                    <div className="bg-white/5 p-3 rounded-lg">
+                                                        <p className="text-white font-bold mb-2">🃏 Voleur - Choisir un rôle</p>
+                                                        <p className="text-gray-300 text-xs mb-2">Le meneur a 2 cartes non distribuées. Choisis-en une.</p>
+                                                        <select
+                                                            value=""
+                                                            onChange={(e) => {
+                                                                if (e.target.value) {
+                                                                    const newRole = e.target.value;
+                                                                    // Changer complètement le rôle du joueur
+                                                                    setPlayers(prev => prev.map(p => {
+                                                                        if (p.id === player.id) {
+                                                                            return {
+                                                                                ...p,
+                                                                                role: newRole,
+                                                                                // Réinitialiser les propriétés spécifiques
+                                                                                team: newRole === 'CHIEN_LOUP' ? null : p.team
+                                                                            };
+                                                                        }
+                                                                        return p;
+                                                                    }));
+                                                                }
+                                                            }}
+                                                            className="w-full bg-gray-700 text-white px-3 py-2 rounded"
+                                                            style={{color: 'white'}}
+                                                        >
+                                                            <option value="" style={{color: 'black'}}>-- Choisir parmi les 2 cartes --</option>
+                                                            {Object.entries(ROLES)
+                                                                .filter(([key]) => key !== 'VOLEUR')
+                                                                .map(([key, r]) => (
+                                                                    <option key={key} value={key} style={{color: 'black'}}>
+                                                                        {r.emoji} {r.name}
+                                                                    </option>
+                                                                ))
+                                                            }
+                                                        </select>
+                                                        <p className="text-yellow-300 text-xs mt-2">
+                                                            ⚠️ Une fois choisi, tu deviens ce personnage avec tous ses pouvoirs !
+                                                        </p>
+                                                    </div>
+                                                )}
+
+                                                {player.role === 'VOYANTE' && (
+                                                    <div className="bg-white/5 p-3 rounded-lg">
+                                                        <p className="text-white font-bold mb-2">🔮 Joueurs vus par la Voyante</p>
+                                                        <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+                                                            {players.filter(p => p.id !== player.id && p.alive).map(p => (
+                                                                <button
+                                                                    key={p.id}
+                                                                    onClick={() => updatePlayer(p.id, { seenByVoyante: !p.seenByVoyante })}
+                                                                    className={`py-2 rounded text-sm ${p.seenByVoyante ? 'bg-blue-600 text-white' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
+                                                                >
+                                                                    {p.name} {p.seenByVoyante ? '👁️' : ''}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {player.role === 'SALVATORE' && (
+                                                    <div className="bg-white/5 p-3 rounded-lg">
+                                                        <p className="text-white font-bold mb-2">Protéger un joueur (clic pour décocher)</p>
+                                                        <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+                                                            {players.filter(p => p.alive).map(p => (
+                                                                <button
+                                                                    key={p.id}
+                                                                    onClick={() => {
+                                                                        if (p.protected) {
+                                                                            // Décocher
+                                                                            setPlayers(prev => prev.map(pl => ({
+                                                                                ...pl,
+                                                                                protected: false
+                                                                            })));
+                                                                        } else {
+                                                                            // Cocher
+                                                                            setPlayers(prev => prev.map(pl => ({
+                                                                                ...pl,
+                                                                                protected: pl.id === p.id
+                                                                            })));
+                                                                        }
+                                                                    }}
+                                                                    className={`py-2 rounded text-sm ${p.protected ? 'bg-green-600 text-white' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
+                                                                >
+                                                                    {p.name} {p.protected ? '🛡️' : ''}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {player.role === 'CORBEAU' && (
+                                                    <div className="bg-white/5 p-3 rounded-lg">
+                                                        <p className="text-white font-bold mb-2">Maudire un joueur (2 voix)</p>
+                                                        <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+                                                            {players.filter(p => p.id !== player.id && p.alive).map(p => (
+                                                                <button
+                                                                    key={p.id}
+                                                                    onClick={() => {
+                                                                        if (p.cursed) {
+                                                                            // Décocher
+                                                                            setPlayers(prev => prev.map(pl => ({
+                                                                                ...pl,
+                                                                                cursed: false
+                                                                            })));
+                                                                        } else {
+                                                                            // Cocher
+                                                                            setPlayers(prev => prev.map(pl => ({
+                                                                                ...pl,
+                                                                                cursed: pl.id === p.id
+                                                                            })));
+                                                                        }
+                                                                    }}
+                                                                    className={`py-2 rounded text-sm ${p.cursed ? 'bg-purple-600 text-white' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
+                                                                >
+                                                                    {p.name} {p.cursed ? '🦅' : ''}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {player.role === 'JOUEUR_FLUTE' && (() => {
+                                                    const alivePlayersCount = players.filter(p => p.alive && p.id !== player.id).length;
+                                                    const enchantedCount = players.filter(p => p.enchanted && p.alive && p.id !== player.id).length;
+                                                    const allEnchanted = alivePlayersCount > 0 && alivePlayersCount === enchantedCount;
+                                                    
+                                                    return (
+                                                        <div className="bg-white/5 p-3 rounded-lg">
+                                                            <p className="text-white font-bold mb-2">🎵 Enchanter des joueurs</p>
+                                                            <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+                                                                {players.filter(p => p.id !== player.id && p.alive).map(p => (
+                                                                    <button
+                                                                        key={p.id}
+                                                                        onClick={() => updatePlayer(p.id, { enchanted: !p.enchanted })}
+                                                                        className={`py-2 rounded text-sm ${p.enchanted ? 'bg-purple-600 text-white' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
+                                                                    >
+                                                                        {p.name} {p.enchanted ? '🎵' : ''}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                            <p className={`mt-2 text-sm font-bold ${allEnchanted ? 'text-green-400' : 'text-white'}`}>
+                                                                Enchantés: {enchantedCount} / {alivePlayersCount}
+                                                            </p>
+                                                            {allEnchanted && (
+                                                                <button
+                                                                    onClick={() => {
+                                                                        setVictoryModal({
+                                                                            title: '🎉 VICTOIRE DU JOUEUR DE FLÛTE ! 🎵',
+                                                                            message: player.name + ' a enchanté tous les joueurs vivants !'
+                                                                        });
+                                                                    }}
+                                                                    className="w-full mt-2 py-2 rounded bg-green-600 hover:bg-green-700 text-white font-bold animate-pulse"
+                                                                >
+                                                                    ✅ TOUS ENCHANTÉS - VICTOIRE !
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })()}
+
+                                                {player.role === 'MONTREUR_OURS' && (() => {
+                                                    // Trouver le voisin de GAUCHE VIVANT
+                                                    let leftNeighbor = null;
+                                                    let leftIndex = players.findIndex(p => p.id === player.id);
+                                                    for (let i = 1; i <= players.length; i++) {
+                                                        const idx = (leftIndex - i + players.length) % players.length;
+                                                        if (players[idx].alive && players[idx].id !== player.id) {
+                                                            leftNeighbor = players[idx];
+                                                            break;
+                                                        }
+                                                    }
+                                                    
+                                                    // Trouver le voisin de DROITE VIVANT
+                                                    let rightNeighbor = null;
+                                                    let rightIndex = players.findIndex(p => p.id === player.id);
+                                                    for (let i = 1; i <= players.length; i++) {
+                                                        const idx = (rightIndex + i) % players.length;
+                                                        if (players[idx].alive && players[idx].id !== player.id) {
+                                                            rightNeighbor = players[idx];
+                                                            break;
+                                                        }
+                                                    }
+                                                    
+                                                    // Vérifier si un voisin VIVANT est loup
+                                                    const isLeftWolf = leftNeighbor && (
+                                                        ROLES[leftNeighbor.role]?.team === 'loups' || 
+                                                        leftNeighbor.role === 'LOUP_BLANC' ||
+                                                        leftNeighbor.isInfected ||
+                                                        (leftNeighbor.role === 'CHIEN_LOUP' && leftNeighbor.team === 'loups') ||
+                                                        (leftNeighbor.role === 'ENFANT_SAUVAGE' && leftNeighbor.model && !players.find(pl => pl.id === leftNeighbor.model)?.alive)
+                                                    );
+                                                    
+                                                    const isRightWolf = rightNeighbor && (
+                                                        ROLES[rightNeighbor.role]?.team === 'loups' || 
+                                                        rightNeighbor.role === 'LOUP_BLANC' ||
+                                                        rightNeighbor.isInfected ||
+                                                        (rightNeighbor.role === 'CHIEN_LOUP' && rightNeighbor.team === 'loups') ||
+                                                        (rightNeighbor.role === 'ENFANT_SAUVAGE' && rightNeighbor.model && !players.find(pl => pl.id === rightNeighbor.model)?.alive)
+                                                    );
+                                                    
+                                                    const shouldGrowl = isLeftWolf || isRightWolf;
+                                                    
+                                                    return (
+                                                        <div className="bg-white/5 p-3 rounded-lg">
+                                                            <p className="text-white font-bold mb-2">🐻 Montreur d'Ours</p>
+                                                            <div className={`p-3 rounded ${shouldGrowl ? 'bg-orange-600 animate-pulse' : 'bg-gray-600'}`}>
+                                                                <p className="text-white text-center font-bold">
+                                                                    {shouldGrowl ? '🐻 GROGNE ! Loup voisin détecté' : '🐻 Silence... Pas de loup voisin'}
+                                                                </p>
+                                                                <p className="text-white text-xs mt-2">
+                                                                    Voisin gauche : {leftNeighbor?.name || 'Aucun'} {isLeftWolf ? '🐺' : '✅'}
+                                                                </p>
+                                                                <p className="text-white text-xs">
+                                                                    Voisin droit : {rightNeighbor?.name || 'Aucun'} {isRightWolf ? '🐺' : '✅'}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })()}
+
+                                                {player.role === 'CHIEN_LOUP' && (
+                                                    <div className="bg-white/5 p-3 rounded-lg">
+                                                        <p className="text-white font-bold mb-2">Choisir le camp</p>
+                                                        <div className="flex gap-2">
+                                                            <button
+                                                                onClick={() => updatePlayer(player.id, { team: player.team === 'village' ? null : 'village' })}
+                                                                className={`flex-1 py-2 rounded ${player.team === 'village' ? 'bg-green-600' : 'bg-white/10'} text-white`}
+                                                            >
+                                                                👨‍🌾 Village
+                                                            </button>
+                                                            <button
+                                                                onClick={() => updatePlayer(player.id, { team: player.team === 'loups' ? null : 'loups' })}
+                                                                className={`flex-1 py-2 rounded ${player.team === 'loups' ? 'bg-red-600' : 'bg-white/10'} text-white`}
+                                                            >
+                                                                🐺 Loups
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {player.role === 'ENFANT_SAUVAGE' && (
+                                                    <div className="bg-white/5 p-3 rounded-lg">
+                                                        <p className="text-white font-bold mb-2">Choisir le modèle</p>
+                                                        <select
+                                                            value={player.model || ''}
+                                                            onChange={(e) => updatePlayer(player.id, { model: parseInt(e.target.value) || null })}
+                                                            className="w-full bg-gray-700 text-white px-3 py-2 rounded"
+                                                            style={{color: 'white'}}
+                                                        >
+                                                            <option value="" style={{color: 'black'}}>Aucun</option>
+                                                            {players.filter(p => p.id !== player.id).map(p => (
+                                                                <option key={p.id} value={p.id} style={{color: 'black'}}>{p.name}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                )}
+
+                                                {player.role === 'ANGE' && (
+                                                    <div className="bg-white/5 p-3 rounded-lg">
+                                                        <p className="text-white font-bold mb-2">😇 Ange</p>
+                                                        <p className="text-gray-300 text-sm mb-2">Doit mourir au 1er tour par VOTE pour gagner</p>
+                                                        <button
+                                                            onClick={() => {
+                                                                updatePlayer(player.id, { firstTurnDeath: true });
+                                                                setVictoryModal({
+                                                                    title: '🎉 VICTOIRE DE L\'ANGE ! 😇',
+                                                                    message: player.name + ' a réussi à se faire éliminer au premier tour par vote !'
+                                                                });
+                                                            }}
+                                                            className="w-full py-2 rounded bg-yellow-600 hover:bg-yellow-700 text-white font-bold"
+                                                        >
+                                                            💀 Mort 1er tour (VOTE)
+                                                        </button>
+                                                    </div>
+                                                )}
+
+                                                {player.role === 'ANGE_DECHU' && (
+                                                    <div className="bg-white/5 p-3 rounded-lg">
+                                                        <p className="text-white font-bold mb-2">😈 Ange Déchu</p>
+                                                        <p className="text-gray-300 text-sm mb-2">Désigne 1 joueur. Gagne si ce joueur meurt au 1er tour</p>
+                                                        <select
+                                                            value={player.angelTarget || ''}
+                                                            onChange={(e) => updatePlayer(player.id, { angelTarget: parseInt(e.target.value) || null })}
+                                                            className="w-full bg-gray-700 text-white px-3 py-2 rounded"
+                                                            style={{color: 'white'}}
+                                                        >
+                                                            <option value="" style={{color: 'black'}}>-- Choisir une cible --</option>
+                                                            {players.filter(p => p.id !== player.id).map(p => (
+                                                                <option key={p.id} value={p.id} style={{color: 'black'}}>{p.name}</option>
+                                                            ))}
+                                                        </select>
+                                                        {player.angelTarget && (
+                                                            <p className="text-purple-300 text-sm mt-2">
+                                                                Cible : {players.find(p => p.id === player.angelTarget)?.name} 
+                                                                <br/>
+                                                                <span className="text-xs">Le bouton "Mort 1er tour" est dans le menu de {players.find(p => p.id === player.angelTarget)?.name}</span>
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                )}
+
+                                                {player.role === 'IDIOT' && (
+                                                    <button
+                                                        onClick={() => updatePlayer(player.id, { 
+                                                            idiotProtection: !player.idiotProtection,
+                                                            idiotCantVote: !player.idiotProtection ? true : false
+                                                        })}
+                                                        className={`w-full py-2 rounded ${player.idiotProtection ? 'bg-yellow-600' : 'bg-gray-600'} text-white`}
+                                                    >
+                                                        🤪 Protection active {!player.idiotProtection && '(❌ Ne peut plus voter)'}
+                                                    </button>
+                                                )}
+
+                                                {player.role === 'COMEDIEN' && (
+                                                    <div className="bg-white/5 p-3 rounded-lg">
+                                                        <p className="text-white font-bold mb-2">🎭 Cartes du Comédien (3 nuits)</p>
+                                                        <div className="flex justify-between items-center">
+                                                            <span className="text-white text-2xl">
+                                                                {'🃏'.repeat(player.comedienCards || 0)}
+                                                            </span>
+                                                            <button
+                                                                onClick={() => {
+                                                                    if (player.comedienCards > 0) {
+                                                                        updatePlayer(player.id, { comedienCards: player.comedienCards - 1 });
+                                                                    }
+                                                                }}
+                                                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-bold"
+                                                                disabled={player.comedienCards === 0}
+                                                            >
+                                                                Utiliser une nuit
+                                                            </button>
+                                                        </div>
+                                                        <p className="text-gray-300 text-xs mt-2">
+                                                            {player.comedienCards === 0 ? '❌ Plus de nuits disponibles' : `${player.comedienCards} nuit(s) restante(s)`}
+                                                        </p>
+                                                    </div>
+                                                )}
+
+                                                {player.role === 'RENARD' && (
+                                                    <button
+                                                        onClick={() => updatePlayer(player.id, { foxPower: !player.foxPower })}
+                                                        className={`w-full py-2 rounded ${player.foxPower ? 'bg-orange-600' : 'bg-gray-600'} text-white`}
+                                                    >
+                                                        🦊 Pouvoir disponible
+                                                    </button>
+                                                )}
+
+                                                {player.role === 'INFECT_PERE' && (
+                                                    <div className="bg-white/5 p-3 rounded-lg">
+                                                        <p className="text-white font-bold mb-2">Infecter un joueur</p>
+                                                        {!player.infected ? (
+                                                            <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+                                                                {players.filter(p => p.id !== player.id && p.alive && !p.isInfected).map(p => (
+                                                                    <button
+                                                                        key={p.id}
+                                                                        onClick={() => {
+                                                                            updatePlayer(p.id, { isInfected: true });
+                                                                            updatePlayer(player.id, { infected: true });
+                                                                        }}
+                                                                        className="py-2 rounded text-sm bg-gray-700 text-white hover:bg-green-600"
+                                                                    >
+                                                                        {p.name}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        ) : (
+                                                            <p className="text-gray-400">Infection déjà utilisée</p>
+                                                        )}
+                                                    </div>
+                                                )}
+
+                                                {player.role === 'GRAND_MECHANT_LOUP' && (() => {
+                                                    // Vérifier si un loup est mort
+                                                    const wolfDead = players.some(p => 
+                                                        !p.alive && (
+                                                            ROLES[p.role]?.team === 'loups' ||
+                                                            p.role === 'LOUP_BLANC' ||
+                                                            p.isInfected ||
+                                                            (p.role === 'CHIEN_LOUP' && p.team === 'loups')
+                                                        )
+                                                    );
+                                                    
+                                                    return (
+                                                        <div className="bg-white/5 p-3 rounded-lg">
+                                                            <p className="text-white font-bold mb-2">👹 Grand Méchant Loup</p>
+                                                            <button
+                                                                onClick={() => updatePlayer(player.id, { doublePower: !player.doublePower })}
+                                                                className={`w-full py-2 rounded ${player.doublePower ? 'bg-red-600' : 'bg-gray-600'} text-white`}
+                                                                disabled={wolfDead}
+                                                            >
+                                                                👹 Double attaque {wolfDead ? '(❌ Loup mort)' : ''}
+                                                            </button>
+                                                            {wolfDead && (
+                                                                <p className="text-red-300 text-xs mt-2">
+                                                                    ⚠️ Un loup est mort, la double attaque est désactivée automatiquement
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })()}
+                                                </>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+                            
+                            {/* Panneau configuration timer */}
+                            {showTimerConfig && (
+                                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setShowTimerConfig(false)}>
+                                    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 max-w-md w-full border border-white/20" onClick={e => e.stopPropagation()}>
+                                        <div className="flex justify-between items-start mb-4">
+                                            <h3 className="text-2xl font-bold text-white">⏱️ Configuration Timer</h3>
+                                            <button
+                                                onClick={() => setShowTimerConfig(false)}
+                                                className="text-white hover:text-red-400 text-2xl"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            {/* Affichage du timer */}
+                                            <div className="text-center">
+                                                <div className="text-6xl font-bold text-white mb-2">
+                                                    {String(timerMinutes).padStart(2, '0')}:{String(timerSeconds).padStart(2, '0')}
+                                                </div>
+                                                <div className={`text-sm ${isTimerRunning ? 'text-green-400' : 'text-gray-400'}`}>
+                                                    {isTimerRunning ? '▶️ En cours...' : '⏸️ En pause'}
+                                                </div>
+                                            </div>
+
+                                            {/* Configuration */}
+                                            {!isTimerRunning && (
+                                                <div className="bg-white/5 p-4 rounded-lg">
+                                                    <p className="text-white font-bold mb-3">Régler le temps</p>
+                                                    <div className="flex gap-4 items-center justify-center">
+                                                        <div>
+                                                            <label className="text-white text-sm block mb-1">Minutes</label>
+                                                            <input
+                                                                type="number"
+                                                                min="0"
+                                                                max="99"
+                                                                value={timerMinutes}
+                                                                onChange={(e) => {
+                                                                    const val = Math.max(0, parseInt(e.target.value) || 0);
+                                                                    setTimerMinutes(val);
+                                                                    localStorage.setItem('timerInitialMinutes', val.toString());
+                                                                }}
+                                                                className="bg-gray-700 text-white w-20 px-3 py-2 rounded text-center text-xl"
+                                                            />
+                                                        </div>
+                                                        <div className="text-white text-2xl mt-6">:</div>
+                                                        <div>
+                                                            <label className="text-white text-sm block mb-1">Secondes</label>
+                                                            <input
+                                                                type="number"
+                                                                min="0"
+                                                                max="59"
+                                                                value={timerSeconds}
+                                                                onChange={(e) => {
+                                                                    const val = Math.max(0, Math.min(59, parseInt(e.target.value) || 0));
+                                                                    setTimerSeconds(val);
+                                                                    localStorage.setItem('timerInitialSeconds', val.toString());
+                                                                }}
+                                                                className="bg-gray-700 text-white w-20 px-3 py-2 rounded text-center text-xl"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Boutons de contrôle */}
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => setIsTimerRunning(!isTimerRunning)}
+                                                    className={`flex-1 py-3 rounded-lg font-bold text-white ${isTimerRunning ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'}`}
+                                                >
+                                                    {isTimerRunning ? '⏸️ Pause' : '▶️ Démarrer'}
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setTimerMinutes(5);
+                                                        setTimerSeconds(0);
+                                                        setIsTimerRunning(false);
+                                                    }}
+                                                    className="px-6 py-3 rounded-lg font-bold bg-gray-600 hover:bg-gray-700 text-white"
+                                                >
+                                                    🔄 Reset
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            {/* Panneau déroulé de nuit */}
+                            {showNightOrder && (() => {
+                                const nightOrder = {
+                                    preparation: [
+                                        { role: 'ABOMINABLE', name: 'Abominable Sectaire' },
+                                        { role: 'VOLEUR', name: 'Cartes du Voleur' },
+                                        { role: 'COMEDIEN', name: 'Cartes du Comédien' }
+                                    ].filter(item => activeRoles[item.role] > 0),
+                                    firstNight: [
+                                        // ORDRE D'APPEL DE LA 1ÈRE NUIT
+                                        { role: 'VOLEUR', name: 'Voleur', note: '(choisit une carte)', everyNight: false },
+                                        { role: 'CHIEN_LOUP', name: 'Chien-Loup', note: '(choisit son camp)', everyNight: false },
+                                        { role: 'CUPIDON', name: 'Cupidon', note: '(désigne 2 amoureux)', everyNight: false },
+                                        { role: 'LOVER', name: 'Les Amoureux', note: '(se reconnaissent)', everyNight: false }, // Si Cupidon
+                                        { role: 'JUGE_BEGUE', name: 'Juge Bègue', note: '(fait un signe)', everyNight: false },
+                                        { role: 'DEUX_SOEURS', name: 'Deux Sœurs', note: '(se reconnaissent)', everyNight: false },
+                                        { role: 'TROIS_FRERES', name: 'Trois Frères', note: '(se reconnaissent)', everyNight: false },
+                                        { role: 'ENFANT_SAUVAGE', name: 'Enfant Sauvage', note: '(choisit son modèle)', everyNight: false },
+                                        { role: 'MONTREUR_OURS', name: 'Montreur d\'Ours', note: '(se réveille)', everyNight: false },
+                                        // Rôles de chaque nuit (aussi 1ère nuit)
+                                        { role: 'COMEDIEN', name: 'Comédien', note: '(chaque nuit)', everyNight: true },
+                                        { role: 'VOYANTE', name: 'Voyante', note: '(chaque nuit)', everyNight: true },
+                                        { role: 'RENARD', name: 'Renard', note: '(chaque nuit)', everyNight: true },
+                                        { role: 'SALVATORE', name: 'Salvateur', note: '(chaque nuit)', everyNight: true },
+                                        { role: 'ANGE_DECHU', name: 'Ange Déchu', note: '(se réveille)', everyNight: false },
+                                        { role: 'LOUP', name: 'Tous les Loups-Garous', note: '(chaque nuit)', everyNight: true },
+                                        { role: 'GRAND_MECHANT_LOUP', name: 'Grand Méchant Loup', note: '(chaque nuit)', everyNight: true },
+                                        { role: 'LOUP_BLANC', name: 'Loup Blanc', note: '(chaque nuit)', everyNight: true },
+                                        { role: 'INFECT_PERE', name: 'Infect Père', note: '(chaque nuit)', everyNight: true },
+                                        { role: 'SORCIERE', name: 'Sorcière', note: '(chaque nuit)', everyNight: true },
+                                        { role: 'JOUEUR_FLUTE', name: 'Joueur de Flûte', note: '(chaque nuit)', everyNight: true },
+                                        { role: 'CHARMED', name: 'Joueurs charmés', note: '(se reconnaissent)', everyNight: false }, // Si Joueur de Flûte
+                                        { role: 'CORBEAU', name: 'Corbeau', note: '(chaque nuit)', everyNight: true },
+                                        // Rôles sans pouvoir (révélation)
+                                        { role: 'CHASSEUR', name: 'Chasseur', note: '(se réveille)', everyNight: false },
+                                        { role: 'PETITE_FILLE', name: 'Petite Fille', note: '(se réveille)', everyNight: false },
+                                        { role: 'ANCIEN', name: 'Ancien', note: '(se réveille)', everyNight: false },
+                                        { role: 'IDIOT', name: 'Idiot du village', note: '(se réveille)', everyNight: false },
+                                        { role: 'BOUC', name: 'Bouc Émissaire', note: '(se réveille)', everyNight: false },
+                                        { role: 'CHEVALIER', name: 'Chevalier', note: '(se réveille)', everyNight: false },
+                                        { role: 'ANGE', name: 'Ange', note: '(se réveille)', everyNight: false }
+                                    ].filter(item => {
+                                        // Filtrer : afficher seulement si sélectionné OU si dépendance
+                                        if (item.role === 'LOVER') return activeRoles['CUPIDON'] > 0;
+                                        if (item.role === 'CHARMED') return activeRoles['JOUEUR_FLUTE'] > 0;
+                                        return activeRoles[item.role] > 0;
+                                    }),
+                                    everyNight: [
+                                        { role: 'COMEDIEN', name: 'Comédien' },
+                                        { role: 'VOYANTE', name: 'Voyante' },
+                                        { role: 'RENARD', name: 'Renard' },
+                                        { role: 'SALVATORE', name: 'Salvateur' },
+                                        { role: 'LOUP', name: 'Tous les Loups-Garous' },
+                                        { role: 'GRAND_MECHANT_LOUP', name: 'Grand Méchant Loup' },
+                                        { role: 'LOUP_BLANC', name: 'Loup Blanc' },
+                                        { role: 'INFECT_PERE', name: 'Infect Père' },
+                                        { role: 'SORCIERE', name: 'Sorcière' },
+                                        { role: 'JOUEUR_FLUTE', name: 'Joueur de Flûte' },
+                                        { role: 'CHARMED', name: 'Joueurs charmés' },
+                                        { role: 'CORBEAU', name: 'Corbeau' }
+                                    ]
+                                };
+                                
+                                const getPlayersWithRole = (roleKey) => {
+                                    if (roleKey === 'LOVER') {
+                                        return players.filter(p => p.lover && p.alive);
+                                    }
+                                    if (roleKey === 'CHARMED') {
+                                        return players.filter(p => p.enchanted && p.alive);
+                                    }
+                                    if (roleKey === 'LOUP') {
+                                        return players.filter(p => (ROLES[p.role]?.team === 'loups' || p.isInfected) && p.alive);
+                                    }
+                                    return players.filter(p => p.role === roleKey && p.alive);
+                                };
+                                
+                                return (
+                                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-1 sm:p-4 z-50" onClick={() => setShowNightOrder(false)}>
+                                        <div className="bg-white/10 backdrop-blur-lg rounded-xl p-3 sm:p-6 max-w-2xl w-full border border-white/20 max-h-[95vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                                            <div className="flex justify-between items-center mb-2 sm:mb-4 sticky top-0 bg-purple-900/90 backdrop-blur-lg -mx-3 -mt-3 px-3 py-2 sm:mx-0 sm:mt-0 sm:px-0 sm:py-0 sm:bg-transparent rounded-t-xl">
+                                                <h3 className="text-lg sm:text-3xl font-bold text-white">🌙 Déroulé</h3>
+                                                <button
+                                                    onClick={() => setShowNightOrder(false)}
+                                                    className="text-white hover:text-red-400 text-2xl sm:text-3xl"
+                                                >
+                                                    ✕
+                                                </button>
+                                            </div>
+
+                                            <div className="space-y-3 sm:space-y-6">
+                                                {/* Préparation */}
+                                                {nightOrder.preparation.length > 0 && (
+                                                <div>
+                                                    <h4 className="text-sm sm:text-xl font-bold text-purple-300 mb-1 sm:mb-3">📋 Préparation</h4>
+                                                    <div className="space-y-1">
+                                                        {nightOrder.preparation.map((item, idx) => (
+                                                            <div key={idx} className="bg-white/5 p-2 sm:p-3 rounded-lg">
+                                                                <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                                                                    <span className="text-white font-bold text-xs sm:text-base">{item.name}</span>
+                                                                    <span className="text-purple-300 text-xs sm:text-sm italic">
+                                                                        À préparer avant la partie
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                )}
+
+                                                {/* 1ère nuit */}
+                                                <div>
+                                                    <div className="flex justify-between items-center mb-1 sm:mb-3">
+                                                        <h4 className="text-sm sm:text-xl font-bold text-blue-300">🌑 1ère nuit</h4>
+                                                        <button
+                                                            onClick={() => setShowFirstNight(!showFirstNight)}
+                                                            className="text-blue-300 hover:text-blue-100 text-xs sm:text-sm px-2 py-1 bg-blue-900/30 rounded"
+                                                        >
+                                                            {showFirstNight ? '▼ Masquer' : '▶ Afficher'}
+                                                        </button>
+                                                    </div>
+                                                    {showFirstNight && (
+                                                    <div className="space-y-1">
+                                                        {nightOrder.firstNight.map((item, idx) => {
+                                                            // Vérifier si ce rôle a été sélectionné dans activeRoles
+                                                            const roleCount = activeRoles[item.role] || 0;
+                                                            if (roleCount === 0 && item.role !== 'LOVER' && item.role !== 'CHARMED') return null;
+                                                            
+                                                            const rolePlayers = getPlayersWithRole(item.role);
+                                                            
+                                                            // Couleur selon si chaque nuit ou pas
+                                                            const bgColor = item.everyNight ? 'bg-blue-900/30 border border-blue-700/50' : 'bg-white/5';
+                                                            const textColor = item.everyNight ? 'text-blue-300' : 'text-white';
+                                                            
+                                                            return (
+                                                                <div key={idx} className={`p-2 sm:p-3 rounded-lg ${bgColor}`}>
+                                                                    <div className="flex flex-col gap-2">
+                                                                        <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                                                                            <span className="text-white font-bold text-xs sm:text-base">
+                                                                                {idx + 1}. {item.name} <span className={`${textColor} text-[10px] sm:text-xs font-normal`}>{item.note}</span>
+                                                                            </span>
+                                                                            <span className={`${textColor} text-xs sm:text-sm`}>
+                                                                                {rolePlayers.map(p => p.name).join(', ')}
+                                                                            </span>
+                                                                        </div>
+                                                                        
+                                                                        {/* Sélecteurs multiples pour Trois Frères et Deux Sœurs */}
+                                                                        {item.role === 'TROIS_FRERES' && (
+                                                                            <div className="space-y-1">
+                                                                                {[0, 1, 2].map(idx => {
+                                                                                    const frere = players.find(p => p.role === 'TROIS_FRERES' && rolePlayers.indexOf(p) === idx);
+                                                                                    return (
+                                                                                        <select
+                                                                                            key={idx}
+                                                                                            className="bg-gray-700 text-white text-xs sm:text-sm px-2 py-1 rounded w-full"
+                                                                                            value={frere ? frere.id : ''}
+                                                                                            onChange={(e) => {
+                                                                                                const targetPlayerId = parseInt(e.target.value);
+                                                                                                setPlayers(prev => prev.map(p => {
+                                                                                                    if (p.id === targetPlayerId) {
+                                                                                                        return { ...p, role: 'TROIS_FRERES', team: 'village' };
+                                                                                                    }
+                                                                                                    return p;
+                                                                                                }));
+                                                                                            }}
+                                                                                        >
+                                                                                            <option value="">-- Frère {idx + 1} --</option>
+                                                                                            {players.filter(p => p.alive).map(p => (
+                                                                                                <option key={p.id} value={p.id}>
+                                                                                                    {p.name} {p.role && p.role !== 'TROIS_FRERES' ? `(${ROLES[p.role]?.emoji || '❓'})` : ''}
+                                                                                                </option>
+                                                                                            ))}
+                                                                                        </select>
+                                                                                    );
+                                                                                })}
+                                                                            </div>
+                                                                        )}
+                                                                        
+                                                                        {item.role === 'DEUX_SOEURS' && (
+                                                                            <div className="space-y-1">
+                                                                                {[0, 1].map(idx => {
+                                                                                    const soeur = players.find(p => p.role === 'DEUX_SOEURS' && rolePlayers.indexOf(p) === idx);
+                                                                                    return (
+                                                                                        <select
+                                                                                            key={idx}
+                                                                                            className="bg-gray-700 text-white text-xs sm:text-sm px-2 py-1 rounded w-full"
+                                                                                            value={soeur ? soeur.id : ''}
+                                                                                            onChange={(e) => {
+                                                                                                const targetPlayerId = parseInt(e.target.value);
+                                                                                                setPlayers(prev => prev.map(p => {
+                                                                                                    if (p.id === targetPlayerId) {
+                                                                                                        return { ...p, role: 'DEUX_SOEURS', team: 'village' };
+                                                                                                    }
+                                                                                                    return p;
+                                                                                                }));
+                                                                                            }}
+                                                                                        >
+                                                                                            <option value="">-- Sœur {idx + 1} --</option>
+                                                                                            {players.filter(p => p.alive).map(p => (
+                                                                                                <option key={p.id} value={p.id}>
+                                                                                                    {p.name} {p.role && p.role !== 'DEUX_SOEURS' ? `(${ROLES[p.role]?.emoji || '❓'})` : ''}
+                                                                                                </option>
+                                                                                            ))}
+                                                                                        </select>
+                                                                                    );
+                                                                                })}
+                                                                            </div>
+                                                                        )}
+                                                                        
+                                                                        {/* Sélecteur simple pour les autres rôles */}
+                                                                        {!['LOVER', 'CHARMED', 'TROIS_FRERES', 'DEUX_SOEURS'].includes(item.role) && (
+                                                                            <select
+                                                                                className="bg-gray-700 text-white text-xs sm:text-sm px-2 py-1 rounded"
+                                                                                value={rolePlayers.length > 0 ? rolePlayers[0].id : ''}
+                                                                                onChange={(e) => {
+                                                                                    const targetPlayerId = parseInt(e.target.value);
+                                                                                    const targetPlayer = players.find(p => p.id === targetPlayerId);
+                                                                                    if (targetPlayer) {
+                                                                                        setPlayers(prev => prev.map(p => {
+                                                                                            if (p.id === targetPlayerId) {
+                                                                                                return {
+                                                                                                    ...p,
+                                                                                                    role: item.role,
+                                                                                                    team: item.role === 'CHIEN_LOUP' ? null : ROLES[item.role]?.team || p.team
+                                                                                                };
+                                                                                            }
+                                                                                            return p;
+                                                                                        }));
+                                                                                    }
+                                                                                }}
+                                                                            >
+                                                                                <option value="">-- Qui est {item.name} ? --</option>
+                                                                                {players.filter(p => p.alive).map(p => (
+                                                                                    <option key={p.id} value={p.id}>
+                                                                                        {p.name} {p.role && p.role !== item.role ? `(${ROLES[p.role]?.emoji || '❓'})` : ''}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </select>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+                            
+                            {/* Popup Reset - Gestion des joueurs */}
+                            {/* Modal de victoire */}
+                            {victoryModal && (
+                                <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50" onClick={() => setVictoryModal(null)}>
+                                    <div className="bg-gradient-to-br from-purple-900 to-indigo-900 rounded-2xl p-8 max-w-md w-full border-4 border-yellow-400 shadow-2xl" onClick={e => e.stopPropagation()}>
+                                        <div className="text-center">
+                                            <h2 className="text-3xl sm:text-4xl font-bold text-yellow-300 mb-4">
+                                                {victoryModal.title}
+                                            </h2>
+                                            <p className="text-xl text-white mb-6 whitespace-pre-line">
+                                                {victoryModal.message}
+                                            </p>
+                                            <button
+                                                onClick={() => setVictoryModal(null)}
+                                                className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-8 rounded-lg text-xl"
+                                            >
+                                                Fermer
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {showResetModal && (
+                                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-2 sm:p-4 z-50" onClick={() => setShowResetModal(false)}>
+                                    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 sm:p-6 max-w-md w-full border border-white/20 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                                        <div className="flex justify-between items-start mb-4">
+                                            <h3 className="text-2xl sm:text-3xl font-bold text-white">🔄 Nouvelle partie</h3>
+                                            <button
+                                                onClick={() => setShowResetModal(false)}
+                                                className="text-white hover:text-red-400 text-2xl"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+
+                                        <p className="text-white mb-4 text-sm sm:text-base">
+                                            Qui joue la prochaine partie ?<br/>
+                                            <span className="text-gray-300 text-xs sm:text-sm">Clique sur un joueur pour le retirer</span>
+                                        </p>
+
+                                        <div className="space-y-2 mb-4">
+                                            {tempPlayers.map((player) => (
+                                                <div
+                                                    key={player.id}
+                                                    onClick={() => togglePlayerKeep(player.id)}
+                                                    className={`p-3 rounded-lg cursor-pointer transition-all ${
+                                                        player.kept 
+                                                            ? 'bg-green-600/30 border-2 border-green-500' 
+                                                            : 'bg-red-600/30 border-2 border-red-500 opacity-50'
+                                                    }`}
+                                                >
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-white font-bold text-sm sm:text-base">
+                                                            {player.kept ? '✓' : '✗'} {player.name}
+                                                        </span>
+                                                        <span className="text-white text-xs sm:text-sm">
+                                                            {player.kept ? 'Joue' : 'Part'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <button
+                                            onClick={addNewPlayer}
+                                            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold mb-2"
+                                        >
+                                            ➕ Ajouter un nouveau joueur
+                                        </button>
+
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => setShowResetModal(false)}
+                                                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-bold"
+                                            >
+                                                Annuler
+                                            </button>
+                                            <button
+                                                onClick={confirmReset}
+                                                className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold"
+                                                disabled={tempPlayers.filter(p => p.kept).length < 5}
+                                            >
+                                                Valider ({tempPlayers.filter(p => p.kept).length} joueurs)
+                                            </button>
+                                        </div>
+
+                                        {tempPlayers.filter(p => p.kept).length < 5 && (
+                                            <p className="text-red-400 text-xs sm:text-sm text-center mt-2">
+                                                Minimum 5 joueurs requis
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                            
+                            {/* Logo Play Thau'Gether */}
+                            <div className="mt-6 flex flex-col items-center gap-2 opacity-60">
+                                <img 
+                                    src="logo-ptg.png" 
+                                    alt="Play Thau'Gether" 
+                                    className="w-20 h-20 object-contain bg-transparent"
+                                />
+                                <p className="text-white text-xs text-center">
+                                    Créé par <span className="font-bold">Play Thau'Gether</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
+
+            return screen === 'home' ? renderHome() : screen === 'list' ? renderList() : renderPlan();
+        };
+
+        ReactDOM.render(<WerewolfGame />, document.getElementById('root'));
+    </script>
+</body>
+</html>
