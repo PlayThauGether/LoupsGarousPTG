@@ -13,8 +13,9 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .app{position:relative;z-index:1;}
 
 /* HEADER */
-.ph{text-align:center;padding:24px 16px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;}
-.ph .logo-slot{width:120px;height:60px;display:flex;align-items:center;justify-content:center;opacity:.7;}
+.ph{text-align:center;padding:16px 16px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.ph .logo-slot{display:flex;align-items:center;justify-content:center;}
+.ph .logo-slot img{width:clamp(180px,40vw,320px);height:auto;object-fit:contain;display:block;}
 .ph p{font-family:'Cinzel',serif;color:rgba(245,230,200,.55);font-size:11px;letter-spacing:.3em;text-transform:uppercase;}
 .orn{display:flex;align-items:center;gap:12px;color:var(--gold);font-size:16px;margin:12px auto;opacity:.45;max-width:400px;}
 .orn::before,.orn::after{content:'';flex:1;height:1px;background:linear-gradient(to right,transparent,var(--gold),transparent);}
@@ -517,8 +518,7 @@ function App(){
   if(screen==='count') return(
     <div className="cs">
       <div className="ph">
-        <div className="logo-slot"><img src="logo.png" alt="" style={{maxWidth:'700%',maxHeight:'700%',objectFit:'contain'}} onError={e=>{e.target.style.display='none';}}/></div>
-        <p>Grimoire du Meneur</p>
+        <div className="logo-slot"><img src="logo.png" alt="Loups-Garous" onError={e=>{e.target.style.display='none';}}/></div>
       </div>
       <div className="orn">✦</div>
       <div className="cs-card parch">
@@ -560,7 +560,7 @@ function App(){
   if(screen==='roles') return(
     <div className="rs" onClick={()=>setTooltip(null)}>
       <div className="ph">
-        <div className="logo-slot"><img src="logo.png" alt="" style={{maxWidth:'700%',maxHeight:'700%',objectFit:'contain'}} onError={e=>{e.target.style.display='none';}}/></div>
+        <div className="logo-slot"><img src="logo.png" alt="Loups-Garous" onError={e=>{e.target.style.display='none';}}/></div>
         <p style={{fontSize:'13px',letterSpacing:'.25em',color:'rgba(245,230,200,.75)',fontWeight:'600'}}>Sélection des Rôles</p>
       </div>
       <div className="orn">✦</div>
@@ -678,8 +678,8 @@ function App(){
       {/* ── HEADER JEU ── */}
       <div style={{display:'grid',gridTemplateColumns:'auto 1fr auto',alignItems:'center',gap:'12px',padding:'4px 0'}}>
         {/* Logo PNG gauche */}
-        <div style={{width:'48px',height:'32px',display:'flex',alignItems:'center',justifyContent:'center'}}>
-          <img src="logo.png" alt="" style={{maxWidth:'500%',maxHeight:'500%',objectFit:'contain',opacity:.8}} onError={e=>{e.target.style.display='none';}}/>
+        <div style={{display:'flex',alignItems:'center'}}>
+          <img src="logo.png" alt="" style={{height:'44px',width:'auto',objectFit:'contain',opacity:.9,display:'block'}} onError={e=>{e.target.style.display='none';}}/>
         </div>
         {/* Centre : NUIT N + stats */}
         <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'3px'}}>
