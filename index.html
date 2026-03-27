@@ -722,9 +722,9 @@ function App(){
         </div>
       )}
 
-      {/* ── ZONE PRINCIPALE : table + récap ── */}
-      <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:'10px',flex:1,minHeight:0}}>
-        <div className="board" style={{margin:0,display:'flex',flexDirection:'column',alignItems:'center'}}>
+      {/* ── ZONE PRINCIPALE : table centrée ── */}
+      <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',minHeight:0}}>
+        <div className="board" style={{margin:0,width:'min(100%,calc(100vh - 120px))',maxWidth:'680px'}}>
         <svg viewBox="-5 -5 110 115" className="csvg">
           <circle cx={cx} cy={cy} r="13" fill="rgba(201,168,76,.05)" stroke="rgba(201,168,76,.2)" strokeWidth=".6"/>
           <text x={cx} y={cy-2} textAnchor="middle" style={{fontFamily:"'Cinzel',serif",fontSize:'3.5px',fill:'rgba(201,168,76,.5)',letterSpacing:'.15em'}}>NUIT</text>
@@ -779,8 +779,8 @@ function App(){
         </svg>
         </div>
 
-        {/* ── PANNEAU RÉCAP NUIT DERNIÈRE ── */}
-        <div style={{width:'180px',display:'flex',flexDirection:'column',gap:'8px'}}>
+        {/* ── PANNEAU RÉCAP — sidebar fixe à droite ── */}
+        <div style={{position:'fixed',right:'10px',top:'80px',width:'190px',display:'flex',flexDirection:'column',gap:'8px',maxHeight:'calc(100vh - 90px)',overflowY:'auto',zIndex:10}}>
           {/* Boutons d'action */}
           <button onClick={()=>{setNightIdx(0);setShowNight(true);}}
             style={{padding:'10px 8px',background:'linear-gradient(135deg,rgba(80,40,120,.35),rgba(40,10,80,.4))',border:'1px solid rgba(140,100,200,.5)',borderRadius:'4px',color:'#ddbbff',fontFamily:"'Cinzel',serif",fontSize:'11px',letterSpacing:'.06em',cursor:'pointer',textTransform:'uppercase',textAlign:'center'}}>
@@ -866,7 +866,7 @@ function App(){
             </div>
           </div>
         </div>
-      </div>{/* fin grid */}
+      </div>{/* fin zone principale */}
 
       {/* Modal joueur */}
       {selId&&(()=>{
