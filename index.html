@@ -2,13 +2,43 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🐺 Loup-Garou — Meneur</title>
+<!-- Viewport avec support safe-area (encoche iPhone / Dynamic Island) -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Loups-Garous — Aide Meneur</title>
+
+<!-- PWA Manifest -->
+<link rel="manifest" href="manifest.json">
+
+<!-- iOS / Safari PWA -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Loups-Garous">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icon-152.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icon-120.png">
+<link rel="apple-touch-icon" sizes="76x76" href="icon-76.png">
+<!-- Splash screens iOS (optionnel - améliore le démarrage) -->
+<meta name="apple-touch-fullscreen" content="yes">
+
+<!-- Android / Chrome -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d0a06">
+<meta name="application-name" content="Loups-Garous">
+
+<!-- Général -->
+<meta name="description" content="Aide narration meneur de jeu Loups-Garous by Play Thau'Gether">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="shortcut icon" href="favicon-32.png">
+
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
 <style>
 :root{--ink:#1a1008;--parchment:#f5e6c8;--parchment-dark:#e8d4a8;--parchment-mid:#ede0c0;--blood:#8b1a1a;--gold:#c9a84c;--gold-bright:#e8c66a;--green:#2d5a3d;--purple:#4a2060;--amber:#7a4a00;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#0d0a06;color:var(--ink);font-family:'IM Fell English',serif;min-height:100vh;overflow-x:hidden;}
+/* Safe area pour iPhone (encoche / Dynamic Island / barre home) */
+.gs{padding-top:max(10px, env(safe-area-inset-top)) !important;padding-bottom:max(10px, env(safe-area-inset-bottom)) !important;padding-left:max(12px, env(safe-area-inset-left)) !important;padding-right:max(12px, env(safe-area-inset-right)) !important;}
+.cs{padding-top:max(0px, env(safe-area-inset-top));}
+.rs{padding-top:max(0px, env(safe-area-inset-top));}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(139,26,26,.08) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 80% 90%,rgba(201,168,76,.06) 0%,transparent 60%);pointer-events:none;z-index:0;}
 .app{position:relative;z-index:1;}
 
@@ -1701,6 +1731,71 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
 }
 
 ReactDOM.render(<App/>,document.getElementById('root'));
+</script>
+
+<!-- ── SERVICE WORKER & PWA INSTALL ── -->
+<script>
+// Enregistrement du Service Worker
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('SW enregistré:', reg.scope))
+      .catch(err => console.log('SW erreur:', err));
+  });
+}
+
+// Bouton "Installer l'app"
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const btn = document.getElementById('pwa-install-btn');
+  if(btn) btn.style.display = 'flex';
+});
+
+function installPWA(){
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(result => {
+    deferredPrompt = null;
+    const btn = document.getElementById('pwa-install-btn');
+    if(btn) btn.style.display = 'none';
+  });
+}
+
+window.addEventListener('appinstalled', () => {
+  const btn = document.getElementById('pwa-install-btn');
+  if(btn) btn.style.display = 'none';
+  deferredPrompt = null;
+});
+</script>
+
+<!-- Bouton d'installation flottant (Android/Chrome) -->
+<div id="pwa-install-btn" onclick="installPWA()" style="display:none;position:fixed;bottom:max(20px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:9999;background:linear-gradient(135deg,#8b1a1a,#6b1111);color:#f5e6c8;border:1px solid rgba(201,168,76,.4);border-radius:24px;padding:10px 20px;font-family:'Cinzel',serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.6);align-items:center;gap:8px;">
+  <span style="font-size:18px">📲</span>
+  <span>Installer l'application</span>
+</div>
+
+<!-- Instructions iOS (Safari ne supporte pas beforeinstallprompt) -->
+<script>
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandalone = window.navigator.standalone === true;
+if(isIOS && !isStandalone){
+  // Afficher une bannière discrète après 3 secondes
+  setTimeout(() => {
+    const banner = document.createElement('div');
+    banner.id = 'ios-install-banner';
+    banner.innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;background:rgba(13,10,6,.95);border-top:1px solid rgba(201,168,76,.3);position:fixed;bottom:0;left:0;right:0;z-index:9999;padding-bottom:max(10px,env(safe-area-inset-bottom));">
+      <span style="font-size:22px">🐺</span>
+      <div style="flex:1">
+        <div style="font-family:'Cinzel',serif;font-size:11px;color:rgba(201,168,76,.9);letter-spacing:.1em;">INSTALLER L'APPLICATION</div>
+        <div style="font-family:'IM Fell English',serif;font-size:11px;font-style:italic;color:rgba(245,230,200,.6);margin-top:2px;">Appuyez sur <strong style="color:rgba(245,230,200,.85);">Partager</strong> puis <strong style="color:rgba(245,230,200,.85);">"Sur l'écran d'accueil"</strong></div>
+      </div>
+      <button onclick="document.getElementById('ios-install-banner').remove()" style="background:none;border:none;color:rgba(245,230,200,.4);font-size:18px;cursor:pointer;padding:4px;">✕</button>
+    </div>`;
+    document.body.appendChild(banner);
+  }, 3000);
+}
 </script>
 </body>
 </html>
