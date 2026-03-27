@@ -1,0 +1,59 @@
+{
+  "name": "Loups-Garous — Aide Meneur",
+  "short_name": "Loups-Garous",
+  "description": "Aide narration meneur de jeu Loups-Garous by Play Thau'Gether",
+  "start_url": "/LoupsGarousPTG/",
+  "id": "/LoupsGarousPTG/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "background_color": "#0d0a06",
+  "theme_color": "#0d0a06",
+  "orientation": "portrait-primary",
+  "scope": "/LoupsGarousPTG/",
+  "lang": "fr",
+  "categories": [
+    "games",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "/LoupsGarousPTG/icon-76.png",
+      "sizes": "76x76",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/LoupsGarousPTG/icon-120.png",
+      "sizes": "120x120",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/LoupsGarousPTG/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/LoupsGarousPTG/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/LoupsGarousPTG/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/LoupsGarousPTG/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
