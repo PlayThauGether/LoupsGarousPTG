@@ -100,25 +100,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
 
 /* ÉCRAN 3 — JEU */
 .gs{min-height:100vh;display:flex;flex-direction:column;padding:10px 12px;gap:10px;}
-/* Panneau récap : sidebar droite sur grands écrans, bottom sheet sur mobile */
-.recap-panel{position:fixed !important;right:10px;top:80px;width:clamp(160px,22vw,200px) !important;max-height:calc(100vh - 90px);overflow-y:auto;}
-@media(max-width:700px){
-  .recap-panel{
-    right:0 !important; left:0 !important; top:auto !important; bottom:0 !important;
-    width:100% !important; max-height:45vh !important;
-    flex-direction:row !important; flex-wrap:nowrap !important;
-    overflow-x:auto !important; overflow-y:hidden !important;
-    gap:6px !important; padding:8px 10px !important;
-    background:rgba(13,10,6,.97) !important;
-    border-top:1px solid rgba(201,168,76,.2) !important;
-    border-radius:0 !important;
-    padding-bottom:max(8px,env(safe-area-inset-bottom)) !important;
-  }
-  .recap-panel > button{flex-shrink:0;min-width:130px;}
-  .recap-panel > div{flex-shrink:0;min-width:220px;max-height:40vh;overflow-y:auto;}
-  /* Donner de la place au cercle SVG sur mobile */
-  .board{margin-bottom:48vh !important;}
-}
+/* Panneau récap desktop */
+.recap-panel-desktop{position:fixed;right:10px;top:80px;width:190px;display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 90px);overflow-y:auto;z-index:10;}
+/* Panneau récap mobile : barre fixe en bas */
+.recap-panel-mobile{position:fixed;left:0;right:0;bottom:0;z-index:10;background:rgba(13,10,6,.97);border-top:1px solid rgba(201,168,76,.25);padding:8px 10px;padding-bottom:max(8px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto;}
+.recap-panel-mobile-btns{display:flex;gap:8px;}
+.recap-panel-mobile-btns button{flex:1;}
+/* Espace sous le cercle en mode mobile pour que la barre ne cache rien */
+.board-mobile-pad{padding-bottom:52vh;}
 /* Tablette : layout optimisé */
 @media(max-width:700px){
   .gs{padding:8px;}
@@ -775,7 +764,7 @@ function App(){
 
       {/* ── ZONE PRINCIPALE : table centrée ── */}
       <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',minHeight:0}}>
-        <div className="board" style={{margin:0,width:'min(100%,calc(100vh - 120px))',maxWidth:'680px'}}>
+        <div className="board" style={{margin:0,width:'min(100%,calc(100vh - 120px))',maxWidth:'680px',paddingBottom:('ontouchstart' in window||navigator.maxTouchPoints>0)?'52vh':0}}>
         <svg viewBox="-5 -5 110 115" className="csvg">
           <circle cx={cx} cy={cy} r="13" fill="rgba(201,168,76,.05)" stroke="rgba(201,168,76,.2)" strokeWidth=".6"/>
           <text x={cx} y={cy-2} textAnchor="middle" style={{fontFamily:"'Cinzel',serif",fontSize:'3.5px',fill:'rgba(201,168,76,.5)',letterSpacing:'.15em'}}>NUIT</text>
@@ -830,16 +819,11 @@ function App(){
         </svg>
         </div>
 
-        {/* ── PANNEAU RÉCAP — sidebar droite sur desktop, bas sur mobile ── */}
-        <div style={{
-          position:'fixed',
-          // Desktop (>700px) : colonne droite fixe
-          right:'10px', top:'80px',
-          width:'clamp(160px, 22vw, 200px)',
-          display:'flex', flexDirection:'column', gap:'8px',
-          maxHeight:'calc(100vh - 90px)', overflowY:'auto', zIndex:10
-        }}
-        className="recap-panel">
+        {/* ── PANNEAU RÉCAP — détection touch pour mobile/PWA ── */}
+        {(()=>{
+          const isMobile=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+          if(!isMobile) return(
+            <div className="recap-panel-desktop">
           {/* Boutons d'action */}
           <button onClick={()=>{setNightIdx(0);setShowNight(true);}}
             style={{padding:'10px 8px',background:'linear-gradient(135deg,rgba(80,40,120,.35),rgba(40,10,80,.4))',border:'1px solid rgba(140,100,200,.5)',borderRadius:'4px',color:'#ddbbff',fontFamily:"'Cinzel',serif",fontSize:'11px',letterSpacing:'.06em',cursor:'pointer',textTransform:'uppercase',textAlign:'center'}}>
@@ -924,7 +908,57 @@ function App(){
               ))}
             </div>
           </div>
-        </div>
+            </div>
+          );
+          // VERSION MOBILE : bottom bar
+          return(
+            <div className="recap-panel-mobile">
+              <div className="recap-panel-mobile-btns">
+                <button onClick={()=>{setNightIdx(0);setShowNight(true);}}
+                  style={{padding:'12px 8px',background:'linear-gradient(135deg,rgba(80,40,120,.35),rgba(40,10,80,.4))',border:'1px solid rgba(140,100,200,.5)',borderRadius:'4px',color:'#ddbbff',fontFamily:"'Cinzel',serif",fontSize:'12px',letterSpacing:'.06em',cursor:'pointer',textTransform:'uppercase',textAlign:'center'}}>
+                  🌙 1ère nuit
+                </button>
+                <button onClick={()=>{setEveryNightIdx(0);setShowEveryNight(true);setNightCount(n=>n+1);}}
+                  style={{padding:'12px 8px',background:'linear-gradient(135deg,rgba(201,168,76,.2),rgba(120,90,20,.2))',border:'1px solid rgba(201,168,76,.4)',borderRadius:'4px',color:'var(--gold-bright)',fontFamily:"'Cinzel',serif",fontSize:'12px',letterSpacing:'.06em',cursor:'pointer',textTransform:'uppercase',textAlign:'center'}}>
+                  ✦ Nuit suivante
+                </button>
+              </div>
+              {lastNight&&(
+                <div style={{background:'linear-gradient(160deg,var(--parchment) 0%,var(--parchment-dark) 100%)',borderRadius:'4px',border:'1px solid rgba(201,168,76,.28)',padding:'8px'}}>
+                  <div style={{fontFamily:"'Cinzel',serif",fontSize:'9px',letterSpacing:'.2em',textTransform:'uppercase',color:'var(--blood)',marginBottom:'6px'}}>📜 Nuit {lastNight.nightNumber}</div>
+                  {(()=>{
+                    const S=({color='var(--blood)',children})=><div style={{fontFamily:"'Cinzel',serif",fontSize:'8px',letterSpacing:'.1em',color,marginBottom:'1px',textTransform:'uppercase'}}>{children}</div>;
+                    const V=({children,bold})=><div style={{fontFamily:"'IM Fell English',serif",fontSize:'12px',color:'var(--ink)',fontWeight:bold?'bold':'normal'}}>{children}</div>;
+                    const Bloc=({children})=><div style={{borderTop:'1px solid rgba(139,100,30,.12)',paddingTop:'4px',marginTop:'3px'}}>{children}</div>;
+                    const events=[];
+                    const lastNightVictim2=lastNight?.wolfVictimId?players.find(p=>p.id===lastNight.wolfVictimId):null;
+                    if(lastNightVictim2) events.push(<Bloc key="w"><S>🐺 Dévoré</S><V bold>{lastNightVictim2.name}{lastNight.wolfVictimSaved&&<span style={{color:'var(--green)',fontSize:'11px'}}> — sauvé</span>}</V></Bloc>);
+                    else events.push(<Bloc key="nw"><V><span style={{fontStyle:'italic',color:'rgba(26,16,8,.4)',fontSize:'11px'}}>Pas de victime</span></V></Bloc>);
+                    const lastNightPoisoned2=lastNight?.potionDeathId?players.find(p=>p.id===lastNight.potionDeathId):null;
+                    if(lastNightPoisoned2) events.push(<Bloc key="p"><S color="var(--purple)">☠️ Potion</S><V bold>{lastNightPoisoned2.name}</V></Bloc>);
+                    const lastNightLB2=lastNight?.loupBlancId?players.find(p=>p.id===lastNight.loupBlancId):null;
+                    if(lastNightLB2) events.push(<Bloc key="lb"><S>🤍 Loup Blanc</S><V bold>{lastNightLB2.name}</V></Bloc>);
+                    if(lastNight.gmgVictimId){const gv=players.find(p=>p.id===lastNight.gmgVictimId);if(gv)events.push(<Bloc key="gmg"><S>👹 GMG</S><V bold>{gv.name}</V></Bloc>);}
+                    if(lastNight.infectTransformed){const iv=players.find(p=>p.id===lastNight.infectTransformed);if(iv)events.push(<Bloc key="inf"><S>🦠 Infecté</S><V bold>{iv.name}</V></Bloc>);}
+                    const lastNightCorbeau2=lastNight?.corbeauId?players.find(p=>p.id===lastNight.corbeauId):null;
+                    if(lastNightCorbeau2) events.push(<Bloc key="c"><S color="rgba(80,80,120,1)">🦅 +2 votes</S><V bold>{lastNightCorbeau2.name}</V></Bloc>);
+                    return <div style={{display:'flex',flexDirection:'column',gap:'2px'}}>{events}</div>;
+                  })()}
+                </div>
+              )}
+              <div style={{background:'rgba(13,10,6,.85)',border:'1px solid rgba(201,168,76,.15)',borderRadius:'4px',padding:'6px 8px'}}>
+                <div style={{fontFamily:"'Cinzel',serif",fontSize:'8px',letterSpacing:'.2em',color:'rgba(201,168,76,.55)',textTransform:'uppercase',marginBottom:'4px'}}>Ordre de nuit</div>
+                <div style={{display:'flex',flexWrap:'wrap',gap:'4px'}}>
+                  {nightBarItems.map((it,i)=>(
+                    <span key={i} style={{fontFamily:"'IM Fell English',serif",fontSize:'11px',color:'rgba(245,230,200,.6)',display:'flex',alignItems:'center',gap:'3px',padding:'2px 6px',background:'rgba(245,230,200,.05)',borderRadius:'3px'}}>
+                      {ROLES[it.role]?.emoji||'✦'} {it.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </div>{/* fin zone principale */}
 
       {/* Modal joueur */}
