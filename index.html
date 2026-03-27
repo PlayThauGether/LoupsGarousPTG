@@ -101,13 +101,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
 /* ÉCRAN 3 — JEU */
 .gs{min-height:100vh;display:flex;flex-direction:column;padding:10px 12px;gap:10px;}
 /* Panneau récap desktop */
-.recap-panel-desktop{position:fixed;right:10px;top:80px;width:190px;display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 90px);overflow-y:auto;z-index:10;}
-/* Panneau récap mobile : barre fixe en bas */
-.recap-panel-mobile{position:fixed;left:0;right:0;bottom:0;z-index:10;background:rgba(13,10,6,.97);border-top:1px solid rgba(201,168,76,.25);padding:8px 10px;padding-bottom:max(8px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto;}
-.recap-panel-mobile-btns{display:flex;gap:8px;}
-.recap-panel-mobile-btns button{flex:1;}
-/* Espace sous le cercle en mode mobile pour que la barre ne cache rien */
-.board-mobile-pad{padding-bottom:52vh;}
+/* Panneau récap — toujours dans le flux, jamais en position fixed */
+.recap-col{display:flex;flex-direction:column;gap:8px;width:190px;flex-shrink:0;}
 /* Tablette : layout optimisé */
 @media(max-width:700px){
   .gs{padding:8px;}
@@ -762,9 +757,9 @@ function App(){
         </div>
       )}
 
-      {/* ── ZONE PRINCIPALE : table centrée ── */}
-      <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',minHeight:0}}>
-        <div className="board" style={{margin:0,width:'min(100%,calc(100vh - 120px))',maxWidth:'680px',paddingBottom:window.IS_TOUCH_DEVICE?'52vh':0}}>
+      {/* ── ZONE PRINCIPALE ── */}
+      <div style={{flex:1,display:'flex',flexDirection:'row',alignItems:'flex-start',gap:'10px',minHeight:0,overflow:'hidden'}}>
+        <div className="board" style={{flex:1,margin:0,minWidth:0}}>
         <svg viewBox="-5 -5 110 115" className="csvg">
           <circle cx={cx} cy={cy} r="13" fill="rgba(201,168,76,.05)" stroke="rgba(201,168,76,.2)" strokeWidth=".6"/>
           <text x={cx} y={cy-2} textAnchor="middle" style={{fontFamily:"'Cinzel',serif",fontSize:'3.5px',fill:'rgba(201,168,76,.5)',letterSpacing:'.15em'}}>NUIT</text>
@@ -819,85 +814,45 @@ function App(){
         </svg>
         </div>
 
-        {/* ── PANNEAU RÉCAP — détection touch pour mobile/PWA ── */}
-        {(()=>{
-          const isMobile=window.IS_TOUCH_DEVICE===true;
-          if(!isMobile) return(
-            <div className="recap-panel-desktop">
-          {/* Boutons d'action */}
+        {/* ── PANNEAU RÉCAP — dans le flux normal ── */}
+        <div className="recap-col">
           <button onClick={()=>{setNightIdx(0);setShowNight(true);}}
-            style={{padding:'10px 8px',background:'linear-gradient(135deg,rgba(80,40,120,.35),rgba(40,10,80,.4))',border:'1px solid rgba(140,100,200,.5)',borderRadius:'4px',color:'#ddbbff',fontFamily:"'Cinzel',serif",fontSize:'11px',letterSpacing:'.06em',cursor:'pointer',textTransform:'uppercase',textAlign:'center'}}>
+            style={{padding:'10px 8px',background:'linear-gradient(135deg,rgba(80,40,120,.35),rgba(40,10,80,.4))',border:'1px solid rgba(140,100,200,.5)',borderRadius:'4px',color:'#ddbbff',fontFamily:"'Cinzel',serif",fontSize:'11px',letterSpacing:'.06em',cursor:'pointer',textTransform:'uppercase',textAlign:'center',whiteSpace:'nowrap'}}>
             🌙 1ère nuit
           </button>
           <button onClick={()=>{setEveryNightIdx(0);setShowEveryNight(true);setNightCount(n=>n+1);}}
-            style={{padding:'10px 8px',background:'linear-gradient(135deg,rgba(201,168,76,.2),rgba(120,90,20,.2))',border:'1px solid rgba(201,168,76,.4)',borderRadius:'4px',color:'var(--gold-bright)',fontFamily:"'Cinzel',serif",fontSize:'11px',letterSpacing:'.06em',cursor:'pointer',textTransform:'uppercase',textAlign:'center'}}>
+            style={{padding:'10px 8px',background:'linear-gradient(135deg,rgba(201,168,76,.2),rgba(120,90,20,.2))',border:'1px solid rgba(201,168,76,.4)',borderRadius:'4px',color:'var(--gold-bright)',fontFamily:"'Cinzel',serif",fontSize:'11px',letterSpacing:'.06em',cursor:'pointer',textTransform:'uppercase',textAlign:'center',whiteSpace:'nowrap'}}>
             ✦ Nuit suivante
           </button>
-
-          {/* Récap nuit précédente */}
           {lastNight&&(
-            <div style={{background:'linear-gradient(160deg,var(--parchment) 0%,var(--parchment-dark) 100%)',borderRadius:'4px',border:'1px solid rgba(201,168,76,.28)',padding:'10px',position:'relative',flex:1,overflow:'auto'}}>
+            <div style={{background:'linear-gradient(160deg,var(--parchment) 0%,var(--parchment-dark) 100%)',borderRadius:'4px',border:'1px solid rgba(201,168,76,.28)',padding:'10px',overflowY:'auto',maxHeight:'55vh'}}>
               <div style={{fontFamily:"'Cinzel',serif",fontSize:'9px',letterSpacing:'.2em',textTransform:'uppercase',color:'var(--blood)',marginBottom:'8px',borderBottom:'1px solid rgba(139,100,30,.2)',paddingBottom:'4px'}}>
                 📜 Nuit {lastNight.nightNumber}
               </div>
               {(()=>{
                 const S=({color='var(--blood)',children})=><div style={{fontFamily:"'Cinzel',serif",fontSize:'8px',letterSpacing:'.12em',color,marginBottom:'2px',textTransform:'uppercase'}}>{children}</div>;
-                const V=({children,bold})=><div style={{fontFamily:"'IM Fell English',serif",fontSize:'13px',color:'var(--ink)',fontWeight:bold?'bold':'normal'}}>{children}</div>;
-                const Bloc=({children})=><div style={{borderTop:'1px solid rgba(139,100,30,.15)',paddingTop:'5px',marginTop:'2px'}}>{children}</div>;
+                const V=({children,bold})=><div style={{fontFamily:"'IM Fell English',serif",fontSize:'12px',color:'var(--ink)',fontWeight:bold?'bold':'normal'}}>{children}</div>;
+                const Bloc=({children})=><div style={{borderTop:'1px solid rgba(139,100,30,.15)',paddingTop:'4px',marginTop:'3px'}}>{children}</div>;
                 const events=[];
-
-                // Loups + victime
-                if(lastNightVictim){
-                  events.push(<Bloc key="wolf"><S color="var(--blood)">🐺 Dévoré</S><V bold>{lastNightVictim.name} <span style={{fontStyle:'italic',fontSize:'11px',fontWeight:'normal',opacity:.6}}>({ROLES[lastNightVictim.role]?.name})</span></V>{lastNight.wolfVictimSaved&&<V><span style={{color:'var(--green)',fontSize:'12px'}}>{lastNight.saviorType==='salvateur'?'🛡️ Sauvé par le Salvateur':'🧪 Sauvé par la potion'}</span></V>}</Bloc>);
-                } else {
-                  events.push(<Bloc key="nowolf"><V><span style={{fontStyle:'italic',color:'rgba(26,16,8,.45)'}}>Pas de victime des loups</span></V></Bloc>);
-                }
-
-                // Salvateur
-                if(lastNight.salvateurId){const sp=players.find(p=>p.id===lastNight.salvateurId);if(sp)events.push(<Bloc key="salv"><S color="var(--green)">🛡️ Protégé</S><V bold>{sp.name}</V></Bloc>);}
-
-                // Potion mort
-                if(lastNightPoisoned) events.push(<Bloc key="poison"><S color="var(--purple)">☠️ Potion de mort</S><V bold>{lastNightPoisoned.name} <span style={{fontStyle:'italic',fontSize:'11px',fontWeight:'normal',opacity:.6}}>({ROLES[lastNightPoisoned.role]?.name})</span></V></Bloc>);
-
-                // Loup Blanc
-                if(lastNightLB) events.push(<Bloc key="lb"><S>🤍 Tué par Loup Blanc</S><V bold>{lastNightLB.name} <span style={{fontStyle:'italic',fontSize:'11px',fontWeight:'normal',opacity:.6}}>({ROLES[lastNightLB.role]?.name})</span></V></Bloc>);
-                if(lastNight.gmgVictimId){const gv=players.find(p=>p.id===lastNight.gmgVictimId);if(gv)events.push(<Bloc key="gmg"><S color="var(--blood)">👹 2ème victime (Grand Méchant Loup)</S><V bold>{gv.name} <span style={{fontStyle:'italic',fontSize:'11px',fontWeight:'normal',opacity:.6}}>({ROLES[gv.role]?.name})</span></V></Bloc>);}
-                if(lastNight.infectTransformed){const iv=players.find(p=>p.id===lastNight.infectTransformed);if(iv)events.push(<Bloc key="infect"><S color="var(--blood)">🦠 Transformé en loup</S><V bold>{iv.name}</V><V><span style={{color:'var(--blood)',fontSize:'12px'}}>Rejoint les loups !</span></V></Bloc>);}
-
-                // Corbeau
-                if(lastNightCorbeau) events.push(<Bloc key="corb"><S color="rgba(80,80,120,1)">🦅 +2 votes au vote</S><V bold>{lastNightCorbeau.name}</V></Bloc>);
-
-                // Voyante
-                if(lastNight.voyanteTargetId){const vt=players.find(p=>p.id===lastNight.voyanteTargetId);if(vt)events.push(<Bloc key="voy"><S color="rgba(80,60,120,1)">🔮 Voyante a espionné</S><V bold>{vt.name}</V><V><span style={{color:lastNight.voyanteTargetIsWolf?'var(--blood)':'var(--green)',fontSize:'12px'}}>{lastNight.voyanteTargetIsWolf?"🐺 C'est un loup !":'✅ Pas un loup'}</span></V></Bloc>);}
-
-                // Joueurs enchantés
-                if(lastNight.enchantedIds&&lastNight.enchantedIds.length>0){
-                  const enchNames=lastNight.enchantedIds.map(id=>players.find(p=>p.id===id)?.name).filter(Boolean);
-                  if(enchNames.length>0) events.push(<Bloc key="flute"><S color="var(--purple)">🎵 Enchantés</S><V>{enchNames.join(', ')}</V></Bloc>);
-                }
-
-                // Chien-Loup
-                if(lastNight.chienLoupId){const cl=players.find(p=>p.id===lastNight.chienLoupId);if(cl)events.push(<Bloc key="cl"><S color="var(--amber)">🐕 Chien-Loup</S><V bold>{cl.name}</V><V><span style={{color:lastNight.chienLoupCamp==='loups'?'var(--blood)':'var(--green)',fontSize:'12px'}}>{lastNight.chienLoupCamp==='loups'?'→ A rejoint les Loups':'→ A rejoint le Village'}</span></V></Bloc>);}
-
-                // Ange Déchu
-                if(lastNight.angeDechuId&&lastNight.angeDechuTargetId){
-                  const ad=players.find(p=>p.id===lastNight.angeDechuId);
-                  const tgt=players.find(p=>p.id===lastNight.angeDechuTargetId);
-                  if(ad&&tgt) events.push(<Bloc key="ad"><S color="rgba(80,40,120,1)">😈 Cible Ange Déchu</S><V bold>{tgt.name}</V><V><span style={{fontStyle:'italic',fontSize:'11px',color:'rgba(26,16,8,.5)'}}>({ROLES[tgt.role]?.name})</span></V></Bloc>);
-                }
-
-                // Renard
-                if(lastNight.renardResult!==null&&lastNight.renardResult!==undefined){
-                  events.push(<Bloc key="renard"><S color="var(--amber)">🦊 Renard</S><V><span style={{color:lastNight.renardResult?'var(--blood)':'var(--green)',fontSize:'12px'}}>{lastNight.renardResult?'🐺 Loup détecté !':'Aucun loup parmi les 3'}</span></V>{lastNight.renardLostPower&&<V><span style={{color:'rgba(26,16,8,.5)',fontSize:'11px',fontStyle:'italic'}}>Pouvoir perdu</span></V>}</Bloc>);
-                }
-
-                return <div style={{display:'flex',flexDirection:'column',gap:'4px'}}>{events.length===1&&!lastNightVictim?<div style={{fontFamily:"'IM Fell English',serif",fontSize:'12px',fontStyle:'italic',color:'rgba(26,16,8,.38)',textAlign:'center'}}>Nuit sans événement</div>:events}</div>;
+                const lnv=lastNight?.wolfVictimId?players.find(p=>p.id===lastNight.wolfVictimId):null;
+                if(lnv) events.push(<Bloc key="w"><S>🐺 Dévoré</S><V bold>{lnv.name} <span style={{fontSize:'10px',opacity:.6}}>({ROLES[lnv.role]?.name})</span></V>{lastNight.wolfVictimSaved&&<V><span style={{color:'var(--green)',fontSize:'11px'}}>{lastNight.saviorType==='salvateur'?'🛡️ Sauvé':'🧪 Sauvé'}</span></V>}</Bloc>);
+                else events.push(<Bloc key="nw"><V><span style={{fontStyle:'italic',color:'rgba(26,16,8,.4)',fontSize:'11px'}}>Pas de victime</span></V></Bloc>);
+                if(lastNight.salvateurId){const sp=players.find(p=>p.id===lastNight.salvateurId);if(sp)events.push(<Bloc key="s"><S color="var(--green)">🛡️ Protégé</S><V bold>{sp.name}</V></Bloc>);}
+                const lnp=lastNight?.potionDeathId?players.find(p=>p.id===lastNight.potionDeathId):null;
+                if(lnp) events.push(<Bloc key="p"><S color="var(--purple)">☠️ Potion mort</S><V bold>{lnp.name}</V></Bloc>);
+                const lnlb=lastNight?.loupBlancId?players.find(p=>p.id===lastNight.loupBlancId):null;
+                if(lnlb) events.push(<Bloc key="lb"><S>🤍 Loup Blanc</S><V bold>{lnlb.name}</V></Bloc>);
+                if(lastNight.gmgVictimId){const gv=players.find(p=>p.id===lastNight.gmgVictimId);if(gv)events.push(<Bloc key="g"><S>👹 GMG</S><V bold>{gv.name}</V></Bloc>);}
+                if(lastNight.infectTransformed){const iv=players.find(p=>p.id===lastNight.infectTransformed);if(iv)events.push(<Bloc key="i"><S>🦠 Infecté</S><V bold>{iv.name}</V></Bloc>);}
+                if(lastNight.corbeauId){const cb=players.find(p=>p.id===lastNight.corbeauId);if(cb)events.push(<Bloc key="c"><S color="rgba(80,80,120,1)">🦅 +2 votes</S><V bold>{cb.name}</V></Bloc>);}
+                if(lastNight.voyanteTargetId){const vt=players.find(p=>p.id===lastNight.voyanteTargetId);if(vt)events.push(<Bloc key="v"><S color="rgba(80,60,120,1)">🔮 Voyante</S><V bold>{vt.name}</V><V><span style={{color:lastNight.voyanteTargetIsWolf?'var(--blood)':'var(--green)',fontSize:'11px'}}>{lastNight.voyanteTargetIsWolf?"🐺 Loup !":'✅ Pas loup'}</span></V></Bloc>);}
+                if(lastNight.enchantedIds?.length){const n=lastNight.enchantedIds.map(id=>players.find(p=>p.id===id)?.name).filter(Boolean);if(n.length)events.push(<Bloc key="e"><S color="var(--purple)">🎵 Enchantés</S><V>{n.join(', ')}</V></Bloc>);}
+                if(lastNight.chienLoupId){const cl=players.find(p=>p.id===lastNight.chienLoupId);if(cl)events.push(<Bloc key="cl"><S color="var(--amber)">🐕 Chien-Loup</S><V><span style={{color:lastNight.chienLoupCamp==='loups'?'var(--blood)':'var(--green)'}}>{lastNight.chienLoupCamp==='loups'?'→ Loups':'→ Village'}</span></V></Bloc>);}
+                return <div style={{display:'flex',flexDirection:'column',gap:'3px'}}>{events}</div>;
               })()}
             </div>
           )}
-
-          {/* Ordre de nuit compact */}
-          <div style={{background:'rgba(13,10,6,.85)',border:'1px solid rgba(201,168,76,.15)',borderRadius:'4px',padding:'8px',overflow:'hidden'}}>
+          <div style={{background:'rgba(13,10,6,.85)',border:'1px solid rgba(201,168,76,.15)',borderRadius:'4px',padding:'8px'}}>
             <div style={{fontFamily:"'Cinzel',serif",fontSize:'8px',letterSpacing:'.2em',color:'rgba(201,168,76,.55)',textTransform:'uppercase',marginBottom:'6px'}}>Ordre de nuit</div>
             <div style={{display:'flex',flexDirection:'column',gap:'3px'}}>
               {nightBarItems.map((it,i)=>(
@@ -908,57 +863,7 @@ function App(){
               ))}
             </div>
           </div>
-            </div>
-          );
-          // VERSION MOBILE : bottom bar
-          return(
-            <div className="recap-panel-mobile">
-              <div className="recap-panel-mobile-btns">
-                <button onClick={()=>{setNightIdx(0);setShowNight(true);}}
-                  style={{padding:'12px 8px',background:'linear-gradient(135deg,rgba(80,40,120,.35),rgba(40,10,80,.4))',border:'1px solid rgba(140,100,200,.5)',borderRadius:'4px',color:'#ddbbff',fontFamily:"'Cinzel',serif",fontSize:'12px',letterSpacing:'.06em',cursor:'pointer',textTransform:'uppercase',textAlign:'center'}}>
-                  🌙 1ère nuit
-                </button>
-                <button onClick={()=>{setEveryNightIdx(0);setShowEveryNight(true);setNightCount(n=>n+1);}}
-                  style={{padding:'12px 8px',background:'linear-gradient(135deg,rgba(201,168,76,.2),rgba(120,90,20,.2))',border:'1px solid rgba(201,168,76,.4)',borderRadius:'4px',color:'var(--gold-bright)',fontFamily:"'Cinzel',serif",fontSize:'12px',letterSpacing:'.06em',cursor:'pointer',textTransform:'uppercase',textAlign:'center'}}>
-                  ✦ Nuit suivante
-                </button>
-              </div>
-              {lastNight&&(
-                <div style={{background:'linear-gradient(160deg,var(--parchment) 0%,var(--parchment-dark) 100%)',borderRadius:'4px',border:'1px solid rgba(201,168,76,.28)',padding:'8px'}}>
-                  <div style={{fontFamily:"'Cinzel',serif",fontSize:'9px',letterSpacing:'.2em',textTransform:'uppercase',color:'var(--blood)',marginBottom:'6px'}}>📜 Nuit {lastNight.nightNumber}</div>
-                  {(()=>{
-                    const S=({color='var(--blood)',children})=><div style={{fontFamily:"'Cinzel',serif",fontSize:'8px',letterSpacing:'.1em',color,marginBottom:'1px',textTransform:'uppercase'}}>{children}</div>;
-                    const V=({children,bold})=><div style={{fontFamily:"'IM Fell English',serif",fontSize:'12px',color:'var(--ink)',fontWeight:bold?'bold':'normal'}}>{children}</div>;
-                    const Bloc=({children})=><div style={{borderTop:'1px solid rgba(139,100,30,.12)',paddingTop:'4px',marginTop:'3px'}}>{children}</div>;
-                    const events=[];
-                    const lastNightVictim2=lastNight?.wolfVictimId?players.find(p=>p.id===lastNight.wolfVictimId):null;
-                    if(lastNightVictim2) events.push(<Bloc key="w"><S>🐺 Dévoré</S><V bold>{lastNightVictim2.name}{lastNight.wolfVictimSaved&&<span style={{color:'var(--green)',fontSize:'11px'}}> — sauvé</span>}</V></Bloc>);
-                    else events.push(<Bloc key="nw"><V><span style={{fontStyle:'italic',color:'rgba(26,16,8,.4)',fontSize:'11px'}}>Pas de victime</span></V></Bloc>);
-                    const lastNightPoisoned2=lastNight?.potionDeathId?players.find(p=>p.id===lastNight.potionDeathId):null;
-                    if(lastNightPoisoned2) events.push(<Bloc key="p"><S color="var(--purple)">☠️ Potion</S><V bold>{lastNightPoisoned2.name}</V></Bloc>);
-                    const lastNightLB2=lastNight?.loupBlancId?players.find(p=>p.id===lastNight.loupBlancId):null;
-                    if(lastNightLB2) events.push(<Bloc key="lb"><S>🤍 Loup Blanc</S><V bold>{lastNightLB2.name}</V></Bloc>);
-                    if(lastNight.gmgVictimId){const gv=players.find(p=>p.id===lastNight.gmgVictimId);if(gv)events.push(<Bloc key="gmg"><S>👹 GMG</S><V bold>{gv.name}</V></Bloc>);}
-                    if(lastNight.infectTransformed){const iv=players.find(p=>p.id===lastNight.infectTransformed);if(iv)events.push(<Bloc key="inf"><S>🦠 Infecté</S><V bold>{iv.name}</V></Bloc>);}
-                    const lastNightCorbeau2=lastNight?.corbeauId?players.find(p=>p.id===lastNight.corbeauId):null;
-                    if(lastNightCorbeau2) events.push(<Bloc key="c"><S color="rgba(80,80,120,1)">🦅 +2 votes</S><V bold>{lastNightCorbeau2.name}</V></Bloc>);
-                    return <div style={{display:'flex',flexDirection:'column',gap:'2px'}}>{events}</div>;
-                  })()}
-                </div>
-              )}
-              <div style={{background:'rgba(13,10,6,.85)',border:'1px solid rgba(201,168,76,.15)',borderRadius:'4px',padding:'6px 8px'}}>
-                <div style={{fontFamily:"'Cinzel',serif",fontSize:'8px',letterSpacing:'.2em',color:'rgba(201,168,76,.55)',textTransform:'uppercase',marginBottom:'4px'}}>Ordre de nuit</div>
-                <div style={{display:'flex',flexWrap:'wrap',gap:'4px'}}>
-                  {nightBarItems.map((it,i)=>(
-                    <span key={i} style={{fontFamily:"'IM Fell English',serif",fontSize:'11px',color:'rgba(245,230,200,.6)',display:'flex',alignItems:'center',gap:'3px',padding:'2px 6px',background:'rgba(245,230,200,.05)',borderRadius:'3px'}}>
-                      {ROLES[it.role]?.emoji||'✦'} {it.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          );
-        })()}
+        </div>
       </div>{/* fin zone principale */}
 
       {/* Modal joueur */}
