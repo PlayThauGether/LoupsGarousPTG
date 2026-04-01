@@ -101,8 +101,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
 /* ÉCRAN 3 — JEU */
 .gs{min-height:100vh;display:flex;flex-direction:column;padding:10px 12px;gap:10px;}
 /* Panneau récap desktop */
-/* Panneau récap — toujours dans le flux, jamais en position fixed */
-.recap-col{display:flex;flex-direction:column;gap:8px;width:190px;flex-shrink:0;}
+.recap-col{display:flex;flex-direction:column;gap:8px;width:100%;margin-top:10px;}
 /* Tablette : layout optimisé */
 @media(max-width:700px){
   .gs{padding:8px;}
@@ -757,9 +756,9 @@ function App(){
         </div>
       )}
 
-      {/* ── ZONE PRINCIPALE ── */}
-      <div style={{flex:1,display:'flex',flexDirection:'row',alignItems:'flex-start',gap:'10px',minHeight:0,overflow:'hidden'}}>
-        <div className="board" style={{flex:1,margin:0,minWidth:0}}>
+      {/* ── CERCLE TABLE ── */}
+      <div style={{display:'flex',justifyContent:'center'}}>
+        <div className="board" style={{margin:0,width:'min(100vw, 100vh - 200px)',maxWidth:'680px'}}>
         <svg viewBox="-5 -5 110 115" className="csvg">
           <circle cx={cx} cy={cy} r="13" fill="rgba(201,168,76,.05)" stroke="rgba(201,168,76,.2)" strokeWidth=".6"/>
           <text x={cx} y={cy-2} textAnchor="middle" style={{fontFamily:"'Cinzel',serif",fontSize:'3.5px',fill:'rgba(201,168,76,.5)',letterSpacing:'.15em'}}>NUIT</text>
@@ -813,9 +812,10 @@ function App(){
           })}
         </svg>
         </div>
+      </div>
 
-        {/* ── PANNEAU RÉCAP — dans le flux normal ── */}
-        <div className="recap-col">
+      {/* ── PANNEAU BAS DE PAGE ── */}
+      <div className="recap-col">
           <button onClick={()=>{setNightIdx(0);setShowNight(true);}}
             style={{padding:'10px 8px',background:'linear-gradient(135deg,rgba(80,40,120,.35),rgba(40,10,80,.4))',border:'1px solid rgba(140,100,200,.5)',borderRadius:'4px',color:'#ddbbff',fontFamily:"'Cinzel',serif",fontSize:'11px',letterSpacing:'.06em',cursor:'pointer',textTransform:'uppercase',textAlign:'center',whiteSpace:'nowrap'}}>
             🌙 1ère nuit
@@ -863,8 +863,7 @@ function App(){
               ))}
             </div>
           </div>
-        </div>
-      </div>{/* fin zone principale */}
+      </div>{/* fin panneau */}
 
       {/* Modal joueur */}
       {selId&&(()=>{
