@@ -101,7 +101,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
 /* ÉCRAN 3 — JEU */
 .gs{min-height:100vh;display:flex;flex-direction:column;padding:10px 12px;gap:10px;}
 /* Panneau récap desktop */
-.recap-col{display:flex;flex-direction:column;gap:8px;width:100%;margin-top:10px;}
+
 /* Tablette : layout optimisé */
 @media(max-width:700px){
   .gs{padding:8px;}
@@ -814,20 +814,27 @@ function App(){
         </div>
       </div>
 
-      {/* ── PANNEAU BAS DE PAGE ── */}
-      <div className="recap-col">
+      {/* ══ PANNEAU BAS — HORIZONTAL ══ */}
+      <div style={{width:'100%',marginTop:'12px',display:'flex',flexDirection:'column',gap:'10px'}}>
+
+        {/* Boutons côte à côte */}
+        <div style={{display:'flex',gap:'10px'}}>
           <button onClick={()=>{setNightIdx(0);setShowNight(true);}}
-            style={{padding:'10px 8px',background:'linear-gradient(135deg,rgba(80,40,120,.35),rgba(40,10,80,.4))',border:'1px solid rgba(140,100,200,.5)',borderRadius:'4px',color:'#ddbbff',fontFamily:"'Cinzel',serif",fontSize:'11px',letterSpacing:'.06em',cursor:'pointer',textTransform:'uppercase',textAlign:'center',whiteSpace:'nowrap'}}>
+            style={{flex:1,padding:'14px',background:'linear-gradient(135deg,rgba(80,40,120,.4),rgba(40,10,80,.45))',border:'1px solid rgba(140,100,200,.55)',borderRadius:'6px',color:'#ddbbff',fontFamily:"'Cinzel',serif",fontSize:'13px',letterSpacing:'.06em',cursor:'pointer',textTransform:'uppercase',textAlign:'center'}}>
             🌙 1ère nuit
           </button>
           <button onClick={()=>{setEveryNightIdx(0);setShowEveryNight(true);setNightCount(n=>n+1);}}
-            style={{padding:'10px 8px',background:'linear-gradient(135deg,rgba(201,168,76,.2),rgba(120,90,20,.2))',border:'1px solid rgba(201,168,76,.4)',borderRadius:'4px',color:'var(--gold-bright)',fontFamily:"'Cinzel',serif",fontSize:'11px',letterSpacing:'.06em',cursor:'pointer',textTransform:'uppercase',textAlign:'center',whiteSpace:'nowrap'}}>
+            style={{flex:1,padding:'14px',background:'linear-gradient(135deg,rgba(201,168,76,.22),rgba(120,90,20,.22))',border:'1px solid rgba(201,168,76,.45)',borderRadius:'6px',color:'var(--gold-bright)',fontFamily:"'Cinzel',serif",fontSize:'13px',letterSpacing:'.06em',cursor:'pointer',textTransform:'uppercase',textAlign:'center'}}>
             ✦ Nuit suivante
           </button>
+        </div>
+        {/* Récap + Ordre de nuit côte à côte */}
+        <div style={{display:'flex',gap:'10px',alignItems:'flex-start'}}>
+
           {lastNight&&(
-            <div style={{background:'linear-gradient(160deg,var(--parchment) 0%,var(--parchment-dark) 100%)',borderRadius:'4px',border:'1px solid rgba(201,168,76,.28)',padding:'10px',overflowY:'auto',maxHeight:'55vh'}}>
-              <div style={{fontFamily:"'Cinzel',serif",fontSize:'9px',letterSpacing:'.2em',textTransform:'uppercase',color:'var(--blood)',marginBottom:'8px',borderBottom:'1px solid rgba(139,100,30,.2)',paddingBottom:'4px'}}>
-                📜 Nuit {lastNight.nightNumber}
+            <div style={{flex:2,background:'linear-gradient(160deg,var(--parchment) 0%,var(--parchment-dark) 100%)',borderRadius:'6px',border:'1px solid rgba(201,168,76,.28)',padding:'12px'}}>
+              <div style={{fontFamily:"'Cinzel',serif",fontSize:'10px',letterSpacing:'.2em',textTransform:'uppercase',color:'var(--blood)',marginBottom:'8px',borderBottom:'1px solid rgba(139,100,30,.2)',paddingBottom:'4px'}}>
+                📜 Résumé — Nuit {lastNight.nightNumber}
               </div>
               {(()=>{
                 const S=({color='var(--blood)',children})=><div style={{fontFamily:"'Cinzel',serif",fontSize:'8px',letterSpacing:'.12em',color,marginBottom:'2px',textTransform:'uppercase'}}>{children}</div>;
@@ -852,18 +859,22 @@ function App(){
               })()}
             </div>
           )}
-          <div style={{background:'rgba(13,10,6,.85)',border:'1px solid rgba(201,168,76,.15)',borderRadius:'4px',padding:'8px'}}>
-            <div style={{fontFamily:"'Cinzel',serif",fontSize:'8px',letterSpacing:'.2em',color:'rgba(201,168,76,.55)',textTransform:'uppercase',marginBottom:'6px'}}>Ordre de nuit</div>
-            <div style={{display:'flex',flexDirection:'column',gap:'3px'}}>
+
+          {/* Ordre de nuit */}
+          <div style={{flex:1,background:'rgba(13,10,6,.85)',border:'1px solid rgba(201,168,76,.18)',borderRadius:'6px',padding:'12px'}}>
+            <div style={{fontFamily:"'Cinzel',serif",fontSize:'9px',letterSpacing:'.2em',color:'rgba(201,168,76,.6)',textTransform:'uppercase',marginBottom:'8px'}}>🌙 Ordre de nuit</div>
+            <div style={{display:'flex',flexDirection:'column',gap:'5px'}}>
               {nightBarItems.map((it,i)=>(
-                <div key={i} style={{display:'flex',alignItems:'center',gap:'5px'}}>
-                  <span style={{fontSize:'12px'}}>{ROLES[it.role]?.emoji||'✦'}</span>
-                  <span style={{fontFamily:"'IM Fell English',serif",fontSize:'11px',color:'rgba(245,230,200,.6)'}}>{it.name}</span>
+                <div key={i} style={{display:'flex',alignItems:'center',gap:'6px'}}>
+                  <span style={{fontSize:'14px'}}>{ROLES[it.role]?.emoji||'✦'}</span>
+                  <span style={{fontFamily:"'IM Fell English',serif",fontSize:'13px',color:'rgba(245,230,200,.7)'}}>{it.name}</span>
                 </div>
               ))}
             </div>
           </div>
-      </div>{/* fin panneau */}
+
+        </div>{/* fin flex récap+ordre */}
+      </div>{/* fin panneau bas */}
 
       {/* Modal joueur */}
       {selId&&(()=>{
