@@ -28,8 +28,10 @@
 
 <!-- Général -->
 <meta name="description" content="Aide narration meneur de jeu Loups-Garous by Play Thau'Gether">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-<link rel="shortcut icon" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="shortcut icon" href="favicon.ico">
 
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
 <style>
@@ -149,11 +151,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
 .ropt.sv{background:rgba(45,90,61,.13);border-color:var(--green);color:var(--green);}
 .ropt.ss{background:rgba(74,32,96,.13);border-color:var(--purple);color:var(--purple);}
 .ropt.sa{background:rgba(122,74,0,.13);border-color:var(--amber);color:var(--amber);}
-.mod-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.mod-btns{display:flex;flex-direction:column;gap:8px;}
 .mb{padding:10px;border-radius:3px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .15s;border:1px solid;}
 .mb.kill{background:rgba(139,26,26,.09);border-color:var(--blood);color:var(--blood);}
 .mb.rev{background:rgba(45,90,61,.09);border-color:var(--green);color:var(--green);}
-.mb.cls{grid-column:1/-1;background:rgba(26,16,8,.04);border-color:rgba(26,16,8,.16);color:rgba(26,16,8,.42);}
+.mb.cls{background:rgba(26,16,8,.04);border-color:rgba(26,16,8,.16);color:rgba(26,16,8,.42);}
 
 /* SLIDESHOW NUIT */
 .nsw{position:fixed;inset:0;background:#0d0a06;z-index:200;display:flex;flex-direction:column;}
