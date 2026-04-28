@@ -102,6 +102,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
 
 /* ÉCRAN 3 — JEU */
 .gs{min-height:100vh;display:flex;flex-direction:column;padding:10px 12px;gap:10px;}
+.no-select{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
 .drag-handle{cursor:grab;color:rgba(139,100,30,.4);font-size:14px;padding:0 4px;user-select:none;touch-action:none;}
 .drag-handle:active{cursor:grabbing;}
 .player-row{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid rgba(139,100,30,.12);transition:background .15s,opacity .15s;}
@@ -308,6 +309,12 @@ const isWolf=p=>ROLES[p.role]?.team==='loups'||p.role==='LOUP_BLANC'||p.isInfect
 const mkP=id=>({id,name:`Joueur ${id}`,role:null,alive:true,isInfected:false,team:null,turnedWolf:false,lover:false,loverId:null,bearGrowl:false,protected:false,enchanted:false,model:null,potionLifeUsed:false,potionDeathUsed:false,foxPower:true,angelTarget:null,infectUsed:false});
 
 function App(){
+  // Bloquer le menu contextuel sur le SVG (évite "copier/coller" au appui long)
+  React.useEffect(()=>{
+    const prevent=e=>e.preventDefault();
+    document.addEventListener('contextmenu',prevent);
+    return()=>document.removeEventListener('contextmenu',prevent);
+  },[]);
   const [screen,setScreen]=useState('count');
   const [count,setCount]=useState(8);
   const [activeRoles,setActiveRoles]=useState({});
@@ -662,52 +669,14 @@ function App(){
           {players.map((p,i)=>(
             <div key={p.id}
               className={`player-row${dragIdx===i?' dragging':''}`}
-              draggable
-              onDragStart={()=>setDragIdx(i)}
+              draggable="true"
+              onContextMenu={e=>e.preventDefault()}
+              onDragStart={e=>{e.dataTransfer.effectAllowed='move';setDragIdx(i);}}
               onDragEnd={()=>setDragIdx(null)}
-              onDragOver={e=>e.preventDefault()}
-              onDrop={()=>{reorderPlayers(dragIdx,i);setDragIdx(null);}}
-              onTouchStart={(e)=>{
-                const touch=e.touches[0];
-                const el=e.currentTarget;
-                el._touchTimer=setTimeout(()=>{
-                  setDragIdx(i);
-                  el.style.opacity='.4';
-                },400);
-                el._touchStartY=touch.clientY;
-              }}
-              onTouchMove={(e)=>{
-                if(dragIdx===null) return;
-                e.preventDefault();
-                const touch=e.touches[0];
-                const els=document.querySelectorAll('.player-row');
-                els.forEach((row,idx)=>{
-                  const rect=row.getBoundingClientRect();
-                  if(touch.clientY>=rect.top&&touch.clientY<=rect.bottom&&idx!==dragIdx){
-                    row.classList.add('drag-over');
-                  } else {
-                    row.classList.remove('drag-over');
-                  }
-                });
-              }}
-              onTouchEnd={(e)=>{
-                clearTimeout(e.currentTarget._touchTimer);
-                if(dragIdx!==null){
-                  const touch=e.changedTouches[0];
-                  const els=document.querySelectorAll('.player-row');
-                  let targetIdx=dragIdx;
-                  els.forEach((row,idx)=>{
-                    const rect=row.getBoundingClientRect();
-                    if(touch.clientY>=rect.top&&touch.clientY<=rect.bottom) targetIdx=idx;
-                    row.classList.remove('drag-over');
-                    row.style.opacity='';
-                  });
-                  reorderPlayers(dragIdx,targetIdx);
-                  setDragIdx(null);
-                }
-              }}
+              onDragOver={e=>{e.preventDefault();e.dataTransfer.dropEffect='move';}}
+              onDrop={e=>{e.preventDefault();reorderPlayers(dragIdx,i);setDragIdx(null);}}
             >
-              <span className="drag-handle" title="Maintenir pour déplacer">⠿</span>
+              <span className="drag-handle no-select">⠿</span>
               <span style={{fontFamily:"'Cinzel',serif",fontSize:'10px',color:'var(--blood)',width:'16px',flexShrink:0}}>{i+1}</span>
               <input
                 value={p.name}
@@ -862,7 +831,7 @@ function App(){
       {/* ── CERCLE TABLE ── */}
       <div style={{display:'flex',justifyContent:'center'}}>
         <div className="board" style={{margin:0,width:'min(100vw, 100vh - 200px)',maxWidth:'680px'}}>
-        <svg viewBox="-5 -5 110 115" className="csvg">
+        <svg viewBox="-5 -5 110 115" className="csvg" style={{touchAction:"none"}}>
           <circle cx={cx} cy={cy} r="13" fill="rgba(201,168,76,.05)" stroke="rgba(201,168,76,.2)" strokeWidth=".6"/>
           <text x={cx} y={cy-2} textAnchor="middle" style={{fontFamily:"'Cinzel',serif",fontSize:'3.5px',fill:'rgba(201,168,76,.5)',letterSpacing:'.15em'}}>NUIT</text>
           <text x={cx} y={cy+3} textAnchor="middle" style={{fontFamily:"'Cinzel Decorative',serif",fontSize:'6px',fill:'rgba(201,168,76,.7)',fontWeight:'bold'}}>{nightCount}</text>
