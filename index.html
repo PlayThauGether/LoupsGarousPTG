@@ -102,6 +102,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
 
 /* ÉCRAN 3 — JEU */
 .gs{min-height:100vh;display:flex;flex-direction:column;padding:10px 12px;gap:10px;}
+.drag-handle{cursor:grab;color:rgba(139,100,30,.4);font-size:14px;padding:0 4px;user-select:none;touch-action:none;}
+.drag-handle:active{cursor:grabbing;}
+.player-row{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid rgba(139,100,30,.12);transition:background .15s,opacity .15s;}
+.player-row.dragging{opacity:.4;background:rgba(201,168,76,.08);}
+.player-row.drag-over{border-top:2px solid var(--gold-bright);}
 /* Panneau récap desktop */
 
 /* Tablette : layout optimisé */
@@ -316,6 +321,7 @@ function App(){
   const [na,setNaState]=useState({wolfVictim:null,corbeauTarget:null,salvateurTarget:null,potionLifeUsed:false,potionDeathTarget:null,voyanteTarget:null,loupBlancTarget:null,renardTargets:[null,null,null],infectTransform:false,gmgVictim:null,newEnchanted:[null,null]});
   const [lastNight,setLastNight]=useState(null); // récap nuit précédente
   const [voleurChosenRole,setVoleurChosenRole]=useState(null); // rôle choisi par le Voleur
+  const [dragIdx,setDragIdx]=useState(null); // index du joueur en cours de drag
   const [tooltip,setTooltip]=useState(null);
   const [showReset,setShowReset]=useState(false);
   const [resetKeep,setResetKeep]=useState([]);
@@ -608,6 +614,18 @@ function App(){
     </div>
   );
 
+  // Réordonner les joueurs (drag & drop)
+  const reorderPlayers=(fromIdx,toIdx)=>{
+    if(fromIdx===toIdx) return;
+    setPlayers(prev=>{
+      const arr=[...prev];
+      const [moved]=arr.splice(fromIdx,1);
+      arr.splice(toIdx,0,moved);
+      // Réassigner les IDs pour garder l'ordre visuel
+      return arr.map((p,i)=>({...p,id:i+1}));
+    });
+  };
+
   /* ── ÉCRAN 2 : RÔLES ── */
   const incRole=rk=>{
     const w=roleWeight(rk);
@@ -641,9 +659,56 @@ function App(){
         {/* Colonne joueurs */}
         <div className="parch" style={{alignSelf:'start'}}>
           <div className="stitle">✦ Joueurs</div>
-          {players.map(p=>(
-            <div key={p.id} style={{display:'flex',alignItems:'center',gap:'6px',padding:'5px 0',borderBottom:'1px solid rgba(139,100,30,.12)'}}>
-              <span style={{fontFamily:"'Cinzel',serif",fontSize:'10px',color:'var(--blood)',width:'16px',flexShrink:0}}>{p.id}</span>
+          {players.map((p,i)=>(
+            <div key={p.id}
+              className={`player-row${dragIdx===i?' dragging':''}`}
+              draggable
+              onDragStart={()=>setDragIdx(i)}
+              onDragEnd={()=>setDragIdx(null)}
+              onDragOver={e=>e.preventDefault()}
+              onDrop={()=>{reorderPlayers(dragIdx,i);setDragIdx(null);}}
+              onTouchStart={(e)=>{
+                const touch=e.touches[0];
+                const el=e.currentTarget;
+                el._touchTimer=setTimeout(()=>{
+                  setDragIdx(i);
+                  el.style.opacity='.4';
+                },400);
+                el._touchStartY=touch.clientY;
+              }}
+              onTouchMove={(e)=>{
+                if(dragIdx===null) return;
+                e.preventDefault();
+                const touch=e.touches[0];
+                const els=document.querySelectorAll('.player-row');
+                els.forEach((row,idx)=>{
+                  const rect=row.getBoundingClientRect();
+                  if(touch.clientY>=rect.top&&touch.clientY<=rect.bottom&&idx!==dragIdx){
+                    row.classList.add('drag-over');
+                  } else {
+                    row.classList.remove('drag-over');
+                  }
+                });
+              }}
+              onTouchEnd={(e)=>{
+                clearTimeout(e.currentTarget._touchTimer);
+                if(dragIdx!==null){
+                  const touch=e.changedTouches[0];
+                  const els=document.querySelectorAll('.player-row');
+                  let targetIdx=dragIdx;
+                  els.forEach((row,idx)=>{
+                    const rect=row.getBoundingClientRect();
+                    if(touch.clientY>=rect.top&&touch.clientY<=rect.bottom) targetIdx=idx;
+                    row.classList.remove('drag-over');
+                    row.style.opacity='';
+                  });
+                  reorderPlayers(dragIdx,targetIdx);
+                  setDragIdx(null);
+                }
+              }}
+            >
+              <span className="drag-handle" title="Maintenir pour déplacer">⠿</span>
+              <span style={{fontFamily:"'Cinzel',serif",fontSize:'10px',color:'var(--blood)',width:'16px',flexShrink:0}}>{i+1}</span>
               <input
                 value={p.name}
                 onChange={e=>setPlayers(prev=>prev.map(x=>x.id===p.id?{...x,name:e.target.value}:x))}
