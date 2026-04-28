@@ -867,7 +867,7 @@ function App(){
             style={{flex:1,padding:'14px',background:'linear-gradient(135deg,rgba(80,40,120,.4),rgba(40,10,80,.45))',border:'1px solid rgba(140,100,200,.55)',borderRadius:'6px',color:'#ddbbff',fontFamily:"'Cinzel',serif",fontSize:'13px',letterSpacing:'.06em',cursor:'pointer',textTransform:'uppercase',textAlign:'center'}}>
             🌙 1ère nuit
           </button>
-          <button onClick={()=>{setEveryNightIdx(0);setShowEveryNight(true);setNightCount(n=>n+1);}}
+          <button onClick={()=>{setNightCount(n=>n+1);setEveryNightIdx(0);setShowEveryNight(true);}}
             style={{flex:1,padding:'14px',background:'linear-gradient(135deg,rgba(201,168,76,.22),rgba(120,90,20,.22))',border:'1px solid rgba(201,168,76,.45)',borderRadius:'6px',color:'var(--gold-bright)',fontFamily:"'Cinzel',serif",fontSize:'13px',letterSpacing:'.06em',cursor:'pointer',textTransform:'uppercase',textAlign:'center'}}>
             ✦ Nuit suivante
           </button>
@@ -1024,7 +1024,7 @@ function App(){
       )}
 
       {showNight&&<NightSlide slides={nightSlides} idx={nightIdx} setIdx={setNightIdx} players={players} setPlayers={setPlayers} na={na} setNA={setNA} onClose={()=>setShowNight(false)} onFinish={()=>{applyNight();setNightCount(n=>n+1);}} assignRole={assignRole} title="✦ Première Nuit ✦" isFirstNight={true} voleurChosenRole={voleurChosenRole} setVoleurChosenRole={setVoleurChosenRole} activeRoles={activeRoles} setPlayers={setPlayers}/>}
-      {showEveryNight&&<NightSlide slides={everyNightSlides} idx={everyNightIdx} setIdx={setEveryNightIdx} players={players} setPlayers={setPlayers} na={na} setNA={setNA} onClose={()=>setShowEveryNight(false)} onFinish={()=>{applyNight();setNightCount(n=>n+1);setShowEveryNight(false);}} assignRole={assignRole} title="✦ Déroulé de la Nuit ✦" isFirstNight={false}/>}
+      {showEveryNight&&<NightSlide slides={everyNightSlides} idx={everyNightIdx} setIdx={setEveryNightIdx} players={players} setPlayers={setPlayers} na={na} setNA={setNA} onClose={()=>setShowEveryNight(false)} onFinish={()=>{applyNight();setShowEveryNight(false);}} assignRole={assignRole} title="✦ Déroulé de la Nuit ✦" isFirstNight={false}/>}
     </div>
   );
 }
