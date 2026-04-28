@@ -329,6 +329,8 @@ function App(){
   const [lastNight,setLastNight]=useState(null); // récap nuit précédente
   const [voleurChosenRole,setVoleurChosenRole]=useState(null); // rôle choisi par le Voleur
   const [dragIdx,setDragIdx]=useState(null); // index du joueur en cours de drag
+  const [dragPos,setDragPos]=useState(null); // position actuelle du drag {x,y}
+  const svgRef=React.useRef(null); // ref sur le SVG
   const [tooltip,setTooltip]=useState(null);
   const [showReset,setShowReset]=useState(false);
   const [resetKeep,setResetKeep]=useState([]);
@@ -831,7 +833,31 @@ function App(){
       {/* ── CERCLE TABLE ── */}
       <div style={{display:'flex',justifyContent:'center'}}>
         <div className="board" style={{margin:0,width:'min(100vw, 100vh - 200px)',maxWidth:'680px'}}>
-        <svg viewBox="-5 -5 110 115" className="csvg" style={{touchAction:"none"}}>
+        <svg ref={svgRef} viewBox="-5 -5 110 115" className="csvg" style={{touchAction:"none",userSelect:'none'}}
+  onPointerMove={e=>{
+    if(dragIdx===null) return;
+    // Convertir coordonnées écran → SVG
+    const svg=svgRef.current;
+    const pt=svg.createSVGPoint();
+    pt.x=e.clientX; pt.y=e.clientY;
+    const svgP=pt.matrixTransform(svg.getScreenCTM().inverse());
+    setDragPos({x:svgP.x,y:svgP.y});
+    // Trouver le joueur le plus proche
+    const n=players.length;
+    let closest=-1,minDist=12; // seuil 12 unités SVG
+    players.forEach((_,i)=>{
+      const angle=(360/n)*i-90,rad=angle*Math.PI/180;
+      const px=cx+rv*Math.cos(rad),py=cy+rv*Math.sin(rad);
+      const d=Math.sqrt((svgP.x-px)**2+(svgP.y-py)**2);
+      if(d<minDist){minDist=d;closest=i;}
+    });
+    if(closest>=0&&closest!==dragIdx){
+      reorderPlayers(dragIdx,closest);
+      setDragIdx(closest);
+    }
+  }}
+  onPointerUp={e=>{setDragIdx(null);setDragPos(null);}}
+  onPointerLeave={e=>{setDragIdx(null);setDragPos(null);}}>
           <circle cx={cx} cy={cy} r="13" fill="rgba(201,168,76,.05)" stroke="rgba(201,168,76,.2)" strokeWidth=".6"/>
           <text x={cx} y={cy-2} textAnchor="middle" style={{fontFamily:"'Cinzel',serif",fontSize:'3.5px',fill:'rgba(201,168,76,.5)',letterSpacing:'.15em'}}>NUIT</text>
           <text x={cx} y={cy+3} textAnchor="middle" style={{fontFamily:"'Cinzel Decorative',serif",fontSize:'6px',fill:'rgba(201,168,76,.7)',fontWeight:'bold'}}>{nightCount}</text>
@@ -863,7 +889,26 @@ function App(){
             const bg=dead?'rgba(40,30,20,.88)':wolf?'rgba(72,7,7,.9)':'rgba(20,14,5,.9)';
             const tc=dead?'rgba(180,150,100,.35)':wolf?'#ff9999':'#f5e6c8';
             return(
-              <g key={p.id} className="pnode" onClick={()=>setSelId(p.id)} transform={`translate(${px},${py})`}>
+              <g key={p.id} className="pnode"
+                transform={`translate(${px},${py})`}
+                onContextMenu={e=>e.preventDefault()}
+                onPointerDown={e=>{
+                  e.preventDefault();
+                  e.stopPropagation();
+                  svgRef.current.setPointerCapture(e.pointerId);
+                  // Timer appui long → activer drag
+                  const t=setTimeout(()=>{
+                    setDragIdx(i);
+                  },350);
+                  e.currentTarget._pt=t;
+                }}
+                onPointerUp={e=>{
+                  clearTimeout(e.currentTarget._pt);
+                  if(dragIdx===null) setSelId(selId===p.id?null:p.id); // simple clic
+                  setDragIdx(null);
+                  setDragPos(null);
+                }}
+                style={{cursor:dragIdx===i?'grabbing':'pointer'}}>
                 {p.bearGrowl&&p.alive&&(<>
                   {/* Halo rouge solide fixe */}
                   <circle r="10.5" fill="none" stroke="rgba(220,50,50,.9)" strokeWidth="2"/>
@@ -885,6 +930,8 @@ function App(){
                   <line x1="-5" y1="-5" x2="5" y2="5" stroke="rgba(139,26,26,.42)" strokeWidth=".75"/>
                   <line x1="5" y1="-5" x2="-5" y2="5" stroke="rgba(139,26,26,.42)" strokeWidth=".75"/>
                 </>}
+                {/* Anneau doré si ce joueur est en train d'être déplacé */}
+                {dragIdx===i&&<circle r="10" fill="none" stroke="var(--gold-bright)" strokeWidth="1.5" strokeDasharray="2,1" opacity=".9"/>}
               </g>
             );
           })}
