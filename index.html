@@ -428,13 +428,17 @@ function App(){
       if(rk==='CHARMED') return players.some(p=>p.alive&&p.enchanted);
       return players.some(p=>p.alive&&p.role===rk);
     };
-    // Un rôle est inclus si : sélectionné dans activeRoles ET (joueur vivant assigné OU rôle bonus voleur sans joueur)
+    // Rôles qui nécessitent obligatoirement un joueur vivant pour être appelés
+    const NEEDS_ALIVE_PLAYER=['VOYANTE','CORBEAU','SALVATORE','SORCIERE','RENARD','COMEDIEN',
+      'INFECT_PERE','GRAND_MECHANT_LOUP','JOUEUR_FLUTE'];
+
     const slides=EVERY_NIGHT_DETAIL.filter(s=>{
       if(s.role==='CHARMED') return activeRoles['JOUEUR_FLUTE']>0 && players.some(p=>p.alive&&p.enchanted);
       if(s.role==='LOUP') return Object.keys(activeRoles).some(k=>ROLES[k]?.team==='loups'||k==='LOUP_BLANC') && players.some(p=>p.alive&&isWolf(p));
-      if(s.role==='LOUP_BLANC') return activeRoles['LOUP_BLANC']>0; // toujours inclus si sélectionné (nuit repos ou actif)
-      // Pour tous les autres rôles : inclus si sélectionné dans activeRoles
-      // Si joueur vivant assigné → normal. Si pas de joueur → inclus quand même (rôle bonus voleur non attribué)
+      if(s.role==='LOUP_BLANC') return activeRoles['LOUP_BLANC']>0 && players.some(p=>p.alive&&p.role==='LOUP_BLANC');
+      // Rôles nécessitant un joueur vivant : on vérifie qu'il est bien en vie
+      if(NEEDS_ALIVE_PLAYER.includes(s.role)) return activeRoles[s.role]>0 && hasAlivePlayers(s.role);
+      // Autres rôles bonus (sans joueur assigné) : juste vérifier activeRoles
       return activeRoles[s.role]>0;
     });
     return [...slides,{role:'RECAP',name:'Récap de la Nuit',note:''}];
@@ -724,12 +728,13 @@ function App(){
   /* ── ÉCRAN 3 : JEU ── */
   const n=players.length,cx=50,cy=50,rv=38;
   // Un rôle n'apparaît dans la bande que si le joueur qui l'a est encore vivant
+  const NEEDS_ALIVE=['VOYANTE','CORBEAU','SALVATORE','SORCIERE','RENARD','COMEDIEN',
+    'INFECT_PERE','GRAND_MECHANT_LOUP','JOUEUR_FLUTE','LOUP_BLANC'];
   const nightBarItems=EVERY_NIGHT.filter(it=>{
-    // CHARMED : seulement si des joueurs sont enchantés
     if(it.role==='CHARMED') return activeRoles['JOUEUR_FLUTE']>0 && players.some(p=>p.alive&&p.enchanted);
-    // LOUP : seulement si des loups vivants
     if(it.role==='LOUP') return Object.keys(activeRoles).some(k=>ROLES[k]?.team==='loups'||k==='LOUP_BLANC') && players.some(p=>p.alive&&isWolf(p));
-    // Tous les autres : inclus si sélectionné, qu'un joueur soit assigné ou non (rôles bonus voleur)
+    // Rôles avec joueur : seulement si ce joueur est vivant
+    if(NEEDS_ALIVE.includes(it.role)) return activeRoles[it.role]>0 && players.some(p=>p.alive&&p.role===it.role);
     return activeRoles[it.role]>0;
   });
   const bear=players.find(p=>p.role==='MONTREUR_OURS'&&p.alive);
