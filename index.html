@@ -309,11 +309,49 @@ const isWolf=p=>ROLES[p.role]?.team==='loups'||p.role==='LOUP_BLANC'||p.isInfect
 const mkP=id=>({id,name:`Joueur ${id}`,role:null,alive:true,isInfected:false,team:null,turnedWolf:false,lover:false,loverId:null,bearGrowl:false,protected:false,enchanted:false,model:null,potionLifeUsed:false,potionDeathUsed:false,foxPower:true,angelTarget:null,infectUsed:false});
 
 function App(){
-  // Bloquer le menu contextuel sur le SVG (évite "copier/coller" au appui long)
+  // Bloquer le menu contextuel + refresh + retour arrière
   React.useEffect(()=>{
+    // Bloquer clic droit / appui long contextuel
     const prevent=e=>e.preventDefault();
     document.addEventListener('contextmenu',prevent);
-    return()=>document.removeEventListener('contextmenu',prevent);
+
+    // Bloquer refresh (F5, Ctrl+R, fermeture onglet, retour navigateur)
+    const beforeUnload=e=>{
+      e.preventDefault();
+      e.returnValue='La partie en cours sera perdue. Continuer ?';
+      return e.returnValue;
+    };
+    window.addEventListener('beforeunload',beforeUnload);
+
+    // Bloquer le retour arrière (history back)
+    // Pousser un état dans l'historique et l'y maintenir
+    window.history.pushState(null,'',window.location.href);
+    const blockBack=e=>{
+      window.history.pushState(null,'',window.location.href);
+    };
+    window.addEventListener('popstate',blockBack);
+
+    // Bloquer le swipe retour (iOS Safari / Android Chrome)
+    // en empêchant le overscroll horizontal
+    let touchStartX=0;
+    const onTouchStart=e=>{touchStartX=e.touches[0].clientX;};
+    const onTouchMove=e=>{
+      const dx=e.touches[0].clientX-touchStartX;
+      // Si swipe horizontal depuis les bords (30px) → bloquer
+      if((touchStartX<30&&dx>0)||(touchStartX>window.innerWidth-30&&dx<0)){
+        e.preventDefault();
+      }
+    };
+    document.addEventListener('touchstart',onTouchStart,{passive:true});
+    document.addEventListener('touchmove',onTouchMove,{passive:false});
+
+    return()=>{
+      document.removeEventListener('contextmenu',prevent);
+      window.removeEventListener('beforeunload',beforeUnload);
+      window.removeEventListener('popstate',blockBack);
+      document.removeEventListener('touchstart',onTouchStart);
+      document.removeEventListener('touchmove',onTouchMove);
+    };
   },[]);
   const [screen,setScreen]=useState('count');
   const [count,setCount]=useState(8);
