@@ -37,7 +37,7 @@
 <style>
 :root{--ink:#1a1008;--parchment:#f5e6c8;--parchment-dark:#e8d4a8;--parchment-mid:#ede0c0;--blood:#8b1a1a;--gold:#c9a84c;--gold-bright:#e8c66a;--green:#2d5a3d;--purple:#4a2060;--amber:#7a4a00;}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#0d0a06;color:var(--ink);font-family:'IM Fell English',serif;min-height:100vh;overflow-x:hidden;}
+body{background:#0d0a06;color:var(--ink);font-family:'IM Fell English',serif;min-height:100vh;overflow-x:hidden;overscroll-behavior:contain;}
 /* Safe area pour iPhone (encoche / Dynamic Island / barre home) */
 .gs{padding-top:max(10px, env(safe-area-inset-top)) !important;padding-bottom:max(10px, env(safe-area-inset-bottom)) !important;padding-left:max(12px, env(safe-area-inset-left)) !important;padding-right:max(12px, env(safe-area-inset-right)) !important;}
 .cs{padding-top:max(0px, env(safe-area-inset-top));}
@@ -101,7 +101,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
 .ptg{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;color:rgba(245,230,200,.15);margin-top:20px;text-transform:uppercase;text-align:center;}
 
 /* ÉCRAN 3 — JEU */
-.gs{min-height:100vh;display:flex;flex-direction:column;padding:10px 12px;gap:10px;}
+.gs{min-height:100vh;display:flex;flex-direction:column;padding:10px 12px;gap:10px;padding-top:max(10px,env(safe-area-inset-top));overflow-y:auto;overscroll-behavior-y:contain;}
 .no-select{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
 .drag-handle{cursor:grab;color:rgba(139,100,30,.4);font-size:14px;padding:0 4px;user-select:none;touch-action:none;}
 .drag-handle:active{cursor:grabbing;}
@@ -220,9 +220,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
 </head>
 <body>
 <div id="root" class="app"></div>
-<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.23.5/babel.min.js"></script>
 <script type="text/babel">
 const {useState,useEffect,useMemo}=React;
 
@@ -309,6 +309,23 @@ const isWolf=p=>ROLES[p.role]?.team==='loups'||p.role==='LOUP_BLANC'||p.isInfect
 const mkP=id=>({id,name:`Joueur ${id}`,role:null,alive:true,isInfected:false,team:null,turnedWolf:false,lover:false,loverId:null,bearGrowl:false,protected:false,enchanted:false,model:null,potionLifeUsed:false,potionDeathUsed:false,foxPower:true,angelTarget:null,infectUsed:false});
 
 function App(){
+  // ── SAUVEGARDE AUTOMATIQUE dans localStorage
+  React.useEffect(()=>{
+    save('ptg_screen',screen);
+    save('ptg_count',count);
+    save('ptg_activeRoles',activeRoles);
+    save('ptg_players',players);
+    save('ptg_nightCount',nightCount);
+    save('ptg_lastNight',lastNight);
+    save('ptg_voleurRole',voleurChosenRole);
+  },[screen,count,activeRoles,players,nightCount,lastNight,voleurChosenRole]);
+
+  // ── Effacer la sauvegarde quand on fait un vrai reset
+  const clearSave=()=>{
+    ['ptg_screen','ptg_count','ptg_activeRoles','ptg_players','ptg_nightCount','ptg_lastNight','ptg_voleurRole']
+      .forEach(k=>{ try{ localStorage.removeItem(k); }catch(e){} });
+  };
+
   // Bloquer le menu contextuel + refresh + retour arrière
   React.useEffect(()=>{
     // Bloquer clic droit / appui long contextuel
@@ -353,22 +370,26 @@ function App(){
       document.removeEventListener('touchmove',onTouchMove);
     };
   },[]);
-  const [screen,setScreen]=useState('count');
-  const [count,setCount]=useState(8);
-  const [activeRoles,setActiveRoles]=useState({});
-  const [players,setPlayers]=useState(()=>Array.from({length:8},(_,i)=>mkP(i+1)));
+  // Charger la sauvegarde locale au démarrage
+  const loadSave=key=>{ try{ const v=localStorage.getItem(key); return v?JSON.parse(v):null; }catch(e){ return null; } };
+  const save=(key,val)=>{ try{ localStorage.setItem(key,JSON.stringify(val)); }catch(e){} };
+
+  const [screen,setScreen]=useState(()=>loadSave('ptg_screen')||'count');
+  const [count,setCount]=useState(()=>loadSave('ptg_count')||8);
+  const [activeRoles,setActiveRoles]=useState(()=>loadSave('ptg_activeRoles')||{});
+  const [players,setPlayers]=useState(()=>loadSave('ptg_players')||Array.from({length:8},(_,i)=>mkP(i+1)));
   const [selId,setSelId]=useState(null);
   const [showNight,setShowNight]=useState(false);
   const [nightIdx,setNightIdx]=useState(0);
   const [showEveryNight,setShowEveryNight]=useState(false);
   const [everyNightIdx,setEveryNightIdx]=useState(0);
-  const [nightCount,setNightCount]=useState(1);
+  const [nightCount,setNightCount]=useState(()=>loadSave('ptg_nightCount')||1);
   const [na,setNaState]=useState({wolfVictim:null,corbeauTarget:null,salvateurTarget:null,potionLifeUsed:false,potionDeathTarget:null,voyanteTarget:null,loupBlancTarget:null,renardTargets:[null,null,null],infectTransform:false,gmgVictim:null,newEnchanted:[null,null]});
-  const [lastNight,setLastNight]=useState(null); // récap nuit précédente
-  const [voleurChosenRole,setVoleurChosenRole]=useState(null); // rôle choisi par le Voleur
-  const [dragIdx,setDragIdx]=useState(null); // index du joueur en cours de drag
-  const [dragPos,setDragPos]=useState(null); // position actuelle du drag {x,y}
-  const svgRef=React.useRef(null); // ref sur le SVG
+  const [lastNight,setLastNight]=useState(()=>loadSave('ptg_lastNight')||null);
+  const [voleurChosenRole,setVoleurChosenRole]=useState(()=>loadSave('ptg_voleurRole')||null);
+  const [dragIdx,setDragIdx]=useState(null); // drag liste joueurs écran rôles seulement
+  const [showReorder,setShowReorder]=useState(false); // modal réorganisation table
+  const svgRef=React.useRef(null);
   const [tooltip,setTooltip]=useState(null);
   const [showReset,setShowReset]=useState(false);
   const [resetKeep,setResetKeep]=useState([]);
@@ -626,6 +647,7 @@ function App(){
     setShowReset(true);
   };
   const confirmReset=()=>{
+    clearSave();
     const kept=resetKeep.filter(p=>p.keep);
     setPlayers(kept.map((p,i)=>({...mkP(i+1),name:p.name})));
     setCount(kept.length);
@@ -835,8 +857,9 @@ function App(){
             <span style={{fontFamily:"'Cinzel',serif",fontSize:'12px',letterSpacing:'.1em',color:'rgba(80,200,120,.9)',background:'rgba(45,90,61,.2)',border:'1px solid rgba(45,90,61,.4)',borderRadius:'3px',padding:'2px 8px'}}>🌿 {stats.village} village</span>
           </div>
         </div>
-        {/* Reset — position absolue à droite */}
-        <div style={{position:'absolute',right:0}}>
+        {/* Boutons droite */}
+        <div style={{position:'absolute',right:0,display:'flex',gap:'6px'}}>
+          <button className="ibtn" title="Réorganiser les joueurs" onClick={()=>setShowReorder(true)}>🔀</button>
           <button className="ibtn" title="Nouvelle partie" onClick={openReset}>🔄</button>
         </div>
       </div>
@@ -871,31 +894,7 @@ function App(){
       {/* ── CERCLE TABLE ── */}
       <div style={{display:'flex',justifyContent:'center'}}>
         <div className="board" style={{margin:0,width:'min(100vw, 100vh - 200px)',maxWidth:'680px'}}>
-        <svg ref={svgRef} viewBox="-5 -5 110 115" className="csvg" style={{touchAction:"none",userSelect:'none'}}
-  onPointerMove={e=>{
-    if(dragIdx===null) return;
-    // Convertir coordonnées écran → SVG
-    const svg=svgRef.current;
-    const pt=svg.createSVGPoint();
-    pt.x=e.clientX; pt.y=e.clientY;
-    const svgP=pt.matrixTransform(svg.getScreenCTM().inverse());
-    setDragPos({x:svgP.x,y:svgP.y});
-    // Trouver le joueur le plus proche
-    const n=players.length;
-    let closest=-1,minDist=12; // seuil 12 unités SVG
-    players.forEach((_,i)=>{
-      const angle=(360/n)*i-90,rad=angle*Math.PI/180;
-      const px=cx+rv*Math.cos(rad),py=cy+rv*Math.sin(rad);
-      const d=Math.sqrt((svgP.x-px)**2+(svgP.y-py)**2);
-      if(d<minDist){minDist=d;closest=i;}
-    });
-    if(closest>=0&&closest!==dragIdx){
-      reorderPlayers(dragIdx,closest);
-      setDragIdx(closest);
-    }
-  }}
-  onPointerUp={e=>{setDragIdx(null);setDragPos(null);}}
-  onPointerLeave={e=>{setDragIdx(null);setDragPos(null);}}>
+        <svg ref={svgRef} viewBox="-5 -5 110 115" className="csvg">
           <circle cx={cx} cy={cy} r="13" fill="rgba(201,168,76,.05)" stroke="rgba(201,168,76,.2)" strokeWidth=".6"/>
           <text x={cx} y={cy-2} textAnchor="middle" style={{fontFamily:"'Cinzel',serif",fontSize:'3.5px',fill:'rgba(201,168,76,.5)',letterSpacing:'.15em'}}>NUIT</text>
           <text x={cx} y={cy+3} textAnchor="middle" style={{fontFamily:"'Cinzel Decorative',serif",fontSize:'6px',fill:'rgba(201,168,76,.7)',fontWeight:'bold'}}>{nightCount}</text>
@@ -929,24 +928,8 @@ function App(){
             return(
               <g key={p.id} className="pnode"
                 transform={`translate(${px},${py})`}
-                onContextMenu={e=>e.preventDefault()}
-                onPointerDown={e=>{
-                  e.preventDefault();
-                  e.stopPropagation();
-                  svgRef.current.setPointerCapture(e.pointerId);
-                  // Timer appui long → activer drag
-                  const t=setTimeout(()=>{
-                    setDragIdx(i);
-                  },350);
-                  e.currentTarget._pt=t;
-                }}
-                onPointerUp={e=>{
-                  clearTimeout(e.currentTarget._pt);
-                  if(dragIdx===null) setSelId(selId===p.id?null:p.id); // simple clic
-                  setDragIdx(null);
-                  setDragPos(null);
-                }}
-                style={{cursor:dragIdx===i?'grabbing':'pointer'}}>
+                onClick={()=>setSelId(selId===p.id?null:p.id)}
+                style={{cursor:'pointer'}}>
                 {p.bearGrowl&&p.alive&&(<>
                   {/* Halo rouge solide fixe */}
                   <circle r="10.5" fill="none" stroke="rgba(220,50,50,.9)" strokeWidth="2"/>
@@ -968,8 +951,7 @@ function App(){
                   <line x1="-5" y1="-5" x2="5" y2="5" stroke="rgba(139,26,26,.42)" strokeWidth=".75"/>
                   <line x1="5" y1="-5" x2="-5" y2="5" stroke="rgba(139,26,26,.42)" strokeWidth=".75"/>
                 </>}
-                {/* Anneau doré si ce joueur est en train d'être déplacé */}
-                {dragIdx===i&&<circle r="10" fill="none" stroke="var(--gold-bright)" strokeWidth="1.5" strokeDasharray="2,1" opacity=".9"/>}
+
               </g>
             );
           })}
@@ -1104,6 +1086,41 @@ function App(){
       })()}
 
       {/* ── MODALE RESET ── */}
+      {/* ── MODAL RÉORGANISATION ── */}
+      {showReorder&&(
+        <div className="ov" onClick={()=>setShowReorder(false)}>
+          <div style={{background:'linear-gradient(160deg,var(--parchment),var(--parchment-dark))',borderRadius:'8px',padding:'20px',width:'min(340px,90vw)',maxHeight:'80vh',overflowY:'auto',boxShadow:'0 8px 40px rgba(0,0,0,.8)',border:'1px solid rgba(201,168,76,.35)'}}
+            onClick={e=>e.stopPropagation()}>
+            <div style={{fontFamily:"'Cinzel',serif",fontSize:'14px',fontWeight:'700',color:'var(--blood)',textAlign:'center',marginBottom:'4px',letterSpacing:'.05em'}}>🔀 Réorganiser les joueurs</div>
+            <p style={{fontFamily:"'IM Fell English',serif",fontSize:'12px',fontStyle:'italic',color:'rgba(26,16,8,.5)',textAlign:'center',marginBottom:'14px'}}>Glissez les joueurs pour changer leur place à la table</p>
+            <div style={{display:'flex',flexDirection:'column',gap:'4px'}}>
+              {players.map((p,i)=>(
+                <div key={p.id}
+                  className={`player-row${dragIdx===i?' dragging':''}`}
+                  draggable="true"
+                  onContextMenu={e=>e.preventDefault()}
+                  onDragStart={e=>{e.dataTransfer.effectAllowed='move';setDragIdx(i);}}
+                  onDragEnd={()=>setDragIdx(null)}
+                  onDragOver={e=>{e.preventDefault();e.dataTransfer.dropEffect='move';}}
+                  onDrop={e=>{e.preventDefault();reorderPlayers(dragIdx,i);setDragIdx(null);}}
+                  style={{background:dragIdx===i?'rgba(201,168,76,.1)':'transparent',borderRadius:'4px',transition:'background .15s'}}
+                >
+                  <span className="drag-handle no-select" style={{fontSize:'16px'}}>⠿</span>
+                  <span style={{fontFamily:"'Cinzel',serif",fontSize:'11px',color:'var(--blood)',width:'20px',flexShrink:0,textAlign:'center'}}>{i+1}</span>
+                  <span style={{fontFamily:"'IM Fell English',serif",fontSize:'16px',color:'var(--ink)',flex:1}}>{p.name}</span>
+                  {p.role&&<span style={{fontSize:'18px'}}>{ROLES[p.role]?.emoji}</span>}
+                  <span style={{fontFamily:"'Cinzel',serif",fontSize:'9px',color:p.alive?'var(--green)':'var(--blood)',padding:'2px 6px',border:`1px solid ${p.alive?'var(--green)':'var(--blood)'}`,borderRadius:'8px'}}>{p.alive?'vivant':'mort'}</span>
+                </div>
+              ))}
+            </div>
+            <button onClick={()=>setShowReorder(false)}
+              style={{marginTop:'16px',width:'100%',padding:'12px',background:'rgba(26,16,8,.06)',border:'1px solid rgba(26,16,8,.18)',borderRadius:'4px',fontFamily:"'Cinzel',serif",fontSize:'12px',letterSpacing:'.1em',cursor:'pointer',color:'rgba(26,16,8,.6)',textTransform:'uppercase'}}>
+              ✓ Confirmer
+            </button>
+          </div>
+        </div>
+      )}
+
       {showReset&&(
         <div className="ov" onClick={()=>setShowReset(false)}>
           <div className="pmod" style={{maxWidth:'460px',maxHeight:'80vh',overflow:'hidden',display:'flex',flexDirection:'column'}} onClick={e=>e.stopPropagation()}>
