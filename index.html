@@ -295,6 +295,7 @@ const FIRST_NIGHT=[
   {role:'SALVATORE',name:'Salvateur',note:'Désigne un joueur à protéger cette nuit.'},
   {role:'LOUP',name:'Tous les Loups-Garous',note:'Se réveillent, se reconnaissent, et choisissent leur victime.'},
   {role:'INFECT_PERE',name:'Infect Père des Loups',note:'Peut transformer la victime en loup (1 fois par partie).'},
+  {role:'LEURRE_INFECT',name:'Réveil Infecté',note:'Réveillez discrètement la personne infectée par l\'Infect Père.',emoji:'🦠'},
   {role:'GRAND_MECHANT_LOUP',name:'Grand Méchant Loup',note:"Peut désigner une 2ème victime tant qu'aucun loup n'est mort."},
   {role:'LOUP_BLANC',name:'Loup Blanc',note:'Se réveille seul. Peut tuer un loup (non obligatoire).'},
   {role:'SORCIERE',name:'Sorcière',note:'Voit la victime des loups. Peut utiliser ses potions.'},
@@ -317,7 +318,8 @@ function App(){
     save('ptg_nightCount',nightCount);
     save('ptg_lastNight',lastNight);
     save('ptg_voleurRole',voleurChosenRole);
-  },[screen,count,activeRoles,players,nightCount,lastNight,voleurChosenRole]);
+    save('ptg_lastSalvateur',lastSalvateurTarget);
+  },[screen,count,activeRoles,players,nightCount,lastNight,voleurChosenRole,lastSalvateurTarget]);
 
   // ── Effacer la sauvegarde quand on fait un vrai reset
   const clearSave=()=>{
@@ -385,6 +387,7 @@ function App(){
   const [nightCount,setNightCount]=useState(()=>loadSave('ptg_nightCount')||1);
   const [na,setNaState]=useState({wolfVictim:null,corbeauTarget:null,salvateurTarget:null,potionLifeUsed:false,potionDeathTarget:null,voyanteTarget:null,loupBlancTarget:null,renardTargets:[null,null,null],infectTransform:false,gmgVictim:null,newEnchanted:[null,null]});
   const [lastNight,setLastNight]=useState(()=>loadSave('ptg_lastNight')||null);
+  const [lastSalvateurTarget,setLastSalvateurTarget]=useState(()=>loadSave('ptg_lastSalvateur')||null); // joueur protégé le tour précédent
   const [voleurChosenRole,setVoleurChosenRole]=useState(()=>loadSave('ptg_voleurRole')||null);
   const [dragIdx,setDragIdx]=useState(null); // drag liste joueurs écran rôles seulement
   const [showReorder,setShowReorder]=useState(false); // modal réorganisation table
@@ -473,7 +476,8 @@ function App(){
     const slides=FIRST_NIGHT.filter(s=>{
       if(s.role==='LOVER') return activeRoles['CUPIDON']>0;
       if(s.role==='CHARMED') return activeRoles['JOUEUR_FLUTE']>0;
-      if(s.role==='LOUP') return Object.keys(activeRoles).some(k=>ROLES[k]?.team==='loups');
+      if(s.role==='LEURRE_INFECT') return activeRoles['INFECT_PERE']>0;
+      if(s.role==='LOUP') return players.some(p=>p.alive&&isWolf(p)) || Object.keys(activeRoles).some(k=>ROLES[k]?.team==='loups');
       return activeRoles[s.role]>0;
     });
     return[...slides,{role:'RECAP',name:'Récap de la Nuit',note:''}];
@@ -490,6 +494,7 @@ function App(){
       {role:'SALVATORE', name:'Salvateur',   note:'Désigne un joueur à protéger cette nuit.'},
       {role:'LOUP',      name:'Tous les Loups-Garous', note:'Choisissent leur victime.'},
       {role:'INFECT_PERE',name:'Infect Père des Loups',note:'Peut transformer la victime en loup.'},
+      {role:'LEURRE_INFECT',name:'Réveil Infecté',note:'Réveillez discrètement la personne infectée par l\'Infect Père.',emoji:'🦠'},
       {role:'GRAND_MECHANT_LOUP',name:'Grand Méchant Loup',note:"Peut désigner une 2ème victime."},
       {role:'LOUP_BLANC', name:'Loup Blanc', note:loupBlancActif?'Cette nuit il peut tuer un loup de son choix (non obligatoire).':'Nuit de repos — le Loup Blanc ne se réveille pas cette nuit.', actif:loupBlancActif},
       {role:'SORCIERE',  name:'Sorcière',    note:'Voit la victime. Peut utiliser ses potions.'},
@@ -507,7 +512,8 @@ function App(){
 
     const slides=EVERY_NIGHT_DETAIL.filter(s=>{
       if(s.role==='CHARMED') return activeRoles['JOUEUR_FLUTE']>0 && players.some(p=>p.alive&&p.enchanted);
-      if(s.role==='LOUP') return Object.keys(activeRoles).some(k=>ROLES[k]?.team==='loups'||k==='LOUP_BLANC') && players.some(p=>p.alive&&isWolf(p));
+      if(s.role==='LEURRE_INFECT') return activeRoles['INFECT_PERE']>0 && players.some(p=>p.alive&&p.role==='INFECT_PERE');
+      if(s.role==='LOUP') return players.some(p=>p.alive&&isWolf(p)); // inclus si au moins 1 loup vivant (rôle OU transformation manuelle)
       if(s.role==='LOUP_BLANC') return activeRoles['LOUP_BLANC']>0 && players.some(p=>p.alive&&p.role==='LOUP_BLANC');
       // Rôles nécessitant un joueur vivant : on vérifie qu'il est bien en vie
       if(NEEDS_ALIVE_PLAYER.includes(s.role)) return activeRoles[s.role]>0 && hasAlivePlayers(s.role);
@@ -633,6 +639,8 @@ function App(){
       angeDechuId:angeDechuPlayer?.id,
       angeDechuTargetId:angeDechuPlayer?.angelTarget,
     });
+    // Mémoriser la cible du Salvateur pour la nuit suivante
+    setLastSalvateurTarget(na.salvateurTarget||null);
     setNaState({wolfVictim:null,corbeauTarget:null,salvateurTarget:null,potionLifeUsed:false,potionDeathTarget:null,voyanteTarget:null,loupBlancTarget:null,renardTargets:[null,null,null],infectTransform:false,gmgVictim:null,newEnchanted:[null,null]});
     // Fermer les deux modals sans changer d'écran
     setShowNight(false);
@@ -654,6 +662,7 @@ function App(){
     setNightCount(1);
     setNaState({wolfVictim:null,corbeauTarget:null,salvateurTarget:null,potionLifeUsed:false,potionDeathTarget:null,voyanteTarget:null,loupBlancTarget:null,renardTargets:[null,null,null],infectTransform:false,gmgVictim:null,newEnchanted:[null,null]});
     setVoleurChosenRole(null);
+    setLastSalvateurTarget(null);
     setShowReset(false);
     setScreen('roles');
   };
@@ -827,7 +836,7 @@ function App(){
     'INFECT_PERE','GRAND_MECHANT_LOUP','JOUEUR_FLUTE','LOUP_BLANC'];
   const nightBarItems=EVERY_NIGHT.filter(it=>{
     if(it.role==='CHARMED') return activeRoles['JOUEUR_FLUTE']>0 && players.some(p=>p.alive&&p.enchanted);
-    if(it.role==='LOUP') return Object.keys(activeRoles).some(k=>ROLES[k]?.team==='loups'||k==='LOUP_BLANC') && players.some(p=>p.alive&&isWolf(p));
+    if(it.role==='LOUP') return players.some(p=>p.alive&&isWolf(p));
     // Rôles avec joueur : seulement si ce joueur est vivant
     if(NEEDS_ALIVE.includes(it.role)) return activeRoles[it.role]>0 && players.some(p=>p.alive&&p.role===it.role);
     return activeRoles[it.role]>0;
@@ -981,7 +990,8 @@ function App(){
                 <div style={{fontFamily:"'Cinzel',serif",fontSize:'10px',letterSpacing:'.2em',textTransform:'uppercase',color:'var(--blood)'}}>📜 Résumé — Nuit {lastNight.nightNumber}</div>
                 {(()=>{
                   const nd=[];
-                  if(lastNight.wolfVictimId&&!lastNight.wolfVictimSaved) nd.push(lastNight.wolfVictimId);
+                  // Ne compter comme mort que si pas transformé (infecté = survit)
+                  if(lastNight.wolfVictimId&&!lastNight.wolfVictimSaved&&!lastNight.infectTransformed) nd.push(lastNight.wolfVictimId);
                   if(lastNight.gmgVictimId) nd.push(lastNight.gmgVictimId);
                   if(lastNight.potionDeathId) nd.push(lastNight.potionDeathId);
                   if(lastNight.loupBlancId) nd.push(lastNight.loupBlancId);
@@ -1075,8 +1085,44 @@ function App(){
               {p.role==='ENFANT_SAUVAGE'&&p.model&&<div style={{fontFamily:"'IM Fell English',serif",fontSize:'12px',fontStyle:'italic',color:'var(--green)',marginBottom:'6px'}}>🌿 Modèle : {players.find(x=>x.id===p.model)?.name||'?'}</div>}
               {p.enchanted&&<div style={{fontFamily:"'IM Fell English',serif",fontSize:'12px',fontStyle:'italic',color:'var(--purple)',marginBottom:'6px'}}>🎵 Joueur charmé</div>}
               {isWolf(p)&&<div style={{fontFamily:"'IM Fell English',serif",fontSize:'12px',fontStyle:'italic',color:'var(--blood)',marginBottom:'6px'}}>🐺 Camp des Loups</div>}
+              {/* Changer le rôle */}
+              <div style={{marginTop:'8px',borderTop:'1px solid rgba(139,100,30,.15)',paddingTop:'8px'}}>
+                <div style={{fontFamily:"'Cinzel',serif",fontSize:'9px',letterSpacing:'.15em',color:'rgba(26,16,8,.45)',textTransform:'uppercase',marginBottom:'6px'}}>Changer le rôle</div>
+                <select
+                  value={p.role||''}
+                  onChange={e=>{
+                    const rk=e.target.value;
+                    if(!rk) return;
+                    setPlayers(prev=>prev.map(x=>x.id===p.id?{...x,role:rk,team:ROLES[rk]?.team||x.team,isInfected:false}:x));
+                  }}
+                  style={{width:'100%',background:'rgba(26,16,8,.05)',border:'1px solid rgba(139,100,30,.3)',borderRadius:'4px',fontFamily:"'IM Fell English',serif",fontSize:'14px',color:'var(--ink)',padding:'8px 10px',outline:'none',cursor:'pointer'}}>
+                  <option value="">— Sélectionner un rôle —</option>
+                  {Object.keys(activeRoles).filter(rk=>activeRoles[rk]>0).sort((a,b)=>ROLES[a]?.name.localeCompare(ROLES[b]?.name,'fr')).map(rk=>(
+                    <option key={rk} value={rk}>{ROLES[rk]?.emoji} {ROLES[rk]?.name}{p.role===rk?' ✓':''}</option>
+                  ))}
+                </select>
+              </div>
               <div className="mod-btns" style={{marginTop:'8px'}}>
                 {p.alive?<button className="mb kill" onClick={()=>{toggleAlive(p.id);setSelId(null);}}>🗡️ Tuer le joueur</button>:<button className="mb rev" onClick={()=>{toggleAlive(p.id);setSelId(null);}}>↩ Ressusciter</button>}
+                {/* Transformer en loup — visible si le joueur est vivant et pas déjà loup */}
+                {p.alive&&!isWolf(p)&&(
+                  <button className="mb kill" style={{background:'linear-gradient(135deg,rgba(139,26,26,.2),rgba(80,5,5,.25))',borderColor:'rgba(139,26,26,.5)',color:'var(--blood)'}}
+                    onClick={()=>{
+                      setPlayers(prev=>prev.map(x=>x.id===p.id?{...x,isInfected:true,team:'loups'}:x));
+                      setSelId(null);
+                    }}>
+                    🐺 Transformer en Loup-Garou
+                  </button>
+                )}
+                {p.alive&&isWolf(p)&&(
+                  <button className="mb cls" style={{borderColor:'rgba(45,90,61,.4)',color:'var(--green)'}}
+                    onClick={()=>{
+                      setPlayers(prev=>prev.map(x=>x.id===p.id?{...x,isInfected:false,team:ROLES[x.role]?.team||'village'}:x));
+                      setSelId(null);
+                    }}>
+                    🌿 Retirer du camp Loups
+                  </button>
+                )}
                 <button className="mb cls" onClick={()=>setSelId(null)}>Fermer</button>
               </div>
             </div>
@@ -1158,13 +1204,13 @@ function App(){
         </div>
       )}
 
-      {showNight&&<NightSlide slides={nightSlides} idx={nightIdx} setIdx={setNightIdx} players={players} setPlayers={setPlayers} na={na} setNA={setNA} onClose={()=>setShowNight(false)} onFinish={()=>{applyNight();setNightCount(n=>n+1);}} assignRole={assignRole} title="✦ Première Nuit ✦" isFirstNight={true} voleurChosenRole={voleurChosenRole} setVoleurChosenRole={setVoleurChosenRole} activeRoles={activeRoles} setPlayers={setPlayers}/>}
-      {showEveryNight&&<NightSlide slides={everyNightSlides} idx={everyNightIdx} setIdx={setEveryNightIdx} players={players} setPlayers={setPlayers} na={na} setNA={setNA} onClose={()=>setShowEveryNight(false)} onFinish={()=>{applyNight();setNightCount(n=>n+1);setShowEveryNight(false);}} assignRole={assignRole} title="✦ Déroulé de la Nuit ✦" isFirstNight={false}/>}
+      {showNight&&<NightSlide slides={nightSlides} idx={nightIdx} setIdx={setNightIdx} players={players} setPlayers={setPlayers} na={na} setNA={setNA} onClose={()=>setShowNight(false)} onFinish={()=>{applyNight();setNightCount(n=>n+1);}} assignRole={assignRole} title="✦ Première Nuit ✦" isFirstNight={true} voleurChosenRole={voleurChosenRole} setVoleurChosenRole={setVoleurChosenRole} activeRoles={activeRoles} setPlayers={setPlayers} lastSalvateurTarget={null}/>}
+      {showEveryNight&&<NightSlide slides={everyNightSlides} idx={everyNightIdx} setIdx={setEveryNightIdx} players={players} setPlayers={setPlayers} na={na} setNA={setNA} onClose={()=>setShowEveryNight(false)} onFinish={()=>{applyNight();setNightCount(n=>n+1);setShowEveryNight(false);}} assignRole={assignRole} title="✦ Déroulé de la Nuit ✦" isFirstNight={false} lastSalvateurTarget={lastSalvateurTarget}/>}
     </div>
   );
 }
 
-function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFinish,assignRole,title,isFirstNight,voleurChosenRole,setVoleurChosenRole,activeRoles}){
+function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFinish,assignRole,title,isFirstNight,voleurChosenRole,setVoleurChosenRole,activeRoles,lastSalvateurTarget}){
   const slide=slides[idx];
   const isRecap=slide.role==='RECAP';
   const role=slide.role;
@@ -1190,6 +1236,9 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
   const isSimpleFirstNight=isFirstNight&&SIMPLE_FIRST.includes(role);
   const cur=getAssigned(role);
   const lbActif=slide.actif!==false; // pour loup blanc : actif=false = nuit de repos
+  // Joueur assigné à ce rôle transformé en loup ? → bloquer ses actions
+  const assignedForRole=role==='LOUP'||role==='LOVER'||role==='CHARMED'?null:players.find(p=>p.role===role&&p.alive);
+  const rolePlayerInfected=assignedForRole?.isInfected===true;
 
   return(
     <div className="nsw">
@@ -1205,7 +1254,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
         {isRecap&&(()=>{
           // Calculer les morts de cette nuit
           const deadThisNight=[];
-          if(wolfVP&&!salSaved&&!potSaved) deadThisNight.push(wolfVP);
+          if(wolfVP&&!salSaved&&!potSaved&&!na.infectTransform) deadThisNight.push(wolfVP);
           if(na.potionDeathTarget){const pd=players.find(x=>x.id===na.potionDeathTarget);if(pd)deadThisNight.push(pd);}
           if(na.loupBlancTarget){const lb=players.find(x=>x.id===na.loupBlancTarget);if(lb&&!deadThisNight.find(d=>d.id===lb.id))deadThisNight.push(lb);}
           if(na.gmgVictim){const gm=players.find(x=>x.id===na.gmgVictim);if(gm&&!deadThisNight.find(d=>d.id===gm.id))deadThisNight.push(gm);}
@@ -1232,10 +1281,19 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                   <div className="rctx" style={{fontWeight:'bold'}}>{wolfVP.name} <span style={{opacity:.55,fontSize:'12px'}}>({ROLES[wolfVP.role]?.name})</span></div>
                   {salSaved&&<div className="rctx" style={{color:'var(--green)',fontSize:'12px',marginTop:'4px'}}>🛡️ Sauvé par le Salvateur — reste en vie</div>}
                   {potSaved&&!salSaved&&<div className="rctx" style={{color:'var(--green)',fontSize:'12px',marginTop:'4px'}}>🧪 Sauvé par la potion de vie — reste en vie</div>}
-                  {!salSaved&&!potSaved&&<div className="rctx" style={{color:'var(--blood)',fontSize:'12px',marginTop:'4px'}}>💀 Éliminé cette nuit</div>}
+                  {!salSaved&&!potSaved&&!na.infectTransform&&<div className="rctx" style={{color:'var(--blood)',fontSize:'12px',marginTop:'4px'}}>💀 Éliminé cette nuit</div>}
+                  {na.infectTransform&&<div className="rctx" style={{color:'var(--blood)',fontSize:'12px',marginTop:'4px'}}>🦠 Transformé en loup — survit</div>}
                 </div>
               ):<div className="rctx" style={{opacity:.4,fontStyle:'italic'}}>Personne n'a été ciblé</div>}
             </div>
+            {/* Infecté par l'Infect Père */}
+            {na.infectTransform&&wolfVP&&(
+              <div className="rc c" style={{width:'100%',background:'rgba(139,26,26,.08)',border:'1px solid rgba(139,26,26,.25)',borderRadius:'4px',padding:'8px 10px'}}>
+                <div className="rct" style={{color:'var(--blood)'}}>🦠 Infecté par l'Infect Père</div>
+                <div className="rctx" style={{fontWeight:'bold'}}>{wolfVP.name} <span style={{opacity:.55,fontSize:'12px'}}>({ROLES[wolfVP.role]?.name})</span></div>
+                <div className="rctx" style={{color:'var(--blood)',fontSize:'12px',marginTop:'2px'}}>Rejoint les loups — ne meurt pas</div>
+              </div>
+            )}
             {corbP&&(
               <div className="rc c" style={{width:'100%'}}>
                 <div className="rct">🦅 Corbeau</div>
@@ -1246,7 +1304,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
               <div className="rct">💀 Morts cette nuit</div>
               {(()=>{
                 const dead=[];
-                if(wolfVP&&!salSaved&&!potSaved) dead.push(wolfVP);
+                if(wolfVP&&!salSaved&&!potSaved&&!na.infectTransform) dead.push(wolfVP);
                 if(na.potionDeathTarget){const p=players.find(x=>x.id===na.potionDeathTarget);if(p)dead.push(p);}
                 return dead.length===0?<div className="rctx" style={{color:'var(--green)',fontStyle:'italic'}}>Personne n'est mort ! 🎉</div>:dead.map(p=><div key={p.id} className="rctx" style={{color:'#ff8888'}}>• {p.name} ({ROLES[p.role]?.name})</div>);
               })()}
@@ -1258,11 +1316,27 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
         {/* SLIDES NORMAUX */}
         {!isRecap&&(
           <div className={`nscard ${tc}`}>
-            <span className="nse">{role==='LOUP'?'🐺':role==='LOVER'?'💘':role==='CHARMED'?'🎵':ri?.emoji||'❓'}</span>
+            <span className="nse">{role==='LOUP'?'🐺':role==='LOVER'?'💘':role==='CHARMED'?'🎵':role==='LEURRE_INFECT'?'🦠':ri?.emoji||'❓'}</span>
             <h2 className="nsn">{slide.name}</h2>
             <p className="nsnote">{slide.note}</p>
             {ri?.desc&&<p style={{fontFamily:"'IM Fell English',serif",fontSize:'12px',fontStyle:'italic',color:'rgba(26,16,8,.45)',textAlign:'center',lineHeight:1.4,maxWidth:'280px',padding:'0 4px'}}>{ri.desc}</p>}
             <div className="nsdiv"/>
+
+            {/* BLOC BLOQUÉ : joueur infecté / transformé manuellement */}
+            {(()=>{
+              const assignedPlayer=role==='LOUP'||role==='LOVER'||role==='CHARMED'?null:players.find(p=>p.role===role&&p.alive);
+              if(assignedPlayer&&assignedPlayer.isInfected) return(
+                <div style={{width:'100%',display:'flex',flexDirection:'column',alignItems:'center',gap:'8px',padding:'12px',background:'rgba(139,26,26,.12)',border:'2px solid rgba(139,26,26,.4)',borderRadius:'6px'}}>
+                  <div style={{fontSize:'32px'}}>🐺</div>
+                  <div style={{fontFamily:"'Cinzel',serif",fontSize:'13px',fontWeight:'700',color:'var(--blood)',letterSpacing:'.05em',textAlign:'center'}}>TRANSFORMÉ EN LOUP-GAROU</div>
+                  <div style={{fontFamily:"'IM Fell English',serif",fontSize:'12px',fontStyle:'italic',color:'rgba(26,16,8,.55)',textAlign:'center'}}>{assignedPlayer.name} joue désormais dans le camp des loups — ce rôle est inactif.</div>
+                </div>
+              );
+              return null;
+            })()}
+
+            {/* Blocs d'action — masqués si joueur infecté */}
+            {!rolePlayerInfected&&<>
 
             {/* Simple 1ère nuit : assigner + rôle */}
             {isSimpleFirstNight&&(
@@ -1742,11 +1816,21 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                 </>}
                 {!isFirstNight&&players.find(p=>p.role==='SALVATORE')&&<div className="nscfm g" style={{marginBottom:'4px'}}>🛡️ {players.find(p=>p.role==='SALVATORE').name}</div>}
                 <div className="nslbl">Qui protège-t-il cette nuit ?</div>
+                {lastSalvateurTarget&&(
+                  <div style={{fontFamily:"'IM Fell English',serif",fontSize:'12px',fontStyle:'italic',color:'rgba(26,16,8,.5)',marginBottom:'2px'}}>
+                    ⛔ {players.find(p=>p.id===lastSalvateurTarget)?.name||'?'} ne peut pas être protégé ce tour
+                  </div>
+                )}
                 <select className="nssel" value={na.salvateurTarget||''} onChange={e=>setNA({salvateurTarget:parseInt(e.target.value)||null})}>
                   <option value="">— Choisir un joueur —</option>
-                  {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+                  {players.filter(p=>p.alive).map(p=>(
+                    <option key={p.id} value={p.id} disabled={p.id===lastSalvateurTarget} style={{color:p.id===lastSalvateurTarget?'rgba(139,26,26,.5)':'inherit'}}>
+                      {p.name}{p.id===lastSalvateurTarget?' (impossible ce tour-ci)':''}
+                    </option>
+                  ))}
                 </select>
-                {na.salvateurTarget&&<div className="nscfm g">🛡️ {players.find(p=>p.id===na.salvateurTarget)?.name}</div>}
+                {na.salvateurTarget&&na.salvateurTarget!==lastSalvateurTarget&&<div className="nscfm g">🛡️ {players.find(p=>p.id===na.salvateurTarget)?.name}</div>}
+                {na.salvateurTarget&&na.salvateurTarget===lastSalvateurTarget&&<div className="nscfm r">⛔ Impossible — même joueur que le tour précédent !</div>}
               </div>
             )}
 
@@ -1856,6 +1940,32 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
               </div>
             )}
 
+            {/* LEURRE INFECT PÈRE : réveiller la personne infectée */}
+            {role==='LEURRE_INFECT'&&(
+              <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'10px',alignItems:'center'}}>
+                <p style={{fontFamily:"'IM Fell English',serif",fontSize:'13px',fontStyle:'italic',color:'rgba(26,16,8,.6)',textAlign:'center',lineHeight:1.6}}>
+                  Réveil infecté : Si une personne a été infectée, lui faire comprendre qu'elle a été transformée.
+                </p>
+                {(()=>{
+                  // Seulement si infecté CE tour-ci
+                  const currentInfectId = na.infectTransform && na.wolfVictim ? na.wolfVictim : null;
+                  const currentInfect = currentInfectId ? players.find(p=>p.id===currentInfectId) : null;
+                  if(!currentInfect) return(
+                    <div style={{padding:'12px 20px',borderRadius:'6px',background:'rgba(26,16,8,.05)',border:'1px dashed rgba(26,16,8,.2)',textAlign:'center',width:'100%'}}>
+                      <div style={{fontFamily:"'IM Fell English',serif",fontSize:'13px',fontStyle:'italic',color:'rgba(26,16,8,.4)'}}>Personne n'a été infecté ce tour-ci</div>
+                    </div>
+                  );
+                  return(
+                    <div style={{padding:'12px 20px',borderRadius:'6px',background:'rgba(139,26,26,.1)',border:'2px solid rgba(139,26,26,.35)',textAlign:'center',width:'100%'}}>
+                      <div style={{fontFamily:"'Cinzel',serif",fontSize:'9px',letterSpacing:'.2em',color:'var(--blood)',textTransform:'uppercase',marginBottom:'6px'}}>🦠 Infecté ce tour</div>
+                      <div style={{fontFamily:"'IM Fell English',serif",fontSize:'20px',fontWeight:'bold',color:'var(--ink)'}}>{currentInfect.name}</div>
+                      <div style={{fontFamily:"'IM Fell English',serif",fontSize:'12px',fontStyle:'italic',color:'rgba(26,16,8,.5)',marginTop:'3px'}}>({ROLES[currentInfect.role]?.name})</div>
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
+
             {/* JOUEUR DE FLÛTE : assigner + enchanter 2 NOUVEAUX joueurs cette nuit */}
             {role==='JOUEUR_FLUTE'&&(
               <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
@@ -1935,10 +2045,13 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                 </div>
               );
             })()}
+            </>}
+            {/* Fin des blocs d'action */}
+
           </div>
         )}
-      </div>
 
+      </div>{/* fin nsbody */}
       <div className="nsnav">
         <button className="nsbtn pv" disabled={idx===0} onClick={()=>setIdx(i=>i-1)}>← Préc.</button>
         {!isRecap?<button className="nsbtn nx" onClick={()=>setIdx(i=>i+1)}>Suivant →</button>:<button className="nsbtn fn" onClick={onFinish}>✓ Appliquer & Terminer</button>}
