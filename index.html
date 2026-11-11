@@ -379,6 +379,62 @@ button{-webkit-user-select:none;user-select:none;}
 .ltimer.end{background:rgba(255,107,129,.12);border-color:rgba(255,107,129,.6);}
 .ltimer.end .ltimer-n{color:#ff9aaa;}
 .ltimer-l{font-size:14px;color:var(--muted);}
+/* Grand récap de la nuit */
+.gzoom{margin-left:auto;margin-right:8px;background:var(--glass2);border:1px solid var(--line2);color:var(--ink);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:600;cursor:pointer;}
+.bigov{position:fixed;inset:0;z-index:240;background:radial-gradient(900px 700px at 50% 0%,var(--night1) 0%,var(--night2) 50%,var(--bg0) 100%);overflow-y:auto;padding:max(18px,env(safe-area-inset-top)) 18px max(24px,env(safe-area-inset-bottom));animation:fd .25s ease;}
+.bigov-in{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:18px;}
+.bigov-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.bigov-k{font-size:14px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);}
+.bigov-t{font-size:clamp(36px,7vw,58px);font-weight:700;letter-spacing:-.02em;line-height:1.05;margin-top:4px;}
+.bigdead{display:flex;align-items:center;gap:22px;padding:22px 24px;border-radius:26px;border:1px solid;}
+.bigdead.ko{background:linear-gradient(135deg,rgba(255,107,129,.2),rgba(255,107,129,.06));border-color:rgba(255,107,129,.55);}
+.bigdead.ok{background:linear-gradient(135deg,rgba(94,234,169,.16),rgba(94,234,169,.05));border-color:rgba(94,234,169,.45);}
+.bigdead-n{font-size:clamp(64px,13vw,104px);font-weight:700;line-height:.9;min-width:80px;text-align:center;}
+.bigdead.ko .bigdead-n{color:#ff9aaa;}.bigdead.ok .bigdead-n{color:var(--green);}
+.bigdead-b{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.bigdead-l{font-size:15px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+.bigdead-p{font-size:clamp(22px,4vw,30px);line-height:1.2;}
+.bigdead-p b{font-weight:700;}.bigdead-p span{font-size:.62em;color:var(--muted);margin-left:6px;}
+.bigrecap{background:var(--glass);border:1px solid var(--line);border-radius:26px;padding:10px 22px 14px;}
+.bigrecap>div{grid-template-columns:repeat(auto-fill,minmax(270px,1fr))!important;gap:4px 26px!important;}
+.bigrecap .gev{padding:14px 0 14px 62px;min-height:68px;}
+.bigrecap .gev-i{width:48px;height:48px;border-radius:16px;font-size:25px;top:14px;}
+.bigrecap .gev-l{font-size:14px;}
+.bigrecap .gev-v{font-size:20px;}
+.bigrecap .gev-v span{font-size:15px!important;}
+.bigov-stats{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+.bigsec{background:var(--glass);border:1px solid var(--line);border-radius:26px;padding:16px 22px 18px;}
+.bigsec-t{font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.bigpow{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px 26px;}
+.bigpow-i{position:relative;display:flex;align-items:center;gap:14px;}
+.bigpow-i .gev-i{position:static;width:44px;height:44px;flex-shrink:0;font-size:22px;}
+.bigpow-i .gev-v{font-size:17px;}
+.bigpl{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;}
+.bigpl-i{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);}
+.bigpl-i.w{border-color:rgba(255,107,129,.45);background:rgba(255,107,129,.08);}
+.bigpl-i.dead{opacity:.42;}
+.bigpl-i.dead .bigpl-n{text-decoration:line-through;}
+.bigpl-e{font-size:26px;line-height:1;flex-shrink:0;}
+.bigpl-n{font-size:17px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bigpl-r{font-size:13px;color:var(--muted);}
+/* Fin de partie */
+.winov{position:fixed;inset:0;z-index:260;display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto;animation:fd .35s ease;background:radial-gradient(800px 600px at 50% 35%,var(--wc1) 0%,var(--bg0) 75%);}
+.winov.wolves{--wc1:#5a1424;--wc:#ff6b81;}.winov.village{--wc1:#0f4a3a;--wc:#5eeaa9;}.winov.solo{--wc1:#3b2a7a;--wc:#c4b5ff;}.winov.lovers{--wc1:#5a1a48;--wc:#ff8fd0;}.winov.none{--wc1:#2a2a3a;--wc:#c9cdf2;}
+.win-in{max-width:680px;width:100%;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;}
+.win-k{font-size:15px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);}
+.win-e{font-size:96px;line-height:1;filter:drop-shadow(0 0 40px var(--wc));animation:wpop .6s cubic-bezier(.2,1.4,.4,1);}
+@keyframes wpop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.win-t{font-size:clamp(40px,9vw,76px);font-weight:700;line-height:1.02;letter-spacing:-.02em;color:var(--wc);text-shadow:0 0 50px var(--wc);}
+.win-s{font-size:clamp(17px,3vw,22px);color:var(--ink-soft);line-height:1.4;max-width:560px;}
+.win-a{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:6px;}
+.win-a span{width:100%;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);}
+.win-a b{font-weight:600;font-size:15px;padding:7px 14px;border-radius:999px;background:var(--glass2);border:1px solid var(--line2);}
+.win-btns{display:flex;gap:10px;width:100%;max-width:460px;margin-top:14px;}
+.win-btns .btn-g{flex:1;}.win-btns .btn-p{flex:2;}
+.winbar{display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;border-radius:var(--r-md);border:1px solid var(--wc);background:linear-gradient(135deg,color-mix(in srgb,var(--wc) 22%,transparent),transparent);color:var(--ink);cursor:pointer;font-family:inherit;}
+.winbar.wolves{--wc:#ff6b81;}.winbar.village{--wc:#5eeaa9;}.winbar.solo{--wc:#c4b5ff;}.winbar.lovers{--wc:#ff8fd0;}.winbar.none{--wc:#c9cdf2;}
+.winbar b{display:block;font-size:16px;color:var(--wc);}.winbar small{display:block;font-size:13px;color:var(--muted);margin-top:2px;}
+.winbar-v{font-size:13px;font-weight:600;padding:5px 12px;border-radius:999px;background:var(--glass2);}
 .ltimer-b{margin-top:8px;min-height:46px;padding:10px 26px;border-radius:14px;border:1px solid rgba(255,143,208,.5);background:rgba(255,143,208,.14);font-size:15px;font-weight:600;color:#ffc4e6;cursor:pointer;}
 </style>
 </head>
@@ -572,6 +628,32 @@ const computeNight=(players,na)=>{
   return {dead:[...dead],saved,psaved,gmgHealed,infected,wolfKill,puppet,singeDied,colosse:colosse?.id||null,colosseDevoured,colosseKill,loverDeaths:lovers,divorceLoser:divLoser?.id||null,divorcedIds:divorced};
 };
 
+// ── Fin de partie : qui a gagné ? (null = la partie continue)
+const computeWinner=(players,nightCount)=>{
+  if(nightCount<=1||!players.some(p=>p.role)) return null;
+  const alive=players.filter(p=>p.alive);
+  const names=l=>l.map(p=>p.name).join(', ');
+  const ann=hasVar('PETITE_FILLE',CURV)?players.find(p=>p.role==='PETITE_FILLE'):null;
+  const holder=players.find(p=>p.doll);
+  if(ann&&ann.alive&&holder&&!holder.alive) return {key:'ann',cls:'solo',emoji:'🧸',title:"Victoire d'Annabelle",sub:`${holder.name}, porteur de la poupée, est mort alors qu'${ann.name} est en vie.`};
+  const ange=players.find(p=>p.role==='ANGE');
+  if(ange&&!ange.alive&&ange.diedDay===2) return {key:'ange',cls:'solo',emoji:'😇',title:"Victoire de l'Ange",sub:`${ange.name} a été éliminé dès le premier jour.`};
+  const dechu=players.find(p=>p.role==='ANGE_DECHU'&&p.alive&&p.angelTarget);
+  const cible=dechu&&players.find(p=>p.id===dechu.angelTarget);
+  if(cible&&!cible.alive&&(cible.diedNight===1||cible.diedDay===2)) return {key:'dechu',cls:'solo',emoji:'😈',title:"Victoire de l'Ange Déchu",sub:`Sa victime secrète, ${cible.name}, est morte au premier tour.`};
+  const flute=players.find(p=>p.role==='JOUEUR_FLUTE'&&p.alive);
+  if(flute&&alive.length>1&&alive.filter(p=>p.id!==flute.id).every(p=>p.enchanted)) return {key:'flute',cls:'solo',emoji:'🎵',title:'Victoire du Joueur de Flûte',sub:`Tous les survivants sont enchantés par ${flute.name}.`};
+  if(alive.length===0) return {key:'none',cls:'none',emoji:'🪦',title:'Personne ne survit',sub:'Tout le village a péri.'};
+  if(alive.length===2&&alive[0].lover&&alive[0].loverId===alive[1].id) return {key:'lovers',cls:'lovers',emoji:'💞',title:'Victoire des Amoureux',sub:`${names(alive)} sont les derniers survivants.`};
+  const lb=alive.find(p=>p.role==='LOUP_BLANC');
+  if(lb&&alive.length===1) return {key:'lb',cls:'solo',emoji:'🤍',title:'Victoire du Loup Blanc',sub:`${lb.name} est le dernier survivant.`};
+  if(!players.some(isRealWolf)) return null;
+  const wolves=alive.filter(isRealWolf);
+  if(wolves.length===0) return {key:'village',cls:'village',emoji:'🌿',title:'Victoire du Village',sub:'Tous les Loups-Garous ont été éliminés.'};
+  if(wolves.length===alive.length&&!lb) return {key:'wolves',cls:'wolves',emoji:'🐺',title:'Victoire des Loups-Garous',sub:'Il ne reste plus aucun villageois.'};
+  return null;
+};
+
 // Logo de l'app, dessiné en SVG : suit automatiquement l'ambiance choisie
 function BrandLogo(){
   return(
@@ -680,6 +762,8 @@ function App(){
   const [shotTarget,setShotTarget]=useState(''); // Tireur d'élite : cible choisie
   const [shotResult,setShotResult]=useState(null); // Tireur d'élite : résultat du tir
   const [immuneAsk,setImmuneAsk]=useState(null); // Avocat : confirmation avant de tuer un joueur défendu
+  const [showRecap,setShowRecap]=useState(false); // grand récap plein écran après la nuit
+  const [winSeen,setWinSeen]=useState(null); // écran de victoire déjà fermé (signature)
   const svgRef=React.useRef(null);
   const [tooltip,setTooltip]=useState(null);
   const [showReset,setShowReset]=useState(false);
@@ -771,7 +855,7 @@ function App(){
     setPlayers(prev=>{
       const pl=prev.find(p=>p.id===id),nxt=!pl.alive;
       return prev.map(p=>{
-        if(p.id===id) return{...p,alive:nxt};
+        if(p.id===id) return nxt?{...p,alive:true,diedNight:null,diedDay:null}:{...p,alive:false,diedDay:nightCount};
         // Amoureux : si le joueur meurt, son amoureux meurt aussi
         if(!nxt&&pl.lover&&p.id===pl.loverId) return{...p,alive:false};
         // Enfant sauvage : si son modèle meurt, il devient loup
@@ -790,7 +874,7 @@ function App(){
       const r=dead.role;
       const keep=r==='MARIONNETTISTE'||r==='IDIOT'||r==='COMEDIEN'; // états conservés
       return prev.map(p=>{
-        if(p.id===deadId) return {...p,alive:false};
+        if(p.id===deadId) return {...p,alive:false,diedDay:nightCount};
         if(p.id===serv.id){
           if(p.lover&&p.loverId===deadId) return {...p,alive:false}; // meurt de chagrin
           return {...p,role:r,team:r==='CHIEN_LOUP'?dead.team:(ROLES[r]?.team||null),isInfected:false,powerless:false,
@@ -911,7 +995,7 @@ function App(){
         if(na.dollTo) u.doll = p.id===na.dollTo;
 
         // Morts de la nuit (loups, GMG, potion, Loup Blanc, Singe, riposte du Colosse, chagrin)
-        if(justDied.has(p.id)) u.alive = false;
+        if(justDied.has(p.id)){ u.alive = false; u.diedNight = nightCount; }
 
         // Avocat : son client ne peut pas être éliminé au vote du jour qui suit
         u.voteImmune = avocatOn && p.id===na.salvateurTarget;
@@ -1077,6 +1161,8 @@ function App(){
     setLastSalvateurTarget(null);
     setLastNight(null);
     setVariants({});
+    setShowRecap(false);
+    setWinSeen(null);
     setShowReset(false);
     setScreen('roles');
   };
@@ -1335,12 +1421,86 @@ function App(){
   const annabelle=hasVar('PETITE_FILLE',variants)?players.find(p=>p.role==='PETITE_FILLE'):null;
   const dollHolder=players.find(p=>p.doll);
   const annabelleWins=!!(annabelle&&annabelle.alive&&dollHolder&&!dollHolder.alive);
+  const winRaw=computeWinner(players,nightCount);
+  const win=winRaw?{...winRaw,sig:winRaw.key+':'+players.filter(p=>p.alive).map(p=>p.id).join('-')}:null;
   const availRoles=Object.keys(activeRoles);
 
   const lastNightVictim=lastNight?.wolfVictimId?players.find(p=>p.id===lastNight.wolfVictimId):null;
   const lastNightPoisoned=lastNight?.potionDeathId?players.find(p=>p.id===lastNight.potionDeathId):null;
   const lastNightCorbeau=lastNight?.corbeauId?players.find(p=>p.id===lastNight.corbeauId):null;
   const lastNightLB=lastNight?.loupBlancId?players.find(p=>p.id===lastNight.loupBlancId):null;
+
+  // ── Récap de la dernière nuit (petit encadré + grand écran)
+  const recapDead=()=>{
+    if(!lastNight) return [];
+    const nd=[];
+    if(Array.isArray(lastNight.deadIds)) nd.push(...lastNight.deadIds);
+    else {
+      if(lastNight.wolfVictimId&&!lastNight.wolfVictimSaved&&!lastNight.infectTransformed) nd.push(lastNight.wolfVictimId);
+      if(lastNight.gmgVictimId) nd.push(lastNight.gmgVictimId);
+      if(lastNight.potionDeathId) nd.push(lastNight.potionDeathId);
+      if(lastNight.loupBlancId) nd.push(lastNight.loupBlancId);
+    }
+    return [...new Set(nd)];
+  };
+  const renderRecap=()=>{
+                // Libellé : l'emoji de tête devient une icône carrée
+                const S=({children})=>{const t=typeof children==='string'?children:'';const k=t.indexOf(' ');return k>0?<><span className="gev-i">{t.slice(0,k)}</span><div className="gev-l">{t.slice(k+1)}</div></>:<div className="gev-l">{children}</div>;};
+                const V=({children,bold})=><div className={`gev-v${bold?' b':''}`}>{children}</div>;
+                const Bloc=({children})=><div className="gev">{children}</div>;
+                const N=(id)=>players.find(p=>p.id===id)?.name||'?';
+                const events=[];
+
+                // ── MORTS
+                const lnv=lastNight?.wolfVictimId?players.find(p=>p.id===lastNight.wolfVictimId):null;
+                if(lnv) events.push(<Bloc key="w"><S>🐺 Dévoré par les loups</S><V bold>{lnv.name} <span style={{fontSize:'13px',opacity:.6}}>({ROLES[lnv.role]?.name})</span></V>{lastNight.puppetId===lnv.id&&<V><span style={{color:'var(--green)',fontSize:'13px'}}>🪆 Sa marionnette meurt à sa place</span></V>}{lastNight.wolfVictimSaved&&<V><span style={{color:'var(--green)',fontSize:'13px'}}>{lastNight.saviorType==='salvateur'?'🛡️ Sauvé par le Salvateur':'🧪 Sauvé par la potion'}</span></V>}</Bloc>);
+                else events.push(<Bloc key="nw"><S>🐺 Les loups</S><V>Aucune victime</V></Bloc>);
+                if(lastNight.gmgVictimId) events.push(<Bloc key="g"><S>👹 2ème victime (Grand Méchant Loup)</S><V bold>{N(lastNight.gmgVictimId)} <span style={{fontSize:'13px',opacity:.6}}>({ROLES[players.find(p=>p.id===lastNight.gmgVictimId)?.role]?.name})</span></V>{lastNight.gmgHealed&&<V><span style={{color:'var(--green)',fontSize:'13px'}}>💚 Sauvé par la Guérisseuse</span></V>}</Bloc>);
+                if(lastNight.infectTransformed) events.push(<Bloc key="inf"><S>🦠 Transformé en loup (Infect Père)</S><V bold>{N(lastNight.infectTransformed)}</V></Bloc>);
+                if(lastNight.loupBlancId) events.push(<Bloc key="lb"><S>🤍 Tué par le Loup Blanc</S><V bold>{N(lastNight.loupBlancId)}</V></Bloc>);
+                const lnp=lastNight?.potionDeathId?players.find(p=>p.id===lastNight.potionDeathId):null;
+                if(lnp) events.push(<Bloc key="pd"><S color="var(--purple)">☠️ Tué par la potion de mort</S><V bold>{lnp.name}</V></Bloc>);
+
+                // ── SAUVETAGES / PROTECTION
+                if(lastNight.potionLifeUsed&&lastNight.potionLifeTargetId) events.push(<Bloc key="pv"><S color="var(--green)">🧪 Potion de vie utilisée</S><V bold>{N(lastNight.potionLifeTargetId)} — survit</V></Bloc>);
+                if(lastNight.poisonIds?.length) events.push(<Bloc key="pois"><S>☠️ Empoisonné</S><V bold>{lastNight.poisonIds.map(id=>N(id)).join(', ')}</V></Bloc>);
+                if(lastNight.healIds?.length) events.push(<Bloc key="heal"><S>💚 Soigné par la Guérisseuse</S><V bold>{lastNight.healIds.map(id=>N(id)).join(', ')} — survit</V></Bloc>);
+                if(lastNight.noctId) events.push(<Bloc key="noct"><S>🌙 Le Noctambule a dormi chez</S><V bold>{N(lastNight.noctId)}</V><V><span style={{fontSize:'13px',opacity:.65}}>Pouvoir supprimé pour la nuit</span></V></Bloc>);
+                if(lastNight.dollToId) events.push(<Bloc key="doll"><S>🧸 La poupée est chez</S><V bold>{N(lastNight.dollToId)}</V></Bloc>);
+                if(lastNight.vegLickId) events.push(<Bloc key="veg"><S>🥬 Léché par le Loup Vegan</S><V bold>{N(lastNight.vegLickId)}</V></Bloc>);
+                if(lastNight.wolfAteWolf) events.push(<Bloc key="cann"><S>🐺 Les loups ont dévoré l'un des leurs</S><V>Pouvoir utilisé (une fois par partie)</V></Bloc>);
+                if(lastNight.salvateurId&&lastNight.avocat) events.push(<Bloc key="avoc"><S>💼 Défendu par l'Avocat</S><V bold>{N(lastNight.salvateurId)}</V><V><span style={{fontSize:'13px',opacity:.65}}>Ne peut pas être éliminé au vote</span></V></Bloc>);
+                if(lastNight.salvateurId&&!lastNight.avocat) events.push(<Bloc key="salv"><S color="var(--green)">🛡️ Protégé par le Salvateur</S><V bold>{N(lastNight.salvateurId)}</V></Bloc>);
+
+                // ── CORBEAU
+                if(lastNight.corbeauId) events.push(<Bloc key="corb"><S color="rgba(var(--ink-rgb),1)">🦅 Curseur Corbeau (+2 votes)</S><V bold>{N(lastNight.corbeauId)}</V></Bloc>);
+
+                // ── VOYANTE
+                if(lastNight.voyanteTargetId) events.push(<Bloc key="voy"><S color="rgba(196,181,255,1)">🔮 Voyante a inspecté</S><V bold>{N(lastNight.voyanteTargetId)}</V><V><span style={{color:lastNight.voyanteTargetIsWolf?'var(--blood)':'var(--green)',fontSize:'13px'}}>{lastNight.voyanteTargetIsWolf?"🐺 C'est un loup !":'✅ Pas un loup'}</span></V></Bloc>);
+
+                // ── RENARD
+                if(lastNight.renardTargetIds?.length) events.push(<Bloc key="ren"><S color="var(--amber)">🦊 Renard a inspecté</S><V>{lastNight.renardTargetIds.map(id=>N(id)).join(', ')}</V><V><span style={{color:lastNight.renardResult?'var(--blood)':'var(--green)',fontSize:'13px'}}>{lastNight.renardResult?"🐺 Loup détecté !":'Aucun loup'}{lastNight.renardLostPower?' — pouvoir perdu':''}</span></V></Bloc>);
+
+                // ── FLÛTE
+                if(lastNight.newEnchantedIds?.length) events.push(<Bloc key="flute"><S color="var(--purple)">🎵 Nouveaux enchantés (Flûte)</S><V bold>{lastNight.newEnchantedIds.map(id=>N(id)).join(' & ')}</V>{lastNight.enchantedIds?.length>lastNight.newEnchantedIds?.length&&<V><span style={{fontSize:'13px',opacity:.6}}>Total : {lastNight.enchantedIds.map(id=>N(id)).join(', ')}</span></V>}</Bloc>);
+
+                // ── NOUVEAUX RÔLES
+                if(lastNight.colosseKillId) events.push(<Bloc key="col"><S>💪 Riposte du Colosse</S><V bold>{N(lastNight.colosseKillId)} <span style={{fontSize:'13px',opacity:.6}}>(emporté)</span></V></Bloc>);
+                if(lastNight.singeOut) events.push(<Bloc key="singe"><S color="var(--amber)">🐒 Singe Savant est sorti</S><V>{(lastNight.singeTargets||[]).map(t=>N(t.id)).join(', ')||'—'}</V><V><span style={{color:lastNight.singeDied?'var(--blood)':'var(--green)',fontSize:'13px'}}>{lastNight.singeDied?'🐺 A découvert un Loup — mort':'Que des Villageois'}</span></V></Bloc>);
+                if(lastNight.mereTargetId) events.push(<Bloc key="mere"><S>👑 Mère des Loups a ciblé</S><V bold>{N(lastNight.mereTargetId)}</V><V><span style={{fontSize:'13px',color:lastNight.mereEffective?'var(--blood)':'rgba(var(--ink-rgb),.62)'}}>{lastNight.mereEffective?'Pouvoir supprimé':'Aucun effet'}</span></V></Bloc>);
+                if(lastNight.divorceLoserId) events.push(<Bloc key="div"><S color="#ff8fd0">💔 Divorce des amoureux</S><V bold>{N(lastNight.divorceLoserId)} — perd au chifoumi et meurt</V>{lastNight.divorceWinnerId&&<V><span style={{fontSize:'13px',opacity:.65}}>{N(lastNight.divorceWinnerId)} n'est plus amoureux{(lastNight.deadIds||[]).includes(lastNight.divorceWinnerId)?'':' et survit'}</span></V>}</Bloc>);
+                if(lastNight.loverDeaths?.length) events.push(<Bloc key="chag"><S color="#ff8fd0">💔 Mort de chagrin</S><V bold>{lastNight.loverDeaths.map(id=>N(id)).join(', ')}</V></Bloc>);
+
+                // ── 1ÈRE NUIT SPÉCIALE
+                if(lastNight.isFirstNight){
+                  if(lastNight.loversIds?.length===2) events.push(<Bloc key="cup"><S color="#ff8fd0">💘 Amoureux (Cupidon)</S><V bold>{lastNight.loversIds.map(id=>N(id)).join(' & ')}</V></Bloc>);
+                  if(lastNight.chienLoupId) events.push(<Bloc key="cl"><S color="var(--amber)">🐕 Chien-Loup a choisi</S><V bold><span style={{color:lastNight.chienLoupCamp==='loups'?'var(--blood)':'var(--green)'}}>{lastNight.chienLoupCamp==='loups'?'🐺 Camp des Loups':'🌿 Camp Village'}</span></V></Bloc>);
+                  if(lastNight.enfantSauvageId&&lastNight.enfantSauvageModelId) events.push(<Bloc key="es"><S color="var(--green)">🧒 Modèle Enfant Sauvage</S><V bold>{N(lastNight.enfantSauvageModelId)}</V></Bloc>);
+                  if(lastNight.voleurId&&lastNight.voleurChosenRole) events.push(<Bloc key="vol"><S color="var(--amber)">🃏 Voleur a pris le rôle</S><V bold>{ROLES[lastNight.voleurChosenRole]?.emoji} {ROLES[lastNight.voleurChosenRole]?.name}</V></Bloc>);
+                }
+
+                return <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(210px,1fr))',gap:'0 18px',alignItems:'start'}}>{events}</div>;
+  };
 
   return(
     <div className="gs">
@@ -1360,11 +1520,12 @@ function App(){
         {players.some(p=>!p.alive)&&<span className="gstat d"><i/>{players.filter(p=>!p.alive).length} mort{players.filter(p=>!p.alive).length>1?'s':''}</span>}
       </div>
 
-      {annabelleWins&&(
-        <div className="bear growl" style={{borderColor:'rgba(196,181,255,.85)',background:'linear-gradient(135deg,rgba(196,181,255,.3),rgba(196,181,255,.1))',animation:'none'}}>
-          <span className="bear-e">🧸</span>
-          <div><div className="bear-t" style={{color:'#e6ddff'}}>Annabelle gagne&nbsp;!</div><div className="bear-s" style={{color:'#d9d0ff'}}>{dollHolder.name}, porteur de la poupée, est mort alors qu'{annabelle.name} est en vie</div></div>
-        </div>
+      {win&&winSeen===win.sig&&(
+        <button className={`winbar ${win.cls}`} onClick={()=>setWinSeen(null)}>
+          <span style={{fontSize:'26px'}}>{win.emoji}</span>
+          <span style={{flex:1,textAlign:'left'}}><b>Partie terminée · {win.title}</b><small>{win.sub}</small></span>
+          <span className="winbar-v">Voir</span>
+        </button>
       )}
       {/* ── BANDEAU OURS — au-dessus de la table ── */}
       {bear&&bear.bearGrowl&&(
@@ -1467,78 +1628,10 @@ function App(){
             <div className="gcard" style={{flex:2,maxHeight:'320px',overflowY:'auto'}}>
               <div className="gcard-h">
                 <div className="gcard-t">Résumé · Nuit {lastNight.nightNumber}</div>
-                {(()=>{
-                  const nd=[];
-                  if(Array.isArray(lastNight.deadIds)) nd.push(...lastNight.deadIds);
-                  else {
-                    // Ancien format de sauvegarde
-                    if(lastNight.wolfVictimId&&!lastNight.wolfVictimSaved&&!lastNight.infectTransformed) nd.push(lastNight.wolfVictimId);
-                    if(lastNight.gmgVictimId) nd.push(lastNight.gmgVictimId);
-                    if(lastNight.potionDeathId) nd.push(lastNight.potionDeathId);
-                    if(lastNight.loupBlancId) nd.push(lastNight.loupBlancId);
-                  }
-                  const unique=[...new Set(nd)];
-                  return <div className={`gpill ${unique.length===0?'ok':'bad'}`}>{unique.length===0?'Aucun mort':`${unique.length} mort${unique.length>1?'s':''}`}</div>;
-                })()}
+                <button className="gzoom" onClick={()=>setShowRecap(true)}>Agrandir ⤢</button>
+                <div className={`gpill ${recapDead().length===0?'ok':'bad'}`}>{recapDead().length===0?'Aucun mort':`${recapDead().length} mort${recapDead().length>1?'s':''}`}</div>
               </div>
-              {(()=>{
-                // Libellé : l'emoji de tête devient une icône carrée
-                const S=({children})=>{const t=typeof children==='string'?children:'';const k=t.indexOf(' ');return k>0?<><span className="gev-i">{t.slice(0,k)}</span><div className="gev-l">{t.slice(k+1)}</div></>:<div className="gev-l">{children}</div>;};
-                const V=({children,bold})=><div className={`gev-v${bold?' b':''}`}>{children}</div>;
-                const Bloc=({children})=><div className="gev">{children}</div>;
-                const N=(id)=>players.find(p=>p.id===id)?.name||'?';
-                const events=[];
-
-                // ── MORTS
-                const lnv=lastNight?.wolfVictimId?players.find(p=>p.id===lastNight.wolfVictimId):null;
-                if(lnv) events.push(<Bloc key="w"><S>🐺 Dévoré par les loups</S><V bold>{lnv.name} <span style={{fontSize:'13px',opacity:.6}}>({ROLES[lnv.role]?.name})</span></V>{lastNight.puppetId===lnv.id&&<V><span style={{color:'var(--green)',fontSize:'13px'}}>🪆 Sa marionnette meurt à sa place</span></V>}{lastNight.wolfVictimSaved&&<V><span style={{color:'var(--green)',fontSize:'13px'}}>{lastNight.saviorType==='salvateur'?'🛡️ Sauvé par le Salvateur':'🧪 Sauvé par la potion'}</span></V>}</Bloc>);
-                else events.push(<Bloc key="nw"><S>🐺 Les loups</S><V>Aucune victime</V></Bloc>);
-                if(lastNight.gmgVictimId) events.push(<Bloc key="g"><S>👹 2ème victime (Grand Méchant Loup)</S><V bold>{N(lastNight.gmgVictimId)} <span style={{fontSize:'13px',opacity:.6}}>({ROLES[players.find(p=>p.id===lastNight.gmgVictimId)?.role]?.name})</span></V>{lastNight.gmgHealed&&<V><span style={{color:'var(--green)',fontSize:'13px'}}>💚 Sauvé par la Guérisseuse</span></V>}</Bloc>);
-                if(lastNight.infectTransformed) events.push(<Bloc key="inf"><S>🦠 Transformé en loup (Infect Père)</S><V bold>{N(lastNight.infectTransformed)}</V></Bloc>);
-                if(lastNight.loupBlancId) events.push(<Bloc key="lb"><S>🤍 Tué par le Loup Blanc</S><V bold>{N(lastNight.loupBlancId)}</V></Bloc>);
-                const lnp=lastNight?.potionDeathId?players.find(p=>p.id===lastNight.potionDeathId):null;
-                if(lnp) events.push(<Bloc key="pd"><S color="var(--purple)">☠️ Tué par la potion de mort</S><V bold>{lnp.name}</V></Bloc>);
-
-                // ── SAUVETAGES / PROTECTION
-                if(lastNight.potionLifeUsed&&lastNight.potionLifeTargetId) events.push(<Bloc key="pv"><S color="var(--green)">🧪 Potion de vie utilisée</S><V bold>{N(lastNight.potionLifeTargetId)} — survit</V></Bloc>);
-                if(lastNight.poisonIds?.length) events.push(<Bloc key="pois"><S>☠️ Empoisonné</S><V bold>{lastNight.poisonIds.map(id=>N(id)).join(', ')}</V></Bloc>);
-                if(lastNight.healIds?.length) events.push(<Bloc key="heal"><S>💚 Soigné par la Guérisseuse</S><V bold>{lastNight.healIds.map(id=>N(id)).join(', ')} — survit</V></Bloc>);
-                if(lastNight.noctId) events.push(<Bloc key="noct"><S>🌙 Le Noctambule a dormi chez</S><V bold>{N(lastNight.noctId)}</V><V><span style={{fontSize:'13px',opacity:.65}}>Pouvoir supprimé pour la nuit</span></V></Bloc>);
-                if(lastNight.dollToId) events.push(<Bloc key="doll"><S>🧸 La poupée est chez</S><V bold>{N(lastNight.dollToId)}</V></Bloc>);
-                if(lastNight.vegLickId) events.push(<Bloc key="veg"><S>🥬 Léché par le Loup Vegan</S><V bold>{N(lastNight.vegLickId)}</V></Bloc>);
-                if(lastNight.wolfAteWolf) events.push(<Bloc key="cann"><S>🐺 Les loups ont dévoré l'un des leurs</S><V>Pouvoir utilisé (une fois par partie)</V></Bloc>);
-                if(lastNight.salvateurId&&lastNight.avocat) events.push(<Bloc key="avoc"><S>💼 Défendu par l'Avocat</S><V bold>{N(lastNight.salvateurId)}</V><V><span style={{fontSize:'13px',opacity:.65}}>Ne peut pas être éliminé au vote</span></V></Bloc>);
-                if(lastNight.salvateurId&&!lastNight.avocat) events.push(<Bloc key="salv"><S color="var(--green)">🛡️ Protégé par le Salvateur</S><V bold>{N(lastNight.salvateurId)}</V></Bloc>);
-
-                // ── CORBEAU
-                if(lastNight.corbeauId) events.push(<Bloc key="corb"><S color="rgba(var(--ink-rgb),1)">🦅 Curseur Corbeau (+2 votes)</S><V bold>{N(lastNight.corbeauId)}</V></Bloc>);
-
-                // ── VOYANTE
-                if(lastNight.voyanteTargetId) events.push(<Bloc key="voy"><S color="rgba(196,181,255,1)">🔮 Voyante a inspecté</S><V bold>{N(lastNight.voyanteTargetId)}</V><V><span style={{color:lastNight.voyanteTargetIsWolf?'var(--blood)':'var(--green)',fontSize:'13px'}}>{lastNight.voyanteTargetIsWolf?"🐺 C'est un loup !":'✅ Pas un loup'}</span></V></Bloc>);
-
-                // ── RENARD
-                if(lastNight.renardTargetIds?.length) events.push(<Bloc key="ren"><S color="var(--amber)">🦊 Renard a inspecté</S><V>{lastNight.renardTargetIds.map(id=>N(id)).join(', ')}</V><V><span style={{color:lastNight.renardResult?'var(--blood)':'var(--green)',fontSize:'13px'}}>{lastNight.renardResult?"🐺 Loup détecté !":'Aucun loup'}{lastNight.renardLostPower?' — pouvoir perdu':''}</span></V></Bloc>);
-
-                // ── FLÛTE
-                if(lastNight.newEnchantedIds?.length) events.push(<Bloc key="flute"><S color="var(--purple)">🎵 Nouveaux enchantés (Flûte)</S><V bold>{lastNight.newEnchantedIds.map(id=>N(id)).join(' & ')}</V>{lastNight.enchantedIds?.length>lastNight.newEnchantedIds?.length&&<V><span style={{fontSize:'13px',opacity:.6}}>Total : {lastNight.enchantedIds.map(id=>N(id)).join(', ')}</span></V>}</Bloc>);
-
-                // ── NOUVEAUX RÔLES
-                if(lastNight.colosseKillId) events.push(<Bloc key="col"><S>💪 Riposte du Colosse</S><V bold>{N(lastNight.colosseKillId)} <span style={{fontSize:'13px',opacity:.6}}>(emporté)</span></V></Bloc>);
-                if(lastNight.singeOut) events.push(<Bloc key="singe"><S color="var(--amber)">🐒 Singe Savant est sorti</S><V>{(lastNight.singeTargets||[]).map(t=>N(t.id)).join(', ')||'—'}</V><V><span style={{color:lastNight.singeDied?'var(--blood)':'var(--green)',fontSize:'13px'}}>{lastNight.singeDied?'🐺 A découvert un Loup — mort':'Que des Villageois'}</span></V></Bloc>);
-                if(lastNight.mereTargetId) events.push(<Bloc key="mere"><S>👑 Mère des Loups a ciblé</S><V bold>{N(lastNight.mereTargetId)}</V><V><span style={{fontSize:'13px',color:lastNight.mereEffective?'var(--blood)':'rgba(var(--ink-rgb),.62)'}}>{lastNight.mereEffective?'Pouvoir supprimé':'Aucun effet'}</span></V></Bloc>);
-                if(lastNight.divorceLoserId) events.push(<Bloc key="div"><S color="#ff8fd0">💔 Divorce des amoureux</S><V bold>{N(lastNight.divorceLoserId)} — perd au chifoumi et meurt</V>{lastNight.divorceWinnerId&&<V><span style={{fontSize:'13px',opacity:.65}}>{N(lastNight.divorceWinnerId)} n'est plus amoureux{(lastNight.deadIds||[]).includes(lastNight.divorceWinnerId)?'':' et survit'}</span></V>}</Bloc>);
-                if(lastNight.loverDeaths?.length) events.push(<Bloc key="chag"><S color="#ff8fd0">💔 Mort de chagrin</S><V bold>{lastNight.loverDeaths.map(id=>N(id)).join(', ')}</V></Bloc>);
-
-                // ── 1ÈRE NUIT SPÉCIALE
-                if(lastNight.isFirstNight){
-                  if(lastNight.loversIds?.length===2) events.push(<Bloc key="cup"><S color="#ff8fd0">💘 Amoureux (Cupidon)</S><V bold>{lastNight.loversIds.map(id=>N(id)).join(' & ')}</V></Bloc>);
-                  if(lastNight.chienLoupId) events.push(<Bloc key="cl"><S color="var(--amber)">🐕 Chien-Loup a choisi</S><V bold><span style={{color:lastNight.chienLoupCamp==='loups'?'var(--blood)':'var(--green)'}}>{lastNight.chienLoupCamp==='loups'?'🐺 Camp des Loups':'🌿 Camp Village'}</span></V></Bloc>);
-                  if(lastNight.enfantSauvageId&&lastNight.enfantSauvageModelId) events.push(<Bloc key="es"><S color="var(--green)">🧒 Modèle Enfant Sauvage</S><V bold>{N(lastNight.enfantSauvageModelId)}</V></Bloc>);
-                  if(lastNight.voleurId&&lastNight.voleurChosenRole) events.push(<Bloc key="vol"><S color="var(--amber)">🃏 Voleur a pris le rôle</S><V bold>{ROLES[lastNight.voleurChosenRole]?.emoji} {ROLES[lastNight.voleurChosenRole]?.name}</V></Bloc>);
-                }
-
-                return <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(210px,1fr))',gap:'0 18px',alignItems:'start'}}>{events}</div>;
-              })()}
+              {renderRecap()}
             </div>
           )}
 
@@ -1770,8 +1863,93 @@ function App(){
         </div>
       )}
 
-      {showNight&&<NightSlide slides={nightSlides} idx={nightIdx} setIdx={setNightIdx} players={players} setPlayers={setPlayers} na={na} setNA={setNA} onClose={()=>setShowNight(false)} onFinish={()=>{applyNight();setNightCount(n=>n+1);}} assignRole={assignRole} title="Première nuit" isFirstNight={true} voleurChosenRole={voleurChosenRole} setVoleurChosenRole={setVoleurChosenRole} activeRoles={activeRoles} setPlayers={setPlayers} lastSalvateurTarget={null} variants={variants}/>}
-      {showEveryNight&&<NightSlide slides={everyNightSlides} idx={everyNightIdx} setIdx={setEveryNightIdx} players={players} setPlayers={setPlayers} na={na} setNA={setNA} onClose={()=>setShowEveryNight(false)} onFinish={()=>{applyNight();setNightCount(n=>n+1);setShowEveryNight(false);}} assignRole={assignRole} title={`Nuit ${nightCount}`} isFirstNight={false} activeRoles={activeRoles} lastSalvateurTarget={lastSalvateurTarget} variants={variants}/>}
+      {/* ── GRAND RÉCAP DE LA NUIT ── */}
+      {showRecap&&lastNight&&(
+        <div className="bigov">
+          <div className="bigov-in">
+            <div className="bigov-h">
+              <div><div className="bigov-k">Fin de la nuit {lastNight.nightNumber}</div><h1 className="bigov-t">Récap de la nuit</h1></div>
+              <button className="nscls" onClick={()=>setShowRecap(false)} aria-label="Fermer">✕</button>
+            </div>
+            <div className={`bigdead ${recapDead().length?'ko':'ok'}`}>
+              <div className="bigdead-n">{recapDead().length}</div>
+              <div className="bigdead-b">
+                <div className="bigdead-l">{recapDead().length===0?'Personne n\'est mort cette nuit':recapDead().length>1?'morts cette nuit':'mort cette nuit'}</div>
+                {recapDead().map(id=>{const p=players.find(x=>x.id===id);return p&&<div key={id} className="bigdead-p">{roleEmoji(p.role,variants)||'❓'} <b>{p.name}</b> <span>{roleName(p.role,variants)||'Rôle inconnu'}</span></div>;})}
+              </div>
+            </div>
+            <div className="bigrecap">{renderRecap()}</div>
+            {/* Pouvoirs restants : pour que le meneur se souvienne de tout */}
+            {(()=>{
+              const A=rk=>players.find(p=>p.role===rk&&p.alive);
+              const L=[];
+              const so=A('SORCIERE');
+              if(so){ const v=getVar('SORCIERE',variants);
+                if(v) L.push([v.emoji,v.rename,`${Math.max(0,2-(so.potionsUsed||0))} potion(s) restante(s)`]);
+                else L.push(['🧪','Sorcière',`Vie : ${so.potionLifeUsed?'utilisée':'disponible'} · Mort : ${so.potionDeathUsed?'utilisée':'disponible'}`]); }
+              const rn=A('RENARD'); if(rn) L.push(['🦊','Renard',rn.foxPower===false?'Pouvoir perdu':'Pouvoir actif']);
+              const ip=A('INFECT_PERE'); if(ip) L.push(['🦠','Infect Père',ip.infectUsed?'Infection déjà utilisée':'Infection disponible']);
+              const sg=A('SINGE_SAVANT'); if(sg) L.push(['🐒','Singe Savant',sg.singeUsed?'Déjà sorti':'Peut encore sortir']);
+              const mn=A('MARIONNETTISTE'); if(mn) L.push(['🪆','Marionnettiste',mn.marionnetteUsed?'Marionnette utilisée (muet)':'Marionnette disponible']);
+              const tr=A('CHASSEUR'); if(tr&&hasVar('CHASSEUR',variants)) L.push(['🎯',"Tireur d'élite",tr.shotUsed?'Tir utilisé':'Tir disponible']);
+              const vg=A('LOUP_VEGAN'); if(vg) L.push(['🥬','Loup Vegan',vg.vegHuntUsed?'Les loups ont déjà dévoré un des leurs':'Les loups peuvent encore dévorer un des leurs']);
+              const sv=A('SALVATORE'); if(sv&&lastSalvateurTarget) L.push([hasVar('SALVATORE',variants)?'💼':'🛡️',roleName('SALVATORE',variants),`Ne peut pas choisir ${players.find(p=>p.id===lastSalvateurTarget)?.name||'?'} la nuit prochaine`]);
+              const holder=players.find(p=>p.doll&&p.alive); if(holder) L.push(['🧸','Poupée',`Chez ${holder.name}`]);
+              const lv=players.filter(p=>p.lover&&p.alive); if(lv.length) L.push(['💘','Amoureux',lv.map(p=>p.name).join(' & ')]);
+              const ch=players.filter(p=>p.enchanted&&p.alive); if(ch.length) L.push(['🎵','Enchantés',ch.map(p=>p.name).join(', ')]);
+              const pw=players.filter(p=>p.powerless&&p.alive); if(pw.length) L.push(['👑','Sans pouvoir',pw.map(p=>p.name).join(', ')]);
+              if(!L.length) return null;
+              return(
+                <div className="bigsec">
+                  <div className="bigsec-t">Pouvoirs et effets en cours</div>
+                  <div className="bigpow">{L.map(([e,n,t],i)=><div key={i} className="bigpow-i"><span className="gev-i">{e}</span><div><div className="gev-l">{n}</div><div className="gev-v">{t}</div></div></div>)}</div>
+                </div>
+              );
+            })()}
+            {/* Tous les joueurs */}
+            <div className="bigsec">
+              <div className="bigsec-t">Tous les joueurs</div>
+              <div className="bigpl">
+                {players.map(p=>(
+                  <div key={p.id} className={`bigpl-i${p.alive?'':' dead'}${isRealWolf(p)?' w':''}`}>
+                    <span className="bigpl-e">{p.role?roleEmoji(p.role,variants):'❓'}</span>
+                    <div style={{minWidth:0}}>
+                      <div className="bigpl-n">{p.name}{p.lover?' 💘':''}{p.enchanted?' 🎵':''}{p.doll?' 🧸':''}{p.voteImmune&&p.alive?' 💼':''}{p.mute?' 🤐':''}{p.powerless?' ⛔':''}</div>
+                      <div className="bigpl-r">{p.role?roleName(p.role,variants):'Rôle inconnu'}{p.isInfected?' · infecté':''}{!p.alive?' · mort':''}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="bigov-stats">
+              <span className="gstat w"><i/>{stats.wolves} loup{stats.wolves>1?'s':''}</span>
+              <span className="gstat v"><i/>{stats.village} villageois</span>
+              <span className="gstat d"><i/>{players.filter(p=>p.alive).length} en vie</span>
+            </div>
+            <button className="btn-p" onClick={()=>setShowRecap(false)}>{win&&winSeen!==win.sig?'Voir la suite →':'Retour à la table'}</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── FIN DE PARTIE ── */}
+      {win&&winSeen!==win.sig&&!showRecap&&!showNight&&!showEveryNight&&(
+        <div className={`winov ${win.cls}`}>
+          <div className="win-in">
+            <div className="win-k">Fin de la partie</div>
+            <div className="win-e">{win.emoji}</div>
+            <div className="win-t">{win.title}</div>
+            <div className="win-s">{win.sub}</div>
+            {players.some(p=>p.alive)&&<div className="win-a"><span>Survivants</span>{players.filter(p=>p.alive).map(p=><b key={p.id}>{roleEmoji(p.role,variants)} {p.name}</b>)}</div>}
+            <div className="win-btns">
+              <button className="btn-g" onClick={()=>setWinSeen(win.sig)}>Voir la table</button>
+              <button className="btn-p" onClick={()=>{setWinSeen(win.sig);openReset();}}>Nouvelle partie</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showNight&&<NightSlide slides={nightSlides} idx={nightIdx} setIdx={setNightIdx} players={players} setPlayers={setPlayers} na={na} setNA={setNA} onClose={()=>setShowNight(false)} onFinish={()=>{applyNight();setNightCount(n=>n+1);setShowRecap(true);}} assignRole={assignRole} title="Première nuit" isFirstNight={true} voleurChosenRole={voleurChosenRole} setVoleurChosenRole={setVoleurChosenRole} activeRoles={activeRoles} setPlayers={setPlayers} lastSalvateurTarget={null} variants={variants}/>}
+      {showEveryNight&&<NightSlide slides={everyNightSlides} idx={everyNightIdx} setIdx={setEveryNightIdx} players={players} setPlayers={setPlayers} na={na} setNA={setNA} onClose={()=>setShowEveryNight(false)} onFinish={()=>{applyNight();setNightCount(n=>n+1);setShowEveryNight(false);setShowRecap(true);}} assignRole={assignRole} title={`Nuit ${nightCount}`} isFirstNight={false} activeRoles={activeRoles} lastSalvateurTarget={lastSalvateurTarget} variants={variants}/>}
     </div>
   );
 }
