@@ -290,6 +290,7 @@ button{-webkit-user-select:none;user-select:none;}
 .chs-o small{display:block;font-size:11px;font-weight:400;color:var(--muted);margin-top:1px;}
 .chs-o.on{background:linear-gradient(135deg,rgba(var(--acc-rgb),.38),rgba(var(--acc2-rgb),.2));border-color:var(--accent);box-shadow:0 0 0 3px rgba(var(--acc-rgb),.2);font-weight:600;}
 .chs-o:disabled{opacity:.35;cursor:not-allowed;text-decoration:line-through;}
+.chs-o.dim:disabled{text-decoration:none;opacity:.3;}
 .chs-x{grid-column:1/-1;justify-self:start;background:none;border:none;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;padding:2px 4px;text-decoration:underline;text-underline-offset:3px;}
 .nscfm{font-size:15px;font-weight:600;text-align:center;padding:11px 14px;width:100%;border-radius:14px;}
 .nscfm.r{color:#ffb3bf;background:rgba(255,107,129,.14);border:1px solid rgba(255,107,129,.35);}
@@ -522,6 +523,9 @@ const FIRST_NIGHT=[
 
 // isWolf = fait partie de la meute (se réveille avec les loups, vu comme loup par Voyante/Renard/Ours) — inclut le Loup Vegan
 const isWolf=p=>!!p&&(ROLES[p.role]?.team==='loups'||p.role==='LOUP_BLANC'||p.role==='LOUP_VEGAN'||p.isInfected||(p.role==='CHIEN_LOUP'&&p.team==='loups')||(p.role==='ENFANT_SAUVAGE'&&p.turnedWolf));
+// Rôles de la meute : on coche toute la meute à l'écran des Loups, puis on précise les rôles spéciaux parmi eux
+const PACK_ROLES=['LOUP','GRAND_MECHANT_LOUP','INFECT_PERE','PUISSANTE_MERE','LOUP_BLANC','LOUP_VEGAN'];
+const SPECIAL_WOLVES=PACK_ROLES.filter(r=>r!=='LOUP');
 // Vrai loup (camp des loups) : la meute sans le Loup Vegan
 const isRealWolf=p=>isWolf(p)&&p.role!=='LOUP_VEGAN';
 const mkP=id=>({id,name:`Joueur ${id}`,role:null,alive:true,isInfected:false,team:null,turnedWolf:false,lover:false,loverId:null,bearGrowl:false,protected:false,enchanted:false,model:null,potionLifeUsed:false,potionDeathUsed:false,foxPower:true,angelTarget:null,infectUsed:false,singeUsed:false,marionnetteUsed:false,mute:false,powerless:false,doll:false,voteImmune:false,potionsUsed:0,vegHuntUsed:false});
@@ -1050,7 +1054,12 @@ function App(){
     setShowEveryNight(false);
   };
 
-  const assignRole=(pid,rk)=>setPlayers(prev=>prev.map(p=>p.id===pid?{...p,role:rk,team:roleTeam(rk,variants)||null}:p));
+  const assignRole=(pid,rk)=>setPlayers(prev=>{
+    const max=Math.max(1,(activeRoles[rk]||1)*roleWeight(rk));
+    const others=prev.filter(p=>p.role===rk&&p.id!==pid);
+    const drop=others.length>=max?others[others.length-1].id:null; // rôle complet : on remplace
+    return prev.map(p=>p.id===pid?{...p,role:rk,team:roleTeam(rk,variants)||null}:p.id===drop?{...p,role:null,team:null}:p);
+  });
 
   const openReset=()=>{
     setResetKeep(players.map(p=>({id:p.id,name:p.name,keep:true})));
@@ -1767,6 +1776,26 @@ function App(){
   );
 }
 
+// Sélection de plusieurs joueurs : on coche jusqu'à "max", les autres se grisent, on décoche pour corriger
+function MultiPick({options,selected,max,onToggle}){
+  const full=selected.length>=max;
+  return(
+    <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
+      {max>1&&<div className={`nscfm ${selected.length===max?'g':'a'}`}>{selected.length} / {max} sélectionné{max>1?'s':''}{full&&selected.length>0?' — décochez un joueur pour en changer':''}</div>}
+      <div className="chs">
+        {options.map(o=>{
+          const on=selected.includes(o.id);
+          return(
+            <button type="button" key={o.id} className={`chs-o dim${on?' on':''}`} disabled={!on&&(full||o.disabled)} onClick={()=>onToggle(o.id)}>
+              <span>{o.label}{o.sub&&<small>{o.sub}</small>}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // Sélecteur à pastilles : remplace les listes déroulantes de la nuit (mêmes props que <select>)
 function ChipSelect({value,onChange,children,style}){
   const opts=[];
@@ -1779,6 +1808,7 @@ function ChipSelect({value,onChange,children,style}){
   const txt=ch=>React.Children.toArray(ch).map(x=>typeof x==='string'||typeof x==='number'?String(x):'').join('');
   const cur=value==null?'':String(value);
   const hasEmpty=opts.some(o=>String(o.props.value??'')==='');
+  const locked=cur!==''&&hasEmpty&&opts.some(o=>String(o.props.value??'')===cur); // valeur absente de la liste : rien n'est bloqué
   const fire=v=>onChange&&onChange({target:{value:String(v)}});
   return(
     <div className="chs" style={style}>
@@ -1787,7 +1817,7 @@ function ChipSelect({value,onChange,children,style}){
         const m=t.match(/^(.*?)\s*\(([^()]*)\)\s*(✓)?$/);
         const on=cur===v;
         return(
-          <button type="button" key={v} className={`chs-o${on?' on':''}`} disabled={!!o.props.disabled}
+          <button type="button" key={v} className={`chs-o${locked?' dim':''}${on?' on':''}`} disabled={!!o.props.disabled||(locked&&!on)}
             onClick={()=>fire(on&&hasEmpty?'':v)}>
             <span>{m?m[1]:t}{m&&<small>{m[2]}</small>}</span>
           </button>
@@ -1813,6 +1843,34 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
   const ri=ROLES[role];
   const team=role==='LOUP'?'loups':role==='LOVER'?'solo':role==='CHARMED'?'variable':role==='RECAP'?'recap':role==='POUPEE'?'solo':roleTeam(role,variants);
   const sv=role==='SORCIERE'?(getVar('SORCIERE',variants)?.key||null):null; // variante de la Sorcière
+  // Nombre de joueurs attendus pour un rôle (ex. 3 villageois, 2 sœurs, 3 frères)
+  const maxFor=rk=>Math.max(1,(activeRoles?.[rk]||1)*(rk==='TROIS_FRERES'?3:rk==='DEUX_SOEURS'?2:1));
+  // Coche / décoche un joueur pour un rôle, sans dépasser le nombre prévu
+  const unassignRole=rk=>setPlayers(prev=>prev.map(p=>p.role===rk?{...p,role:null,team:null}:p));
+  // Rôles spéciaux de loup : choisis parmi les Loups-Garous déjà cochés ; décocher = redevient Loup-Garou
+  const isSpecialWolf=rk=>SPECIAL_WOLVES.includes(rk);
+  const canTake=(p,rk)=>p.role===rk||(isSpecialWolf(rk)?p.role==='LOUP':!p.role);
+  const toggleAssign=(id,rk)=>setPlayers(prev=>{
+    const p=prev.find(x=>x.id===id); if(!p) return prev;
+    const back=isSpecialWolf(rk)?{role:'LOUP',team:'loups'}:{role:null,team:null};
+    if(p.role===rk) return prev.map(x=>x.id===id?{...x,...back}:x);
+    if(!canTake(p,rk)) return prev;
+    if(prev.filter(x=>x.role===rk).length>=maxFor(rk)) return prev;
+    return prev.map(x=>x.id===id?{...x,role:rk,team:roleTeam(rk,variants)||null}:x);
+  });
+  const pickOpts=rk=>players.filter(p=>p.alive).map(p=>({id:p.id,label:p.name,sub:p.role&&p.role!==rk?roleName(p.role,variants):null,disabled:!canTake(p,rk)}));
+  // Écran des Loups : toute la meute (loups simples + rôles spéciaux de loup + Loup Vegan)
+  const packMax=PACK_ROLES.reduce((n,r)=>n+(activeRoles?.[r]||0),0);
+  const togglePack=id=>setPlayers(prev=>{
+    const p=prev.find(x=>x.id===id); if(!p) return prev;
+    if(PACK_ROLES.includes(p.role)) return prev.map(x=>x.id===id?{...x,role:null,team:null}:x);
+    if(p.role) return prev;
+    if(prev.filter(x=>PACK_ROLES.includes(x.role)).length>=packMax) return prev;
+    return prev.map(x=>x.id===id?{...x,role:'LOUP',team:'loups'}:x);
+  });
+  // Ajoute / retire un joueur d'une liste de cibles (max atteint = bloqué), complétée par des null si len
+  const toggleIn=(arr,id,max,len)=>{const c=(arr||[]).filter(Boolean);const n=c.includes(id)?c.filter(x=>x!==id):(c.length<max?[...c,id]:c);return len?[...n,...Array(Math.max(0,len-n.length)).fill(null)]:n;};
+  const rolePicker=rk=><MultiPick options={pickOpts(rk)} selected={players.filter(p=>p.role===rk).map(p=>p.id)} max={maxFor(rk)} onToggle={id=>toggleAssign(id,rk)}/>;
   const avoc=hasVar('SALVATORE',variants);
   const tc={loups:'tl',village:'tv',solo:'ts',variable:'ta',recap:'tr'}[team]||'tv';
 
@@ -2023,12 +2081,8 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
             {/* Simple 1ère nuit : assigner + rôle */}
             {isSimpleFirstNight&&(
               <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'6px'}}>
-                <div className="nslbl">Qui joue ce rôle ?</div>
-                <ChipSelect className="nssel" value={cur.length>0?cur[0].id:''} onChange={e=>{const id=parseInt(e.target.value);if(id)assignRole(id,role);}}>
-                  <option value="">— Sélectionner un joueur —</option>
-                  {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!==role?` (${ROLES[p.role]?.name})`:''}</option>)}
-                </ChipSelect>
-                {cur.length>0&&<div className="nscfm g">✓ {cur[0].name}</div>}
+                <div className="nslbl">{maxFor(role)>1?`Qui sont les ${maxFor(role)} joueurs ?`:'Qui joue ce rôle ?'}</div>
+                {rolePicker(role)}
               </div>
             )}
 
@@ -2036,10 +2090,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
             {role==='CHIEN_LOUP'&&isFirstNight&&(
               <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
                 <div className="nslbl">Qui joue ce rôle ?</div>
-                <ChipSelect className="nssel" value={cur.length>0?cur[0].id:''} onChange={e=>{const id=parseInt(e.target.value);if(id)assignRole(id,'CHIEN_LOUP');}}>
-                  <option value="">— Sélectionner —</option>
-                  {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='CHIEN_LOUP'?` (${ROLES[p.role]?.name})`:''}</option>)}
-                </ChipSelect>
+                {rolePicker('CHIEN_LOUP')}
                 {cur.length>0&&<div className="nscfm g">✓ {cur[0].name}</div>}
                 {cur.length>0&&<>
                   <div className="nsdiv"/>
@@ -2066,10 +2117,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
             {role==='ANGE_DECHU'&&isFirstNight&&(
               <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
                 <div className="nslbl">Qui joue ce rôle ?</div>
-                <ChipSelect className="nssel" value={cur.length>0?cur[0].id:''} onChange={e=>{const id=parseInt(e.target.value);if(id)assignRole(id,'ANGE_DECHU');}}>
-                  <option value="">— Sélectionner —</option>
-                  {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='ANGE_DECHU'?` (${ROLES[p.role]?.name})`:''}</option>)}
-                </ChipSelect>
+                {rolePicker('ANGE_DECHU')}
                 {cur.length>0&&<div className="nscfm g">✓ {cur[0].name}</div>}
                 {cur.length>0&&<>
                   <div className="nsdiv"/>
@@ -2089,10 +2137,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
             {role==='COMEDIEN'&&isFirstNight&&(
               <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
                 <div className="nslbl">Qui joue ce rôle ?</div>
-                <ChipSelect className="nssel" value={cur.length>0?cur[0].id:''} onChange={e=>{const id=parseInt(e.target.value);if(id)assignRole(id,'COMEDIEN');}}>
-                  <option value="">— Sélectionner —</option>
-                  {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='COMEDIEN'?` (${ROLES[p.role]?.name})`:''}</option>)}
-                </ChipSelect>
+                {rolePicker('COMEDIEN')}
                 {cur.length>0&&<div className="nscfm g">✓ {cur[0].name}</div>}
                 {cur.length>0&&<>
                   <div className="nsdiv"/>
@@ -2117,25 +2162,15 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
               <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
                 {isFirstNight&&<>
                   <div className="nslbl">Qui est le Renard ?</div>
-                  <ChipSelect className="nssel" value={cur.length>0?cur[0].id:''} onChange={e=>{const id=parseInt(e.target.value);if(id)assignRole(id,'RENARD');}}>
-                    <option value="">— Sélectionner —</option>
-                    {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='RENARD'?` (${ROLES[p.role]?.name})`:''}</option>)}
-                  </ChipSelect>
+                  {rolePicker('RENARD')}
                   {cur.length>0&&<div className="nscfm g">✓ {cur[0].name}</div>}
                   <div className="nsdiv"/>
                 </>}
                 {cur.length>0&&(cur[0].foxPower!==false)?(
                   <>
                     <div className="nslbl">Inspecter 3 joueurs côte à côte</div>
-                    {[0,1,2].map(i=>(
-                      <ChipSelect key={i} className="nssel" value={na.renardTargets[i]||''} onChange={e=>{
-                        const id=parseInt(e.target.value)||null;
-                        setNA({renardTargets:na.renardTargets.map((v,j)=>j===i?id:v)});
-                      }}>
-                        <option value="">— Joueur {i+1} —</option>
-                        {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role?` (${ROLES[p.role]?.name})`:''}</option>)}
-                      </ChipSelect>
-                    ))}
+                    <MultiPick options={players.filter(p=>p.alive).map(p=>({id:p.id,label:p.name,sub:p.role?roleName(p.role,variants):null}))}
+                      selected={na.renardTargets.filter(Boolean)} max={3} onToggle={id=>setNA({renardTargets:toggleIn(na.renardTargets,id,3,3)})}/>
                     {na.renardTargets.every(t=>t!==null)&&(()=>{
                       const hasWolf=na.renardTargets.some(id=>{const t=players.find(p=>p.id===id);return t&&isWolf(t);});
                       return <div className={`nscfm ${hasWolf?'r':'g'}`}>{hasWolf?'🦊 Au moins un loup parmi ces joueurs !':'🦊 Aucun loup — le Renard perdra son pouvoir'}</div>;
@@ -2153,15 +2188,18 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
             {role==='VOLEUR'&&isFirstNight&&(
               <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
                 <div className="nslbl">Qui joue ce rôle ?</div>
-                <ChipSelect className="nssel"
-                  value={players.find(p=>p.role==='VOLEUR'&&p.alive)?.id||''}
-                  onChange={e=>{const id=parseInt(e.target.value);if(id)setPlayers(prev=>prev.map(p=>p.id===id?{...p,role:'VOLEUR',team:'village'}:p));}}>
-                  <option value="">— Sélectionner un joueur —</option>
-                  {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='VOLEUR'?` (${ROLES[p.role]?.name})`:''}</option>)}
-                </ChipSelect>
-                {players.find(p=>p.role==='VOLEUR'&&p.alive)&&<div className="nscfm g">✓ {players.find(p=>p.role==='VOLEUR'&&p.alive).name}</div>}
-                {players.find(p=>p.role==='VOLEUR'&&p.alive)&&(()=>{
-                  const voleurP=players.find(p=>p.role==='VOLEUR'&&p.alive);
+                {(()=>{
+                  // Le Voleur garde sa place même après avoir pris une autre carte (wasVoleur)
+                  const vp=players.find(p=>(p.role==='VOLEUR'||p.wasVoleur)&&p.alive);
+                  return <MultiPick options={players.filter(p=>p.alive).map(p=>({id:p.id,label:p.name,sub:p.role&&p.id!==vp?.id?roleName(p.role,variants):(p.wasVoleur&&p.role!=='VOLEUR'?`→ ${roleName(p.role,variants)}`:null),disabled:!!p.role&&p.id!==vp?.id}))}
+                    selected={vp?[vp.id]:[]} max={1}
+                    onToggle={id=>{
+                      if(vp&&vp.id===id){ setVoleurChosenRole(null); setPlayers(prev=>prev.map(p=>p.id===id?{...p,role:null,team:null,wasVoleur:false}:p)); }
+                      else if(!vp) setPlayers(prev=>prev.map(p=>p.id===id?{...p,role:'VOLEUR',team:'village'}:p));
+                    }}/>;
+                })()}
+                {players.find(p=>(p.role==='VOLEUR'||p.wasVoleur)&&p.alive)&&(()=>{
+                  const voleurP=players.find(p=>(p.role==='VOLEUR'||p.wasVoleur)&&p.alive);
                   const bonusRoles=Object.keys(activeRoles||{}).filter(rk=>rk!=='VOLEUR');
                   return(
                     <>
@@ -2176,7 +2214,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                           const chosen=voleurChosenRole===rk;
                           const borderC={loups:'var(--blood)',village:'var(--green)',solo:'var(--purple)',variable:'var(--amber)'}[r.team]||'rgba(var(--ink-rgb),.28)';
                           return(
-                            <div key={rk} onClick={()=>{setVoleurChosenRole(rk);setPlayers(prev=>prev.map(p=>p.id===voleurP.id?{...p,role:rk,team:r.team}:p));}}
+                            <div key={rk} onClick={()=>{setVoleurChosenRole(rk);setPlayers(prev=>prev.map(p=>p.id===voleurP.id?{...p,role:rk,team:roleTeam(rk,variants)||r.team,wasVoleur:true}:p));}}
                               style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'3px',padding:'8px 4px',borderRadius:'16px',border:`2px solid ${chosen?borderC:'rgba(var(--ink-rgb),.20)'}`,background:chosen?'rgba(var(--ink-rgb),.11)':'rgba(var(--ink-rgb),.04)',cursor:'pointer',transition:'all .15s'}}>
                               <span style={{fontSize:'22px'}}>{r.emoji}</span>
                               <span style={{fontFamily:"inherit",fontSize:'13px',color:chosen?'var(--ink)':'rgba(var(--ink-rgb),.69)',textAlign:'center',lineHeight:1.2}}>{r.name}</span>
@@ -2199,17 +2237,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                 {isFirstNight&&(
                   <>
                     <div className="nslbl">Qui joue ce rôle ?</div>
-                    <ChipSelect className="nssel"
-                      value={players.find(p=>p.role==='ENFANT_SAUVAGE'&&p.alive)?.id||''}
-                      onChange={e=>{
-                        const id=parseInt(e.target.value);
-                        if(id) setPlayers(prev=>prev.map(p=>p.id===id?{...p,role:'ENFANT_SAUVAGE',team:'variable'}:p));
-                      }}>
-                      <option value="">— Sélectionner un joueur —</option>
-                      {players.filter(p=>p.alive).map(p=>(
-                        <option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='ENFANT_SAUVAGE'?` (${ROLES[p.role]?.name})`:''}</option>
-                      ))}
-                    </ChipSelect>
+                    {rolePicker('ENFANT_SAUVAGE')}
                     {players.find(p=>p.role==='ENFANT_SAUVAGE'&&p.alive)&&(
                       <div className="nscfm g">✓ {players.find(p=>p.role==='ENFANT_SAUVAGE'&&p.alive).name}</div>
                     )}
@@ -2250,10 +2278,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                 <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
                   {isFirstNight&&<>
                       <div className="nslbl">Qui joue ce rôle ?</div>
-                      <ChipSelect className="nssel" value={players.find(p=>p.role==='SINGE_SAVANT'&&p.alive)?.id||''} onChange={e=>{const id=parseInt(e.target.value);if(id)assignRole(id,'SINGE_SAVANT');}}>
-                        <option value="">— Sélectionner —</option>
-                        {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='SINGE_SAVANT'?` (${ROLES[p.role]?.name})`:''}</option>)}
-                      </ChipSelect>
+                      {rolePicker('SINGE_SAVANT')}
                       <div className="nsdiv"/>
                     </>}
                   {!isFirstNight&&singe&&<div className="nscfm g">🐒 {singe.name}</div>}
@@ -2305,10 +2330,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                 <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
                   {isFirstNight&&<>
                       <div className="nslbl">Qui joue ce rôle ?</div>
-                      <ChipSelect className="nssel" value={players.find(p=>p.role==='PUISSANTE_MERE'&&p.alive)?.id||''} onChange={e=>{const id=parseInt(e.target.value);if(id)assignRole(id,'PUISSANTE_MERE');}}>
-                        <option value="">— Sélectionner —</option>
-                        {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='PUISSANTE_MERE'?` (${ROLES[p.role]?.name})`:''}</option>)}
-                      </ChipSelect>
+                      {rolePicker('PUISSANTE_MERE')}
                       <div className="nsdiv"/>
                     </>}
                   {!isFirstNight&&mere&&<div className="nscfm r">👑 {mere.name}</div>}
@@ -2357,12 +2379,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                 {isFirstNight&&(
                   <>
                     <div className="nslbl">Qui joue ce rôle ?</div>
-                    <ChipSelect className="nssel"
-                      value={players.find(p=>p.role==='INFECT_PERE'&&p.alive)?.id||''}
-                      onChange={e=>{const id=parseInt(e.target.value);if(id)assignRole(id,'INFECT_PERE');}}>
-                      <option value="">— Sélectionner —</option>
-                      {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='INFECT_PERE'?` (${ROLES[p.role]?.name})`:''}</option>)}
-                    </ChipSelect>
+                    {rolePicker('INFECT_PERE')}
                     {players.find(p=>p.role==='INFECT_PERE'&&p.alive)&&<div className="nscfm g">✓ {players.find(p=>p.role==='INFECT_PERE'&&p.alive).name}</div>}
                     <div className="nsdiv"/>
                   </>
@@ -2415,12 +2432,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                 {isFirstNight&&(
                   <>
                     <div className="nslbl">Qui joue ce rôle ?</div>
-                    <ChipSelect className="nssel"
-                      value={players.find(p=>p.role==='GRAND_MECHANT_LOUP'&&p.alive)?.id||''}
-                      onChange={e=>{const id=parseInt(e.target.value);if(id)assignRole(id,'GRAND_MECHANT_LOUP');}}>
-                      <option value="">— Sélectionner —</option>
-                      {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='GRAND_MECHANT_LOUP'?` (${ROLES[p.role]?.name})`:''}</option>)}
-                    </ChipSelect>
+                    {rolePicker('GRAND_MECHANT_LOUP')}
                     {players.find(p=>p.role==='GRAND_MECHANT_LOUP'&&p.alive)&&<div className="nscfm g">✓ {players.find(p=>p.role==='GRAND_MECHANT_LOUP'&&p.alive).name}</div>}
                     <div className="nsdiv"/>
                   </>
@@ -2482,40 +2494,18 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
             {role==='LOUP'&&(
               <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'10px'}}>
                 <div>
-                  {isFirstNight&&(()=>{
-                    // Compteur : nombre total de rôles loups sélectionnés
-                    // Total loups attendus : rôles sélectionnés + Chien-Loup s'il a rejoint les loups
-                    const chienLoupJoinsWolves=players.some(p=>p.role==='CHIEN_LOUP'&&p.team==='loups');
-                    const totalWolfRoles=(activeRoles['LOUP']||0)+(activeRoles['GRAND_MECHANT_LOUP']||0)+(activeRoles['INFECT_PERE']||0)+(activeRoles['PUISSANTE_MERE']||0)+(activeRoles['LOUP_BLANC']||0)+(activeRoles['LOUP_VEGAN']||0)+(chienLoupJoinsWolves?1:0);
-                    const assignedWolves=getAssigned('LOUP').length;
-                    const ok=assignedWolves>=totalWolfRoles;
-                    return(
-                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'4px'}}>
-                        <div className="nslbl" style={{margin:0}}>Loups dans la partie</div>
-                        <div style={{fontFamily:"inherit",fontSize:'14px',fontWeight:'700',color:ok?'var(--green)':'var(--blood)',background:ok?'rgba(94,234,169,.12)':'rgba(255,107,129,.14)',border:`1px solid ${ok?'var(--green)':'var(--blood)'}`,borderRadius:'16px',padding:'2px 10px'}}>
-                          {assignedWolves} / {totalWolfRoles}
-                        </div>
-                      </div>
-                    );
-                  })()}
-                  {!isFirstNight&&<div className="nslbl">Loups dans la partie</div>}
+                  <div className="nslbl">Loups dans la partie</div>
                   {getAssigned('LOUP').length>0
                     ?<div className="nstags" style={{marginTop:'6px'}}>{getAssigned('LOUP').map(p=><span key={p.id} className={`nstag ${p.role==='LOUP_VEGAN'?'pk':'wf'}`} style={p.role==='LOUP_VEGAN'?{borderColor:'rgba(94,234,169,.55)',background:'rgba(94,234,169,.12)',color:'#a8f3d1'}:null}>{ROLES[p.role]?.emoji} {p.name}{p.role==='LOUP_VEGAN'?' (vegan)':''}</span>)}</div>
                     :<div style={{fontFamily:"inherit",fontSize:'14px',fontStyle:'normal',color:'rgba(var(--ink-rgb),.50)',textAlign:'center',marginTop:'6px'}}>Aucun loup assigné</div>
                   }
-                  {isFirstNight&&activeRoles['LOUP_VEGAN']>0&&!players.some(p=>p.role==='LOUP_VEGAN')&&<>
-                    <div className="nslbl" style={{marginTop:'10px'}}>🥬 Qui est le Loup Vegan ? (il se réveille avec eux)</div>
-                    <ChipSelect style={{marginTop:'6px'}} value="" onChange={e=>{const id=parseInt(e.target.value);if(id)assignRole(id,'LOUP_VEGAN');}}>
-                      <option value="">—</option>
-                      {players.filter(p=>p.alive&&!isWolf(p)).map(p=><option key={p.id} value={p.id}>{p.name}{p.role?` (${ROLES[p.role]?.name})`:''}</option>)}
-                    </ChipSelect>
-                  </>}
                   {/* "Ajouter un loup" seulement en 1ère nuit */}
-                  {isFirstNight&&(
-                    <ChipSelect className="nssel" style={{marginTop:'8px'}} value="" onChange={e=>{const id=parseInt(e.target.value);if(id)assignRole(id,'LOUP');}}>
-                      <option value="">➕ Ajouter un loup...</option>
-                      {players.filter(p=>p.alive&&!isWolf(p)).map(p=><option key={p.id} value={p.id}>{p.name}{p.role?` (${ROLES[p.role]?.name})`:''}</option>)}
-                    </ChipSelect>
+                  {isFirstNight&&packMax>0&&(
+                    <div style={{marginTop:'10px'}}>
+                      <div className="nslbl" style={{marginBottom:'6px'}}>🐺 Qui se réveille avec la meute ? (les rôles spéciaux seront précisés ensuite)</div>
+                      <MultiPick options={players.filter(p=>p.alive).map(p=>({id:p.id,label:p.name,sub:p.role&&!PACK_ROLES.includes(p.role)?roleName(p.role,variants):(p.role&&p.role!=='LOUP'?roleName(p.role,variants):null),disabled:!!p.role&&!PACK_ROLES.includes(p.role)}))}
+                        selected={players.filter(p=>PACK_ROLES.includes(p.role)).map(p=>p.id)} max={packMax} onToggle={togglePack}/>
+                    </div>
                   )}
                 </div>
                 <div className="nsdiv"/>
@@ -2573,10 +2563,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
               <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
                 {isFirstNight&&<>
                   <div className="nslbl">Qui est le Noctambule ?</div>
-                  <ChipSelect value={cur.length>0?cur[0].id:''} onChange={e=>{const id=parseInt(e.target.value);if(id)assignRole(id,'NOCTAMBULE');}}>
-                    <option value="">—</option>
-                    {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='NOCTAMBULE'?` (${ROLES[p.role]?.name})`:''}</option>)}
-                  </ChipSelect>
+                  {rolePicker('NOCTAMBULE')}
                   <div className="nsdiv"/>
                 </>}
                 {!isFirstNight&&cur[0]&&<div className="nscfm g">🌙 {cur[0].name}</div>}
@@ -2608,10 +2595,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                 <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
                   {isFirstNight&&<>
                     <div className="nslbl">Qui est le Loup Vegan ?</div>
-                    <ChipSelect value={vegan?.id||''} onChange={e=>{const id=parseInt(e.target.value);if(id)assignRole(id,'LOUP_VEGAN');}}>
-                      <option value="">—</option>
-                      {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='LOUP_VEGAN'?` (${ROLES[p.role]?.name})`:''}</option>)}
-                    </ChipSelect>
+                    {rolePicker('LOUP_VEGAN')}
                     <div className="nsdiv"/>
                   </>}
                   {!isFirstNight&&vegan&&<div className="nscfm g">🥬 {vegan.name}</div>}
@@ -2641,24 +2625,15 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                 <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'10px'}}>
                   {isFirstNight&&<>
                     <div className="nslbl">Qui est {sv==='EMPOISONNEUSE'?"l'Empoisonneuse":'la Guérisseuse'} ?</div>
-                    <ChipSelect value={sorc?.id||''} onChange={e=>{const id=parseInt(e.target.value);if(id)assignRole(id,'SORCIERE');}}>
-                      <option value="">—</option>
-                      {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='SORCIERE'?` (${ROLES[p.role]?.name})`:''}</option>)}
-                    </ChipSelect>
+                    {rolePicker('SORCIERE')}
                     <div className="nsdiv"/>
                   </>}
                   <div className="nscfm a">{sv==='EMPOISONNEUSE'?'☠️':'💚'} Potions restantes : {left} / 2</div>
                   {left===0&&<div className="nsoff">Toutes les potions ont été utilisées.</div>}
                   {sv==='EMPOISONNEUSE'&&left>0&&<>
-                    {Array.from({length:left},(_,i)=>(
-                      <div key={i} style={{width:'100%'}}>
-                        <div className="nslbl" style={{marginBottom:'6px'}}>☠️ Potion {i+1} (optionnel)</div>
-                        <ChipSelect value={pois[i]||''} onChange={e=>{const a=[...pois];a[i]=parseInt(e.target.value)||null;setNA({poisonTargets:a});}}>
-                          <option value="">—</option>
-                          {players.filter(p=>p.alive&&p.id!==sorc?.id&&!pois.some((x,j)=>j!==i&&x===p.id)).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
-                        </ChipSelect>
-                      </div>
-                    ))}
+                    <div className="nslbl">☠️ Qui empoisonne-t-elle ? (optionnel)</div>
+                    <MultiPick options={players.filter(p=>p.alive&&p.id!==sorc?.id).map(p=>({id:p.id,label:p.name}))}
+                      selected={pois.filter(Boolean)} max={left} onToggle={id=>setNA({poisonTargets:toggleIn(pois,id,left)})}/>
                     {pois.filter(Boolean).length>0&&<div className="nscfm r">☠️ {pois.filter(Boolean).map(id=>players.find(p=>p.id===id)?.name).join(' et ')} {pois.filter(Boolean).length>1?'meurent':'meurt'} cette nuit</div>}
                   </>}
                   {sv==='GUERISSEUSE'&&<>
@@ -2682,30 +2657,17 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
             {role==='CUPIDON'&&(
               <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
                 <div className="nslbl">Qui est Cupidon ?</div>
-                <ChipSelect className="nssel" value={players.find(p=>p.role==='CUPIDON')?.id||''} onChange={e=>{const id=parseInt(e.target.value);if(id)assignRole(id,'CUPIDON');}}>
-                  <option value="">— Sélectionner —</option>
-                  {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='CUPIDON'?` (${ROLES[p.role]?.name||p.role})`:''}</option>)}
-                </ChipSelect>
+                {rolePicker('CUPIDON')}
                 {players.find(p=>p.role==='CUPIDON')&&<div className="nscfm g">✓ {players.find(p=>p.role==='CUPIDON').name}</div>}
                 <div className="nsdiv"/>
                 <div className="nslbl">Désigne les 2 amoureux</div>
-                {[0,1].map(i=>{
-                  const lovers=players.filter(p=>p.lover),lover=lovers[i];
-                  return(
-                    <ChipSelect key={i} className="nssel" value={lover?.id||''} onChange={e=>{
-                      const newId=parseInt(e.target.value),other=lovers[i===0?1:0];
-                      setPlayers(prev=>prev.map(p=>{
-                        if(p.id===newId) return{...p,lover:true,loverId:other?.id||null};
-                        if(lover&&p.id===lover.id) return{...p,lover:false,loverId:null};
-                        if(other&&p.id===other.id) return{...p,loverId:newId};
-                        return p;
-                      }));
-                    }}>
-                      <option value="">— Amoureux {i+1} —</option>
-                      {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
-                    </ChipSelect>
-                  );
-                })}
+                <MultiPick options={players.filter(p=>p.alive).map(p=>({id:p.id,label:p.name}))}
+                  selected={players.filter(p=>p.lover).map(p=>p.id)} max={2}
+                  onToggle={id=>setPlayers(prev=>{
+                    const L=prev.filter(p=>p.lover).map(p=>p.id);
+                    const n=L.includes(id)?L.filter(x=>x!==id):(L.length<2?[...L,id]:L);
+                    return prev.map(p=>({...p,lover:n.includes(p.id),loverId:n.length===2&&n.includes(p.id)?n.find(x=>x!==p.id):null}));
+                  })}/>
                 {players.filter(p=>p.lover).length===2&&<div className="nscfm a">💘 {players.filter(p=>p.lover).map(p=>p.name).join(' & ')}</div>}
               </div>
             )}
@@ -2715,10 +2677,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
               <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'10px'}}>
                 {isFirstNight&&<>
                   <div className="nslbl">Qui est la Sorcière ?</div>
-                  <ChipSelect className="nssel" value={players.find(p=>p.role==='SORCIERE')?.id||''} onChange={e=>{const id=parseInt(e.target.value);if(id)assignRole(id,'SORCIERE');}}>
-                    <option value="">— Sélectionner —</option>
-                    {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='SORCIERE'?` (${ROLES[p.role]?.name})`:''}</option>)}
-                  </ChipSelect>
+                  {rolePicker('SORCIERE')}
                   {players.find(p=>p.role==='SORCIERE')&&<div className="nscfm g">✓ {players.find(p=>p.role==='SORCIERE').name}</div>}
                   <div className="nsdiv"/>
                 </>}
@@ -2756,10 +2715,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
               <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
                 {isFirstNight&&<>
                   <div className="nslbl">Qui est {avoc?"l'Avocat":'le Salvateur'} ?</div>
-                  <ChipSelect className="nssel" value={players.find(p=>p.role==='SALVATORE')?.id||''} onChange={e=>{const id=parseInt(e.target.value);if(id)assignRole(id,'SALVATORE');}}>
-                    <option value="">— Sélectionner —</option>
-                    {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='SALVATORE'?` (${ROLES[p.role]?.name})`:''}</option>)}
-                  </ChipSelect>
+                  {rolePicker('SALVATORE')}
                   {players.find(p=>p.role==='SALVATORE')&&<div className="nscfm g">✓ {players.find(p=>p.role==='SALVATORE').name}</div>}
                   <div className="nsdiv"/>
                 </>}
@@ -2788,10 +2744,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
               <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
                 {isFirstNight&&<>
                   <div className="nslbl">Qui est le Corbeau ?</div>
-                  <ChipSelect className="nssel" value={players.find(p=>p.role==='CORBEAU')?.id||''} onChange={e=>{const id=parseInt(e.target.value);if(id)assignRole(id,'CORBEAU');}}>
-                    <option value="">— Sélectionner —</option>
-                    {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='CORBEAU'?` (${ROLES[p.role]?.name})`:''}</option>)}
-                  </ChipSelect>
+                  {rolePicker('CORBEAU')}
                   {players.find(p=>p.role==='CORBEAU')&&<div className="nscfm g">✓ {players.find(p=>p.role==='CORBEAU').name}</div>}
                   <div className="nsdiv"/>
                 </>}
@@ -2810,10 +2763,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
               <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
                 {isFirstNight&&<>
                   <div className="nslbl">Qui est la Voyante ?</div>
-                  <ChipSelect className="nssel" value={players.find(p=>p.role==='VOYANTE')?.id||''} onChange={e=>{const id=parseInt(e.target.value);if(id)assignRole(id,'VOYANTE');}}>
-                    <option value="">— Sélectionner —</option>
-                    {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='VOYANTE'?` (${ROLES[p.role]?.name})`:''}</option>)}
-                  </ChipSelect>
+                  {rolePicker('VOYANTE')}
                   {players.find(p=>p.role==='VOYANTE')&&<div className="nscfm g">✓ {players.find(p=>p.role==='VOYANTE').name}</div>}
                   <div className="nsdiv"/>
                 </>}
@@ -2838,54 +2788,16 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
             {/* TROIS FRÈRES */}
             {role==='TROIS_FRERES'&&(
               <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'6px'}}>
-                <div className="nslbl">Qui sont les 3 frères ?</div>
-                {[0,1,2].map(i=>{
-                  const freres=players.filter(p=>p.role==='TROIS_FRERES');
-                  const f=freres[i];
-                  return(
-                    <ChipSelect key={i} className="nssel" value={f?.id||''}
-                      onChange={e=>{
-                        const newId=parseInt(e.target.value); if(!newId) return;
-                        const oldF=freres[i];
-                        setPlayers(prev=>prev.map(p=>{
-                          if(p.id===newId) return {...p,role:'TROIS_FRERES',team:'village'};
-                          if(oldF&&p.id===oldF.id) return {...p,role:null,team:null};
-                          return p;
-                        }));
-                      }}>
-                      <option value="">— Frère {i+1} —</option>
-                      {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='TROIS_FRERES'?` (${ROLES[p.role]?.name})`:''}</option>)}
-                    </ChipSelect>
-                  );
-                })}
-                {players.filter(p=>p.role==='TROIS_FRERES').length===3&&<div className="nscfm g">✓ {players.filter(p=>p.role==='TROIS_FRERES').map(p=>p.name).join(', ')}</div>}
+                <div className="nslbl">Qui sont les {maxFor('TROIS_FRERES')} frères ?</div>
+                {rolePicker('TROIS_FRERES')}
               </div>
             )}
 
             {/* DEUX SŒURS */}
             {role==='DEUX_SOEURS'&&(
               <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'6px'}}>
-                <div className="nslbl">Qui sont les 2 sœurs ?</div>
-                {[0,1].map(i=>{
-                  const soeurs=players.filter(p=>p.role==='DEUX_SOEURS');
-                  const s=soeurs[i];
-                  return(
-                    <ChipSelect key={i} className="nssel" value={s?.id||''}
-                      onChange={e=>{
-                        const newId=parseInt(e.target.value); if(!newId) return;
-                        const oldS=soeurs[i];
-                        setPlayers(prev=>prev.map(p=>{
-                          if(p.id===newId) return {...p,role:'DEUX_SOEURS',team:'village'};
-                          if(oldS&&p.id===oldS.id) return {...p,role:null,team:null}; // retirer l'ancienne
-                          return p;
-                        }));
-                      }}>
-                      <option value="">— Sœur {i+1} —</option>
-                      {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='DEUX_SOEURS'?` (${ROLES[p.role]?.name})`:''}</option>)}
-                    </ChipSelect>
-                  );
-                })}
-                {players.filter(p=>p.role==='DEUX_SOEURS').length===2&&<div className="nscfm g">✓ {players.filter(p=>p.role==='DEUX_SOEURS').map(p=>p.name).join(' & ')}</div>}
+                <div className="nslbl">Qui sont les {maxFor('DEUX_SOEURS')} sœurs ?</div>
+                {rolePicker('DEUX_SOEURS')}
               </div>
             )}
 
@@ -2920,10 +2832,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
               <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
                 {isFirstNight&&<>
                   <div className="nslbl">Qui joue ce rôle ?</div>
-                  <ChipSelect className="nssel" value={cur.length>0?cur[0].id:''} onChange={e=>{const id=parseInt(e.target.value);if(id)assignRole(id,'JOUEUR_FLUTE');}}>
-                    <option value="">— Sélectionner —</option>
-                    {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}{p.role&&p.role!=='JOUEUR_FLUTE'?` (${ROLES[p.role]?.name})`:''}</option>)}
-                  </ChipSelect>
+                  {rolePicker('JOUEUR_FLUTE')}
                   {cur.length>0&&<div className="nscfm g">✓ {cur[0].name}</div>}
                   <div className="nsdiv"/>
                 </>}
@@ -2940,19 +2849,8 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                 )}
 
                 <div className="nslbl">2 nouveaux joueurs à enchanter cette nuit</div>
-                {[0,1].map(i=>(
-                  <ChipSelect key={i} className="nssel"
-                    value={na.newEnchanted[i]||''}
-                    onChange={e=>{
-                      const newId=parseInt(e.target.value)||null;
-                      setNA({newEnchanted:na.newEnchanted.map((v,j)=>j===i?newId:v)});
-                    }}>
-                    <option value="">— Nouveau joueur {i+1} —</option>
-                    {players.filter(p=>p.alive&&!p.enchanted).map(p=>(
-                      <option key={p.id} value={p.id}>{p.name}{p.role?` (${ROLES[p.role]?.name})`:''}</option>
-                    ))}
-                  </ChipSelect>
-                ))}
+                <MultiPick options={players.filter(p=>p.alive&&!p.enchanted).map(p=>({id:p.id,label:p.name,sub:p.role?roleName(p.role,variants):null}))}
+                  selected={na.newEnchanted.filter(Boolean)} max={2} onToggle={id=>setNA({newEnchanted:toggleIn(na.newEnchanted,id,2,2)})}/>
                 {na.newEnchanted.filter(Boolean).length>0&&(
                   <div className="nscfm a">🎵 {na.newEnchanted.filter(Boolean).map(id=>players.find(p=>p.id===id)?.name).filter(Boolean).join(' & ')} seront enchantés</div>
                 )}
