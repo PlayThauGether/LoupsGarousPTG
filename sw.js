@@ -1,17 +1,20 @@
-const CACHE_NAME = 'loups-garous-v10';
+const CACHE_NAME = 'loups-garous-v18';
 const BASE = '/LoupsGarousPTG/';
 
 const ASSETS = [
   BASE + 'index.html',
   BASE + 'manifest.json',
-  BASE + 'logo.png',
   BASE + 'icon-512.png',
+  BASE + 'icon-maskable-192.png',
+  BASE + 'icon-maskable-512.png',
   BASE + 'icon-192.png',
   BASE + 'icon-180.png',
   BASE + 'icon-152.png',
   BASE + 'icon-120.png',
   BASE + 'icon-76.png',
-  BASE + 'favicon-32.png'
+  BASE + 'favicon-32.png',
+  BASE + 'favicon-16.png',
+  BASE + 'favicon.ico'
 ];
 
 self.addEventListener('install', event => {
