@@ -1,4 +1,4 @@
-const CACHE_NAME = 'loups-garous-v18';
+const CACHE_NAME = 'loups-garous-v19';
 const BASE = '/LoupsGarousPTG/';
 
 const ASSETS = [
