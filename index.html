@@ -876,6 +876,10 @@ function App(){
   const save=(key,val)=>{ try{ localStorage.setItem(key,JSON.stringify(val)); }catch(e){} };
 
   const [screen,setScreen]=useState(()=>loadSave('ptg_screen')||'count');
+  // Partie laissée ouverte depuis plus de 3 h : on demande au lancement si on la reprend
+  const [staleAsk,setStaleAsk]=useState(()=>{ const t=loadSave('ptg_lastActive'), sc=loadSave('ptg_screen'); return sc==='game'&&t&&Date.now()-t>3*3600e3 ? Date.now()-t : null; });
+  const [menuOpen,setMenuOpen]=useState(false);
+  const [homeConfirm,setHomeConfirm]=useState(false);
   const [count,setCount]=useState(()=>loadSave('ptg_count')||8);
   const [activeRoles,setActiveRoles]=useState(()=>loadSave('ptg_activeRoles')||{});
   const [players,setPlayers]=useState(()=>loadSave('ptg_players')||Array.from({length:8},(_,i)=>mkP(i+1)));
@@ -950,6 +954,7 @@ function App(){
     save('ptg_voleurRole',voleurChosenRole);
     save('ptg_lastSalvateur',lastSalvateurTarget);
     save('ptg_variants',variants);
+    save('ptg_lastActive',Date.now());
   },[screen,count,activeRoles,players,nightCount,lastNight,voleurChosenRole,lastSalvateurTarget,variants]);
 
 
@@ -1362,7 +1367,24 @@ function App(){
     return prev.map(p=>p.id===pid?{...p,role:rk,team:roleTeam(rk,variants)||null}:p.id===drop?{...p,role:null,team:null}:p);
   });
 
+  // Retour à l'accueil : la partie est effacée, on garde seulement les prénoms
+  const goHome=()=>{
+    clearSave();
+    setPlayers(prev=>prev.map((p,i)=>({...mkP(i+1),name:p.name})));
+    setActiveRoles({});
+    setNightCount(1);
+    setNaState(mkNA());
+    setVoleurChosenRole(null);
+    setLastSalvateurTarget(null);
+    setLastNight(null);
+    setVariants({});
+    setShowRecap(false);
+    setWinSeen(null);
+    setMenuOpen(false); setHomeConfirm(false); setStaleAsk(null);
+    setScreen('count');
+  };
   const openReset=()=>{
+    setMenuOpen(false); setHomeConfirm(false); setStaleAsk(null);
     setResetKeep(players.map(p=>({id:p.id,name:p.name,keep:true})));
     setShowReset(true);
   };
@@ -1744,7 +1766,7 @@ function App(){
         </div>
         <div style={{display:'flex',gap:'8px'}}>
           <button className="ibtn" title="Réorganiser les joueurs" aria-label="Réorganiser les joueurs" onClick={()=>setShowReorder(true)}><svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
-          <button className="ibtn" title="Nouvelle partie" aria-label="Nouvelle partie" onClick={openReset}><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+          <button className="ibtn" title="Menu" aria-label="Menu" onClick={()=>{setHomeConfirm(false);setMenuOpen(true);}}><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
         </div>
       </div>
       <div className="gstats">
@@ -2065,6 +2087,43 @@ function App(){
             </div>
           </div>
         );
+      })()}
+
+      {/* ── MENU (bouton en haut à droite) et « Partie en cours » au lancement ── */}
+      {(menuOpen||staleAsk)&&(()=>{
+        const close=()=>{setMenuOpen(false);setStaleAsk(null);setHomeConfirm(false);};
+        const alive=players.filter(p=>p.alive).length;
+        const h=staleAsk?Math.floor(staleAsk/3600e3):0;
+        const ago=!staleAsk?'':h>=48?`il y a ${Math.floor(h/24)} jours`:h>=24?'hier':`il y a ${h} h`;
+        const item={display:'flex',flexDirection:'column',alignItems:'flex-start',gap:'2px',width:'100%',textAlign:'left',padding:'14px 16px'};
+        return(
+        <div className="ov" onClick={close}>
+          <div className="pmod" onClick={e=>e.stopPropagation()}>
+            <div className="mod-name" style={{marginBottom:'4px'}}>{staleAsk?'Partie en cours':'Menu'}</div>
+            <div style={{fontSize:'14px',color:'var(--muted)',marginBottom:'14px'}}>
+              {`Nuit ${nightCount} · ${alive} joueur${alive>1?'s':''} en vie`}{ago?` · dernière activité ${ago}`:''}
+            </div>
+            <div style={{display:'flex',flexDirection:'column',gap:'8px'}}>
+              <button className="mb cls" style={item} onClick={close}>
+                <span>Reprendre la partie</span>
+                <span style={{fontSize:'12px',fontWeight:400,opacity:.7}}>Continuer là où vous en étiez</span>
+              </button>
+              <button className="mb rev" style={item} onClick={openReset}>
+                <span>Nouvelle partie</span>
+                <span style={{fontSize:'12px',fontWeight:400,opacity:.8}}>Garder les joueurs et rechoisir les rôles</span>
+              </button>
+              {!homeConfirm
+                ?<button className="mb kill" style={item} onClick={()=>setHomeConfirm(true)}>
+                  <span>Retour à l'accueil</span>
+                  <span style={{fontSize:'12px',fontWeight:400,opacity:.8}}>Terminer cette partie et revenir au premier écran</span>
+                </button>
+                :<button className="mb kill" style={{...item,alignItems:'center',textAlign:'center'}} onClick={goHome}>
+                  <span>Confirmer : effacer la partie</span>
+                  <span style={{fontSize:'12px',fontWeight:400,opacity:.8}}>Les prénoms des joueurs sont gardés</span>
+                </button>}
+            </div>
+          </div>
+        </div>);
       })()}
 
       {/* ── MODALE RESET ── */}
