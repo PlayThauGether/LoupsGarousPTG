@@ -9,7 +9,7 @@
 
 <!-- PWA Manifest -->
 <link rel="manifest" href="manifest.json">
-<script>try{var t=JSON.parse(localStorage.getItem('ptg_theme')||'null');if(t==='gold')document.documentElement.setAttribute('data-theme','gold');}catch(e){}</script>
+<script>try{var t=JSON.parse(localStorage.getItem('ptg_theme')||'null');if(t==='gold'||t==='arcade')document.documentElement.setAttribute('data-theme',t);if(t==='arcade'){var l=document.createElement('link');l.id='arcfont';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap';document.head.appendChild(l);}}catch(e){}</script>
 
 <!-- iOS / Safari PWA -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -436,6 +436,76 @@ button{-webkit-user-select:none;user-select:none;}
 .winbar b{display:block;font-size:16px;color:var(--wc);}.winbar small{display:block;font-size:13px;color:var(--muted);margin-top:2px;}
 .winbar-v{font-size:13px;font-weight:600;padding:5px 12px;border-radius:999px;background:var(--glass2);}
 .ltimer-b{margin-top:8px;min-height:46px;padding:10px 26px;border-radius:14px;border:1px solid rgba(255,143,208,.5);background:rgba(255,143,208,.14);font-size:15px;font-weight:600;color:#ffc4e6;cursor:pointer;}
+
+/* ══ THÈME CACHÉ « ARCADE 8 BITS » — easter egg : toucher 8 fois le logo ══ */
+html[data-theme="arcade"]{
+  --bg0:#0F2A27;--bg1:#1B4740;--bg2:#2E6B5E;--night1:#2E6B5E;--night2:#1B4740;
+  --ink:#ffffff;--ink-rgb:255,255,255;--ink-soft:#CFE6E1;--muted:#8FB8B0;--dim:#6F958E;
+  --acc-rgb:255,176,0;--acc2-rgb:229,72,77;--accent:#FFB000;--accent2:#E5484D;--on-acc:#ffffff;
+  --card1-rgb:26,42,46;--card2-rgb:26,42,46;--deep-rgb:11,18,20;--opt:#2C3E42;
+  --moon1:#FFF6CF;--moon2:#FFD45E;--moon3:#E0912A;--mglow1:#FFB000;--mglow2:#FF7A00;--moon-t1:#6B3E1E;--moon-t2:#3A2010;
+  --star:transparent;--line:#0B1214;--line2:#0B1214;--glass:#1A2A2E;--glass2:#2C3E42;
+  --sheet:#1A2A2E;--grad:#E5484D;--card:#1A2A2E;
+  --blood:#FF6B6F;--green:#4FD18A;--purple:#B79CFF;--amber:#FFB000;
+  --r-lg:12px;--r-md:10px;--r-sm:8px;
+  --font:'VT323',monospace;--px:'Silkscreen',monospace;
+}
+html[data-theme="arcade"] body{font-size-adjust:.5;background:repeating-conic-gradient(from 0deg at 50% 40%,rgba(255,255,255,.035) 0deg 10deg,transparent 10deg 20deg) fixed,radial-gradient(1200px 900px at 50% 30%,#2E6B5E 0%,#1B4740 50%,#0F2A27 100%) fixed;background-color:#0F2A27;}
+html[data-theme="arcade"] body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 1px,transparent 1px 3px);}
+html[data-theme="arcade"] *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+html[data-theme="arcade"] .brand-px{image-rendering:pixelated;image-rendering:crisp-edges;filter:drop-shadow(0 0 24px rgba(255,176,0,.35));}
+html[data-theme="arcade"] :is(.brand-t,.gbrand-t,.nsn,.cn-num,.win-t,.bigov-t,.mod-name,.vmod-t,.bigdead-n){font-family:var(--px);font-weight:700;letter-spacing:0;text-transform:uppercase;text-shadow:3px 3px 0 #0B1214;}
+html[data-theme="arcade"] .cn-num{color:#FFB000;text-shadow:4px 4px 0 #0B1214;}
+html[data-theme="arcade"] :is(.brand-k,.stitle,.nslbl,.team-hdr,.bigsec-t,.bigov-k,.win-k,.vtlbl,.gorder-t,.mlbl,.gcard-t,.rcol-t,.thm-l,.gbrand-s){font-family:var(--px);font-weight:400;letter-spacing:.04em;}
+html[data-theme="arcade"] .team-hdr::after{height:3px;background:#0B1214;}
+html[data-theme="arcade"] :is(.cs-card,.gcard,.rcol,.bigsec,.pmod,.vmod){background:#1A2A2E;border:3px solid #0B1214;border-radius:12px;box-shadow:0 6px 0 #0B1214;}
+html[data-theme="arcade"] :is(.btn-g,.gbtn,.nsbtn.pv,.stepbtn,.ibtn,.nscls,.gzoom){background:#3B6FE0;color:#fff;border:3px solid #0B1214;border-radius:10px;box-shadow:0 4px 0 #0B1214;font-family:var(--px);text-transform:uppercase;}
+html[data-theme="arcade"] :is(.btn-g,.gbtn,.nsbtn.pv){font-size:13px;}
+html[data-theme="arcade"] :is(.btn-p,.gbtn.pri,.nsbtn.nx){background:#E5484D;color:#fff;border:3px solid #0B1214;border-radius:10px;box-shadow:0 5px 0 #0B1214;font-family:var(--px);font-weight:700;text-transform:uppercase;font-size:14px;}
+html[data-theme="arcade"] .nsbtn.fn{background:#2F9E6B;color:#fff;border:3px solid #0B1214;border-radius:10px;box-shadow:0 5px 0 #0B1214;font-family:var(--px);font-weight:700;text-transform:uppercase;font-size:14px;}
+html[data-theme="arcade"] :is(.btn-p,.btn-g,.gbtn,.nsbtn,.stepbtn,.ibtn,.mb):active{transform:translateY(3px);box-shadow:0 1px 0 #0B1214;}
+html[data-theme="arcade"] :is(.nsbtn.pv,.btn-p,.stepbtn):disabled{background:#2C3E42;color:#7E9894;box-shadow:none;}
+html[data-theme="arcade"] :is(.preset,.chs-o,.thm-o,.nsopt,.vopt,.ptog,.nssel,.msel,.shot-sel){background:#2C3E42;border:3px solid #0B1214;border-radius:8px;color:#CFE6E1;box-shadow:none;}
+html[data-theme="arcade"] :is(.preset.on,.chs-o.on,.thm-o.on,.nsopt.on){background:#FFB000;color:#1A2A2E;border-color:#0B1214;box-shadow:0 3px 0 #0B1214;font-family:var(--px);font-size:13px;}
+html[data-theme="arcade"] .ptog.on{background:#2F9E6B;color:#fff;}
+html[data-theme="arcade"] .vopt.v{background:#3A2A5A;}
+html[data-theme="arcade"] .vopt.sel{border-color:#FFB000;box-shadow:0 0 0 3px #FFB000;}
+html[data-theme="arcade"] .rcard{background:#2C3E42;border:3px solid #0B1214;border-radius:10px;color:#CFE6E1;}
+html[data-theme="arcade"] .rcard.on{box-shadow:0 4px 0 #0B1214;color:#1A2A2E;}
+html[data-theme="arcade"] .rcard.on .rcard-nm{color:#1A2A2E;font-family:var(--px);font-size:11px;font-weight:700;}
+html[data-theme="arcade"] .rcard.on-loups{background:#FFC9CA;}
+html[data-theme="arcade"] .rcard.on-village{background:#F4EEDD;}
+html[data-theme="arcade"] .rcard.on-solo{background:#E2D6FF;}
+html[data-theme="arcade"] .rcard.on-variable{background:#FFE3A3;}
+html[data-theme="arcade"] :is(.gstat,.gpill){border:3px solid #0B1214;border-radius:8px;background:#1A2A2E;}
+html[data-theme="arcade"] .gstat i{border-radius:0;box-shadow:none;border:2px solid #0B1214;width:11px;height:11px;}
+html[data-theme="arcade"] .nse{border-radius:14px;background:#3B6FE0;border:4px solid #0B1214;box-shadow:0 6px 0 #0B1214,0 0 40px rgba(255,176,0,.35);}
+html[data-theme="arcade"] :is(.nscfm,.vtbox,.rc,.deadbox,.shot,.vinfo,.servq,.nsblock,.nsoff){border:3px solid #0B1214;border-radius:8px;}
+html[data-theme="arcade"] .nscfm.r,html[data-theme="arcade"] .vtbox,html[data-theme="arcade"] .rc.d{background:#3A1416;color:#FF9A9C;}
+html[data-theme="arcade"] .nscfm.g{background:#14402D;color:#8EF0BC;}
+html[data-theme="arcade"] .nscfm.a{background:#4A3510;color:#FFD480;}
+html[data-theme="arcade"] .rc.c{background:#1A2A2E;}
+html[data-theme="arcade"] .rc.e{background:#142226;}
+html[data-theme="arcade"] .bigdead{border:3px solid #0B1214;border-radius:12px;box-shadow:0 5px 0 #0B1214;}
+html[data-theme="arcade"] .bigdead.ko{background:#3A1416;}
+html[data-theme="arcade"] .bigdead.ok{background:#14402D;}
+html[data-theme="arcade"] .mb{border:3px solid #0B1214;border-radius:10px;box-shadow:0 4px 0 #0B1214;font-family:var(--px);text-transform:uppercase;font-size:12px;}
+html[data-theme="arcade"] .mb.kill{background:#E5484D;color:#fff;}
+html[data-theme="arcade"] .mb.rev{background:#2F9E6B;color:#fff;}
+html[data-theme="arcade"] .mb.cls{background:#2C3E42;color:#CFE6E1;}
+html[data-theme="arcade"] .nsprog{height:8px;background:#0B1214;}
+html[data-theme="arcade"] .nspf{background:#FFB000!important;box-shadow:none!important;}
+html[data-theme="arcade"] .ov{background:rgba(8,16,16,.78);}
+html[data-theme="arcade"] :is(.nsw,.bigov){background:radial-gradient(900px 700px at 50% 18%,#2E6B5E 0%,#1B4740 50%,#0F2A27 100%);}
+html[data-theme="arcade"] svg,html[data-theme="arcade"] svg *{font-size-adjust:none;}
+html[data-theme="arcade"] svg text{font-family:'Silkscreen',monospace;}
+html[data-theme="arcade"] .preset{padding:6px 12px;}
+html[data-theme="arcade"] .thm-o{font-size:17px;line-height:1;padding:6px;gap:6px;min-width:0;}
+html[data-theme="arcade"] .thm-o.on{font-size:11px;}
+html[data-theme="arcade"] .thm-s.arc{border-radius:0;background:#FFB000;box-shadow:0 0 0 2px #0B1214;}
+/* Toast de l'easter egg */
+.egg{position:fixed;left:50%;top:max(18px,env(safe-area-inset-top));transform:translateX(-50%);z-index:10000;padding:10px 18px;border-radius:12px;background:#1A2A2E;border:3px solid #0B1214;box-shadow:0 5px 0 #0B1214,0 0 30px rgba(255,176,0,.5);color:#FFB000;font-family:'Silkscreen',monospace;font-size:14px;font-weight:700;letter-spacing:.04em;white-space:nowrap;pointer-events:none;animation:eggpop .25s steps(3);}
+@keyframes eggpop{from{transform:translateX(-50%) scale(.5)}to{transform:translateX(-50%) scale(1)}}
 </style>
 </head>
 <body>
@@ -481,12 +551,13 @@ const ROLES={
   LOUP_BLANC:{name:'Loup Blanc',emoji:'🤍',team:'solo',desc:"Loup solitaire. Une nuit sur deux, se réveille et peut tuer n'importe quel joueur (loup ou villageois), non obligatoire. Gagne seul quand il est le dernier survivant."},
   JOUEUR_FLUTE:{name:'Joueur de Flûte',emoji:'🎵',team:'solo',desc:"Enchante 2 joueurs par nuit. Gagne quand tous les survivants sont enchantés."},
   NOCTAMBULE:{name:'Noctambule',emoji:'🌙',team:'village',desc:"Appelé en premier. Chaque nuit, va dormir chez un joueur : celui-ci découvre son identité mais perd ses pouvoirs pour la nuit. Si ce joueur est tué pendant la nuit, le Noctambule s'en sort indemne."},
+  TRAPPEUR:{name:'Trappeur',emoji:'🪤',team:'village',desc:"Chaque nuit, pose son unique piège devant une maison (jamais la même deux nuits de suite). Si les Loups attaquent cette maison, la victime survit et le loup assis le plus près de cette maison meurt dans le piège. Si le Grand Méchant Loup ou le Loup Blanc l'attaque seul pendant son tour, c'est lui qui meurt. Une fois déclenché, il n'a plus de piège."},
   LOUP_VEGAN:{name:'Loup Vegan',emoji:'🥬',team:'village',desc:"Joue pour le Village mais se réveille avec les Loups. Puis se réveille seul pour lécher un joueur : le meneur touche la main de ce joueur du côté où se trouve le loup le plus proche. Ne peut pas dénoncer les loups. Vu comme un Loup par la Voyante, le Renard et l'Ours. Une fois dans la partie, les Loups peuvent dévorer l'un des leurs pour tenter de l'éliminer."},
 };
 
 const TEAMS={
   loups:{label:'⚔ Loups',keys:['LOUP','GRAND_MECHANT_LOUP','INFECT_PERE','PUISSANTE_MERE']},
-  village:{label:'🌿 Village',keys:['VILLAGEOIS','VOYANTE','CUPIDON','SORCIERE','CHASSEUR','SALVATORE','ANCIEN','IDIOT','PETITE_FILLE','RENARD','CORBEAU','MONTREUR_OURS','VOLEUR','BOUC','TROIS_FRERES','DEUX_SOEURS','COMEDIEN','CHEVALIER','JUGE_BEGUE','COLOSSE','SINGE_SAVANT','MARIONNETTISTE','SERVANTE','NOCTAMBULE','LOUP_VEGAN']},
+  village:{label:'🌿 Village',keys:['VILLAGEOIS','VOYANTE','CUPIDON','SORCIERE','CHASSEUR','SALVATORE','ANCIEN','IDIOT','PETITE_FILLE','RENARD','CORBEAU','MONTREUR_OURS','VOLEUR','BOUC','TROIS_FRERES','DEUX_SOEURS','COMEDIEN','CHEVALIER','JUGE_BEGUE','COLOSSE','SINGE_SAVANT','MARIONNETTISTE','SERVANTE','NOCTAMBULE','LOUP_VEGAN','TRAPPEUR']},
   variable:{label:'🌀 Variables',keys:['CHIEN_LOUP','ENFANT_SAUVAGE']},
   solo:{label:'⭐ Solo',keys:['ANGE','ANGE_DECHU','LOUP_BLANC','JOUEUR_FLUTE']},
 };
@@ -503,10 +574,28 @@ const VARIANTS={
   SALVATORE:{key:'AVOCAT',label:"L'Avocat",rename:"L'Avocat",emoji:'💼',
     note:"Choisit un client : il ne pourra pas être éliminé lors du vote de jour.",
     desc:"Se réveille chaque nuit pour défendre un joueur : celui-ci ne pourra pas être éliminé lors du vote du lendemain. Pas le même joueur deux nuits de suite. Ne protège pas des Loups."},
+  CHEVALIER:{key:'PORC_EPIC',label:'Le Porc-Épic',rename:'Le Porc-Épic',emoji:'🦔',
+    desc:"S'il est dévoré par les Loups, ses piquants les blessent : la nuit suivante, les Loups ne tuent personne."},
+  VOLEUR:{key:'MIROIR',label:'Le Miroir',rename:'Le Miroir',emoji:'🪞',
+    note:"N'agit que la 3e nuit : copie le rôle d'un joueur.",
+    desc:"Pas de cartes en plus au centre. Les deux premières nuits, il n'a aucun pouvoir. La 3e nuit, il se réveille et désigne un joueur : il devient une copie de son rôle et rejoint son camp (s'il copie un loup, il rejoint la meute). Le joueur copié garde son rôle. Les pouvoirs copiés sont neufs (potions pleines, etc.). S'il copie un rôle solo, lui et le joueur copié gagnent ensemble, et seulement eux deux."},
+  RENARD:{key:'FOUINE',label:'La Fouine',rename:'La Fouine',emoji:'🦡',
+    note:"Désigne 2 joueurs : le meneur lui dit s'ils sont dans le même camp ou non.",
+    desc:"Chaque nuit, désigne 2 joueurs. Le meneur lui indique par un signe s'ils sont dans le même camp ou non (pouce levé : même camp). Ne perd jamais son pouvoir."},
+  CORBEAU:{key:'MESSAGER',label:'Le Corbeau Messager',rename:'Le Corbeau Messager',emoji:'✉️',
+    note:"Désigne un joueur qui ne pourra pas voter demain.",
+    desc:"Chaque nuit, désigne un joueur qui ne pourra pas voter le lendemain (à la place des +2 voix du Corbeau)."},
+  ANCIEN:{key:'SAGE',label:'Le Sage',rename:'Le Sage',emoji:'🦉',
+    desc:"Une fois dans la partie, pendant le jour, il désigne 3 joueurs à voix haute et le meneur dit devant tout le monde s'il y a un loup parmi eux. Si oui, le vote du jour se fait uniquement entre ces 3 joueurs. Sinon, le Sage perd sa voix pour ce vote."},
+  LOUP_BLANC:{key:'AURORE',label:"Loup de l'Aurore",rename:"Loup de l'Aurore",emoji:'🌅',team:'solo',
+    desc:"Loup solitaire : ne se réveille jamais avec les autres Loups. Se réveille seul une nuit sur deux à partir de la 2e nuit et tue le joueur de son choix. Deux vies contre les Loups (la première attaque ne le tue pas), une seule s'il est brûlé au vote ou empoisonné. Indétectable par la Voyante, le Renard et l'Ours. Gagne seul s'il est le dernier survivant."},
   SORCIERE:[
     {key:'EMPOISONNEUSE',label:"L'Empoisonneuse",rename:"L'Empoisonneuse",emoji:'☠️',
       note:"Peut utiliser une ou ses deux potions de mort.",
       desc:"Possède deux potions qui tuent toutes les deux. Joue chaque nuit, après les Loups-Garous et avant le Loup Blanc. Peut utiliser les deux la même nuit."},
+    {key:'ALCHIMISTE',label:"L'Alchimiste",rename:"L'Alchimiste",emoji:'⚗️',
+      note:"Voit la victime des Loups. Peut boire une ou deux de ses quatre potions.",
+      desc:"Possède 4 potions : Vie (sauve la victime des Loups), Mort (tue un joueur), Sommeil (le joueur ne vote pas le lendemain) et Vérité (découvre le rôle d'un joueur). Elle n'a droit qu'à 2 potions dans toute la partie, les autres sont perdues. Peut en boire 2 la même nuit."},
     {key:'GUERISSEUSE',label:'La Guérisseuse',rename:'La Guérisseuse',emoji:'💚',
       note:"Voit les victimes des Loups. Peut utiliser une ou ses deux potions de vie.",
       desc:"Possède deux potions de vie. Joue chaque nuit, après les Loups-Garous et avant le Loup Blanc. Peut utiliser les deux la même nuit."},
@@ -523,12 +612,20 @@ const roleDesc=(rk,v)=>getVar(rk,v)?.desc||ROLES[rk]?.desc;
 const roleTeam=(rk,v)=>getVar(rk,v)?.team||ROLES[rk]?.team;
 // Variantes en cours (renseignées par l'App à chaque rendu, lues par les calculs de nuit)
 let CURV={};
+// Empoisonneuse / Guérisseuse jouent avant le Loup Blanc ; Sorcière normale et Alchimiste après le Renard
+const ALCH_POTIONS=[{k:'VIE',f:'alchLife',e:'💚',l:'Vie'},{k:'MORT',f:'alchDeath',e:'☠️',l:'Mort'},{k:'SOMMEIL',f:'alchSleep',e:'💤',l:'Sommeil'},{k:'VERITE',f:'alchTruth',e:'🔍',l:'Vérité'}];
+const alchLabel=k=>ALCH_POTIONS.find(x=>x.k===k)?.l||k;
+// Camp d'un joueur pour la Fouine : loups (vus comme loups), village, ou camp solo (chacun le sien)
+const campOf=p=>{ if(isWolf(p)) return 'loups'; if(p&&p.role==='LOUP_BLANC') return 'village'; /* Aurore : indétectable */ return roleTeam(p.role,CURV)==='solo'?'solo-'+p.id:'village'; };
+// Miroir : état lié au rôle (remis à neuf quand il copie un rôle)
+const CARD_FIELDS=['role','team','potionLifeUsed','potionDeathUsed','potionsUsed','alchUsed','foxPower','infectUsed','singeUsed','marionnetteUsed','trapUsed','lastTrap','vegHuntUsed','shotUsed','angelTarget','model','turnedWolf','sageUsed','quillHit','aurLifeUsed'];
+const sorcEarly=v=>['EMPOISONNEUSE','GUERISSEUSE'].includes(getVar('SORCIERE',v)?.key);
 
 const EVERY_NIGHT=[
   {role:'POUPEE',name:'Poupée',emoji:'🧸'},{role:'NOCTAMBULE',name:'Noctambule'},
-  {role:'LOVER',name:'Amoureux',emoji:'💞'},
+  {role:'LOVER',name:'Amoureux',emoji:'💞'},{role:'VOLEUR',name:'Miroir',pick:true},
   {role:'COMEDIEN',name:'Comédien'},{role:'SINGE_SAVANT',name:'Singe Savant'},{role:'VOYANTE',name:'Voyante'},
-  {role:'CORBEAU',name:'Corbeau'},{role:'SALVATORE',name:'Salvateur'},{role:'LOUP',name:'Tous les Loups'},{role:'LOUP_VEGAN',name:'Loup Vegan'},
+  {role:'CORBEAU',name:'Corbeau'},{role:'SALVATORE',name:'Salvateur'},{role:'TRAPPEUR',name:'Trappeur'},{role:'LOUP',name:'Tous les Loups'},{role:'LOUP_VEGAN',name:'Loup Vegan'},
   {role:'PUISSANTE_MERE',name:'Mère des Loups'},{role:'INFECT_PERE',name:'Infect Père'},{role:'GRAND_MECHANT_LOUP',name:'Grand Méchant Loup'},
   {role:'SORCIERE',name:'Sorcière',pos:'early'},{role:'LOUP_BLANC',name:'Loup Blanc'},{role:'RENARD',name:'Renard'},{role:'SORCIERE',name:'Sorcière',pos:'late'},
   {role:'JOUEUR_FLUTE',name:'Joueur de Flûte'},{role:'CHARMED',name:'Joueurs Charmés'},{role:'COLOSSE',name:'Colosse (si dévoré)'},
@@ -561,6 +658,7 @@ const FIRST_NIGHT=[
   {role:'MONTREUR_OURS',name:"Montreur d'Ours",note:'Se réveille et prend connaissance de son rôle.'},
   {role:'CORBEAU',name:'Corbeau',note:'Désigne un joueur qui aura +2 voix au prochain vote.'},
   {role:'SALVATORE',name:'Salvateur',note:'Désigne un joueur à protéger cette nuit.'},
+  {role:'TRAPPEUR',name:'Trappeur',note:'Pose son piège devant une maison.'},
   {role:'LOUP',name:'Tous les Loups-Garous',note:'Se réveillent, se reconnaissent, et choisissent leur victime.'},
   {role:'LOUP_VEGAN',name:'Loup Vegan',note:'Se réveille seul et lèche un joueur.'},
   {role:'PUISSANTE_MERE',name:'Puissante Mère des Loups',note:'Se réveille seule et retire son pouvoir à un Villageois.'},
@@ -578,15 +676,18 @@ const FIRST_NIGHT=[
 ];
 
 // isWolf = fait partie de la meute (se réveille avec les loups, vu comme loup par Voyante/Renard/Ours) — inclut le Loup Vegan
-const isWolf=p=>!!p&&(ROLES[p.role]?.team==='loups'||p.role==='LOUP_BLANC'||p.role==='LOUP_VEGAN'||p.isInfected||(p.role==='CHIEN_LOUP'&&p.team==='loups')||(p.role==='ENFANT_SAUVAGE'&&p.turnedWolf));
+const isWolf=p=>!!p&&(ROLES[p.role]?.team==='loups'||(p.role==='LOUP_BLANC'&&!hasVar('LOUP_BLANC',CURV))||p.role==='LOUP_VEGAN'||p.isInfected||(p.role==='CHIEN_LOUP'&&p.team==='loups')||(p.role==='ENFANT_SAUVAGE'&&p.turnedWolf));
 // Rôles de la meute : on coche toute la meute à l'écran des Loups, puis on précise les rôles spéciaux parmi eux
 const PACK_ROLES=['LOUP','GRAND_MECHANT_LOUP','INFECT_PERE','PUISSANTE_MERE','LOUP_BLANC','LOUP_VEGAN'];
 const SPECIAL_WOLVES=PACK_ROLES.filter(r=>r!=='LOUP');
+// Le Loup de l'Aurore ne fait pas partie de la meute
+const packRoles=()=>hasVar('LOUP_BLANC',CURV)?PACK_ROLES.filter(r=>r!=='LOUP_BLANC'):PACK_ROLES;
+const isAurore=p=>!!p&&p.role==='LOUP_BLANC'&&hasVar('LOUP_BLANC',CURV);
 // Vrai loup (camp des loups) : la meute sans le Loup Vegan
 const isRealWolf=p=>isWolf(p)&&p.role!=='LOUP_VEGAN';
-const mkP=id=>({id,name:`Joueur ${id}`,role:null,alive:true,isInfected:false,team:null,turnedWolf:false,lover:false,loverId:null,bearGrowl:false,protected:false,enchanted:false,model:null,potionLifeUsed:false,potionDeathUsed:false,foxPower:true,angelTarget:null,infectUsed:false,singeUsed:false,marionnetteUsed:false,mute:false,powerless:false,doll:false,voteImmune:false,potionsUsed:0,vegHuntUsed:false});
+const mkP=id=>({id,name:`Joueur ${id}`,role:null,alive:true,isInfected:false,team:null,turnedWolf:false,lover:false,loverId:null,bearGrowl:false,protected:false,enchanted:false,model:null,potionLifeUsed:false,potionDeathUsed:false,foxPower:true,angelTarget:null,infectUsed:false,singeUsed:false,marionnetteUsed:false,mute:false,powerless:false,doll:false,voteImmune:false,potionsUsed:0,vegHuntUsed:false,trapUsed:false,lastTrap:null,alchUsed:[],noVote:false,noVoteBy:null,sageUsed:false,sageSuspect:false,quillHit:null,aurLifeUsed:false});
 // État vide des actions de nuit
-const mkNA=()=>({wolfVictim:null,corbeauTarget:null,salvateurTarget:null,potionLifeUsed:false,potionDeathTarget:null,voyanteTarget:null,loupBlancTarget:null,renardTargets:[null,null,null],infectTransform:false,gmgVictim:null,newEnchanted:[null,null],singeOut:false,singeTargets:[],mereTarget:null,colosseTarget:null,divorce:false,divorceLoser:null,dollTo:null,noctTarget:null,poisonTargets:[],healTargets:[],vegLick:null});
+const mkNA=()=>({wolfVictim:null,corbeauTarget:null,salvateurTarget:null,potionLifeUsed:false,potionDeathTarget:null,voyanteTarget:null,loupBlancTarget:null,renardTargets:[null,null,null],infectTransform:false,gmgVictim:null,newEnchanted:[null,null],singeOut:false,singeTargets:[],mereTarget:null,colosseTarget:null,divorce:false,divorceLoser:null,dollTo:null,noctTarget:null,poisonTargets:[],healTargets:[],vegLick:null,trapTarget:null,trapWolf:null,alchLife:null,alchDeath:null,alchSleep:null,alchTruth:null,fouineTargets:[],pickTarget:null,pickUndo:null});
 // Villageois doté d'un pouvoir (cible valable pour la Puissante Mère des Loups)
 const hasVillagePower=p=>!!p&&!!p.role&&roleTeam(p.role,CURV)==='village'&&p.role!=='VILLAGEOIS'&&!isWolf(p);
 // Pouvoir supprimé (déjà, par la Mère des Loups cette nuit, ou le Noctambule dort chez lui cette nuit)
@@ -595,20 +696,43 @@ const isPowerless=(p,na)=>!!p&&(p.powerless||(!!na&&na.mereTarget===p.id&&hasVil
 const computeNight=(players,na)=>{
   const find=id=>players.find(p=>p.id===id);
   const avocat=hasVar('SALVATORE',CURV);
-  const heals=na.healTargets||[];
-  const saved=!avocat&&!!(na.salvateurTarget&&na.wolfVictim&&na.salvateurTarget===na.wolfVictim);
+  const heals=[...(na.healTargets||[]),...(na.alchLife?[na.alchLife]:[])];
+  // Trappeur : piège devant une maison ; une attaque de loup sur cette maison échoue et le loup le plus proche meurt
+  const trapper=players.find(p=>p.role==='TRAPPEUR'&&p.alive&&!p.trapUsed&&!isPowerless(p,na));
+  const trapAt=trapper&&na.trapTarget?na.trapTarget:null;
+  // La meute attaque ensemble ; le Grand Méchant Loup et le Loup Blanc attaquent seuls pendant leur propre tour
+  const packAttack=!!trapAt&&na.wolfVictim===trapAt;
+  const gmgAttack=!!trapAt&&!packAttack&&na.gmgVictim===trapAt;
+  const lbAttack=!!trapAt&&!packAttack&&!gmgAttack&&na.loupBlancTarget===trapAt;
+  let trapWolf=null,trapTies=[];
+  if(packAttack){
+    const alive=players.filter(p=>p.alive),n=alive.length,i=alive.findIndex(p=>p.id===trapAt);
+    const cands=alive.filter(p=>isWolf(p)&&p.id!==trapAt).map(p=>{const j=alive.findIndex(x=>x.id===p.id);const d=Math.abs(j-i);return {id:p.id,d:Math.min(d,n-d)};});
+    if(cands.length){const m=Math.min(...cands.map(c=>c.d));trapTies=cands.filter(c=>c.d===m).map(c=>c.id);trapWolf=trapTies.includes(na.trapWolf)?na.trapWolf:trapTies[0];}
+  }
+  if(gmgAttack) trapWolf=players.find(p=>p.role==='GRAND_MECHANT_LOUP'&&p.alive)?.id||null;
+  if(lbAttack) trapWolf=players.find(p=>p.role==='LOUP_BLANC'&&p.alive)?.id||null;
+  const trapTriggered=packAttack||gmgAttack||lbAttack;
+  const wolfTrapped=packAttack&&na.wolfVictim===trapAt;
+  const saved=!avocat&&!wolfTrapped&&!!(na.salvateurTarget&&na.wolfVictim&&na.salvateurTarget===na.wolfVictim);
   const psaved=!!(na.wolfVictim&&(na.potionLifeUsed||heals.includes(na.wolfVictim)));
-  const infected=!!(na.infectTransform&&na.wolfVictim&&!saved&&!psaved);
+  const infected=!!(na.infectTransform&&na.wolfVictim&&!saved&&!psaved&&!wolfTrapped);
   const dead=new Set();
   const marion=players.find(p=>p.role==='MARIONNETTISTE'&&p.alive&&!p.marionnetteUsed&&!isPowerless(p,na));
   let puppet=null;
-  const wolfKill=na.wolfVictim&&!saved&&!psaved&&!na.infectTransform?na.wolfVictim:null;
+  const wolfKill=na.wolfVictim&&!saved&&!psaved&&!na.infectTransform&&!wolfTrapped?na.wolfVictim:null;
   if(wolfKill){ if(marion&&marion.id===wolfKill) puppet=wolfKill; else dead.add(wolfKill); }
-  const gmgHealed=!!(na.gmgVictim&&heals.includes(na.gmgVictim));
+  const gmgHealed=!!(na.gmgVictim&&(heals.includes(na.gmgVictim)||(gmgAttack&&na.gmgVictim===trapAt)));
   if(na.gmgVictim&&!gmgHealed){ if(marion&&marion.id===na.gmgVictim&&!puppet) puppet=na.gmgVictim; else dead.add(na.gmgVictim); }
+  // Loup de l'Aurore : la première attaque des Loups ne le tue pas
+  const aur=hasVar('LOUP_BLANC',CURV)?players.find(p=>p.role==='LOUP_BLANC'&&p.alive&&(p.id===wolfKill||p.id===na.gmgVictim)):null;
+  let aurHit=null;
+  if(aur&&!aur.aurLifeUsed&&dead.has(aur.id)&&(aur.id===wolfKill||aur.id===na.gmgVictim)){ dead.delete(aur.id); aurHit=aur.id; }
   if(na.potionDeathTarget) dead.add(na.potionDeathTarget);
   (na.poisonTargets||[]).forEach(id=>{ if(id) dead.add(id); });
-  if(na.loupBlancTarget) dead.add(na.loupBlancTarget);
+  if(na.alchDeath) dead.add(na.alchDeath);
+  if(na.loupBlancTarget&&!lbAttack) dead.add(na.loupBlancTarget);
+  if(trapWolf) dead.add(trapWolf);
   // Divorce des amoureux (variante) : le perdant du pierre-feuille-ciseaux meurt, le lien est rompu
   const divLoser=na.divorce&&na.divorceLoser?find(na.divorceLoser):null;
   const divorced=divLoser&&divLoser.lover?[divLoser.id,divLoser.loverId]:[];
@@ -625,7 +749,7 @@ const computeNight=(players,na)=>{
   // Amoureux : mort de chagrin
   const lovers=[];
   [...dead].forEach(id=>{const p=find(id); if(p&&p.lover&&p.loverId&&!divorced.includes(p.id)){const o=find(p.loverId); if(o&&o.alive&&!dead.has(o.id)){dead.add(o.id);lovers.push(o.id);}}});
-  return {dead:[...dead],saved,psaved,gmgHealed,infected,wolfKill,puppet,singeDied,colosse:colosse?.id||null,colosseDevoured,colosseKill,loverDeaths:lovers,divorceLoser:divLoser?.id||null,divorcedIds:divorced};
+  return {dead:[...dead],aurHit,saved,psaved,gmgHealed,wolfTrapped,trapTriggered,trapWolf,trapTies,trapAt,infected,wolfKill,puppet,singeDied,colosse:colosse?.id||null,colosseDevoured,colosseKill,loverDeaths:lovers,divorceLoser:divLoser?.id||null,divorcedIds:divorced};
 };
 
 // ── Fin de partie : qui a gagné ? (null = la partie continue)
@@ -633,31 +757,44 @@ const computeWinner=(players,nightCount)=>{
   if(nightCount<=1||!players.some(p=>p.role)) return null;
   const alive=players.filter(p=>p.alive);
   const names=l=>l.map(p=>p.name).join(', ');
-  const ann=hasVar('PETITE_FILLE',CURV)?players.find(p=>p.role==='PETITE_FILLE'):null;
+  // Rôles solo copiés par le Miroir : l'original et son reflet gagnent ensemble
+  const anns=hasVar('PETITE_FILLE',CURV)?players.filter(p=>p.role==='PETITE_FILLE'):[];
   const holder=players.find(p=>p.doll);
-  if(ann&&ann.alive&&holder&&!holder.alive) return {key:'ann',cls:'solo',emoji:'🧸',title:"Victoire d'Annabelle",sub:`${holder.name}, porteur de la poupée, est mort alors qu'${ann.name} est en vie.`};
+  if(anns.some(a=>a.alive)&&holder&&!holder.alive) return {key:'ann',cls:'solo',emoji:'🧸',title:anns.length>1?"Victoire des Annabelle":"Victoire d'Annabelle",sub:`${holder.name}, porteur de la poupée, est mort alors qu'${names(anns.filter(a=>a.alive))} ${anns.filter(a=>a.alive).length>1?'sont':'est'} en vie.`};
   const ange=players.find(p=>p.role==='ANGE');
   if(ange&&!ange.alive&&ange.diedDay===2) return {key:'ange',cls:'solo',emoji:'😇',title:"Victoire de l'Ange",sub:`${ange.name} a été éliminé dès le premier jour.`};
   const dechu=players.find(p=>p.role==='ANGE_DECHU'&&p.alive&&p.angelTarget);
   const cible=dechu&&players.find(p=>p.id===dechu.angelTarget);
   if(cible&&!cible.alive&&(cible.diedNight===1||cible.diedDay===2)) return {key:'dechu',cls:'solo',emoji:'😈',title:"Victoire de l'Ange Déchu",sub:`Sa victime secrète, ${cible.name}, est morte au premier tour.`};
-  const flute=players.find(p=>p.role==='JOUEUR_FLUTE'&&p.alive);
-  if(flute&&alive.length>1&&alive.filter(p=>p.id!==flute.id).every(p=>p.enchanted)) return {key:'flute',cls:'solo',emoji:'🎵',title:'Victoire du Joueur de Flûte',sub:`Tous les survivants sont enchantés par ${flute.name}.`};
+  // Camp d'un rôle solo : ceux qui ont ce rôle (original + reflet du Miroir) et leurs amoureux
+  const campSolo=rk=>{const h=alive.filter(p=>p.role===rk);const ids=new Set(h.map(p=>p.id));h.forEach(p=>{if(p.lover&&p.loverId)ids.add(p.loverId);});return ids;};
+  const flutes=alive.filter(p=>p.role==='JOUEUR_FLUTE');
+  const fluteCamp=campSolo('JOUEUR_FLUTE');
+  if(flutes.length&&alive.length>flutes.length&&alive.filter(p=>!fluteCamp.has(p.id)).every(p=>p.enchanted)) return {key:'flute',cls:'solo',emoji:'🎵',title:flutes.length>1?'Victoire des Joueurs de Flûte':'Victoire du Joueur de Flûte',sub:`Tous les survivants sont enchantés par ${names(flutes)}.`};
   if(alive.length===0) return {key:'none',cls:'none',emoji:'🪦',title:'Personne ne survit',sub:'Tout le village a péri.'};
   if(alive.length===2&&alive[0].lover&&alive[0].loverId===alive[1].id) return {key:'lovers',cls:'lovers',emoji:'💞',title:'Victoire des Amoureux',sub:`${names(alive)} sont les derniers survivants.`};
   const lb=alive.find(p=>p.role==='LOUP_BLANC');
-  if(lb&&alive.length===1) return {key:'lb',cls:'solo',emoji:'🤍',title:'Victoire du Loup Blanc',sub:`${lb.name} est le dernier survivant.`};
-  if(!players.some(isRealWolf)) return null;
+  const lbCamp=campSolo('LOUP_BLANC');
+  if(lb&&alive.every(p=>lbCamp.has(p.id))){
+    const n=alive.filter(p=>p.role==='LOUP_BLANC').length, withLover=alive.some(p=>p.role!=='LOUP_BLANC');
+    const who=n>1?(hasVar('LOUP_BLANC',CURV)?"Loups de l'Aurore":'Loups Blancs'):roleName('LOUP_BLANC',CURV);
+    return {key:'lb',cls:'solo',emoji:roleEmoji('LOUP_BLANC',CURV),title:`Victoire ${n>1?'des':'du'} ${who}${withLover?(n>1?' et de leur amoureux':' et de son amoureux'):''}`,sub:alive.length>1?`${names(alive)} sont les derniers survivants.`:`${lb.name} est le dernier survivant.`};
+  }
+  if(!players.some(isRealWolf)&&!players.some(isAurore)) return null;
   const wolves=alive.filter(isRealWolf);
-  if(wolves.length===0) return {key:'village',cls:'village',emoji:'🌿',title:'Victoire du Village',sub:'Tous les Loups-Garous ont été éliminés.'};
+  if(wolves.length===0&&!lb) return {key:'village',cls:'village',emoji:'🌿',title:'Victoire du Village',sub:'Tous les Loups-Garous ont été éliminés.'};
   if(wolves.length===alive.length&&!lb) return {key:'wolves',cls:'wolves',emoji:'🐺',title:'Victoire des Loups-Garous',sub:'Il ne reste plus aucun villageois.'};
   return null;
 };
 
 // Logo de l'app, dessiné en SVG : suit automatiquement l'ambiance choisie
-function BrandLogo(){
+// Logo en pixel art pour le thème caché « arcade »
+const PX_LOGO='data:image/png;base64,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';
+function BrandLogo({theme,onTap}){
   return(
     <div className="brand">
+      <div onClick={onTap} style={{cursor:'default'}}>
+      {theme==='arcade'?<img src={PX_LOGO} className="brand-art brand-px" alt=""/>:
       <svg viewBox="30 30 452 470" className="brand-art" aria-hidden="true">
         <defs>
           <radialGradient id="bl-mn" cx="40%" cy="36%" r="72%"><stop offset="0" style={{stopColor:'var(--moon1)'}}/><stop offset=".62" style={{stopColor:'var(--moon2)'}}/><stop offset="1" style={{stopColor:'var(--moon3)'}}/></radialGradient>
@@ -675,7 +812,8 @@ function BrandLogo(){
           <path d="M0 512 V412 L0 410 L20 390 L40 410 L40 404 L60 380 L84 402 L84 372 L98 318 L112 372 L112 414 L130 396 L150 414 L150 430 L160 430 L178 414 L196 430 L196 444 L206 444 L206 432 L214 432 L214 444 L246 444 L246 440 L272 424 L298 440 L298 448 L318 448 L318 432 L340 418 L362 432 L362 420 L372 420 L372 410 L380 410 L380 418 L392 418 L414 392 L436 414 L436 406 L454 390 L472 406 L472 400 L490 382 L512 400 V512 Z" fill="rgba(var(--deep-rgb),1)"/>
           <rect x="14" y="414" width="10" height="12" rx="2.5" fill="var(--amber)" opacity="1"/><rect x="53" y="398" width="13" height="15" rx="2.5" fill="var(--amber)" opacity="1"/><rect x="66" y="412" width="8" height="10" rx="2.5" fill="var(--amber)" opacity="0.7"/><rect x="94" y="384" width="8" height="13" rx="2.5" fill="var(--amber)" opacity="0.9"/><rect x="124" y="416" width="10" height="11" rx="2.5" fill="var(--amber)" opacity="0.8"/><rect x="172" y="432" width="9" height="10" rx="2.5" fill="var(--amber)" opacity="0.75"/><rect x="228" y="450" width="10" height="9" rx="2.5" fill="var(--amber)" opacity="0.6"/><rect x="266" y="436" width="10" height="11" rx="2.5" fill="var(--amber)" opacity="0.85"/><rect x="334" y="434" width="9" height="11" rx="2.5" fill="var(--amber)" opacity="0.7"/><rect x="406" y="402" width="12" height="14" rx="2.5" fill="var(--amber)" opacity="1"/><rect x="420" y="420" width="8" height="9" rx="2.5" fill="var(--amber)" opacity="0.6"/><rect x="448" y="404" width="10" height="12" rx="2.5" fill="var(--amber)" opacity="0.85"/><rect x="486" y="398" width="11" height="13" rx="2.5" fill="var(--amber)" opacity="0.9"/>
         </g>
-      </svg>
+      </svg>}
+      </div>
       <div className="brand-k">Loups-Garous · Aide au meneur</div>
       <div className="brand-t">Le Village s'endort</div>
     </div>
@@ -757,10 +895,35 @@ function App(){
   const [servanteAsk,setServanteAsk]=useState(null); // joueur éliminé : la Servante prend-elle sa place ?
   const [variants,setVariants]=useState(()=>loadSave('ptg_variants')||{}); // rôles joués en variante maison
   CURV=variants; // lu par computeNight / isPowerless
-  const [theme,setTheme]=useState(()=>loadSave('ptg_theme')||'nuit'); // ambiance : 'nuit' (étoilée) ou 'gold' (noir & or)
+  const [theme,setTheme]=useState(()=>loadSave('ptg_theme')||'nuit'); // ambiance : 'nuit' (étoilée), 'gold' (noir & or) ou 'arcade' (thème caché)
+  // ── Easter egg : 8 touches rapides sur le logo → thème caché « arcade 8 bits »
+  const eggRef=React.useRef({n:0,t:0,prev:'nuit'});
+  const [egg,setEgg]=useState(null);
+  const eggTimer=React.useRef(null);
+  const showEgg=(txt,ms=900)=>{ setEgg(txt); clearTimeout(eggTimer.current); eggTimer.current=setTimeout(()=>setEgg(null),ms); };
+  const ensureArcadeFont=()=>{ if(document.getElementById('arcfont')) return; const l=document.createElement('link'); l.id='arcfont'; l.rel='stylesheet'; l.href='https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap'; document.head.appendChild(l); };
+  const chiptune=up=>{ try{ const C=window.AudioContext||window.webkitAudioContext; const a=new C(); const notes=up?[523.25,659.25,783.99,1046.5]:[1046.5,783.99,659.25,523.25];
+    notes.forEach((f,i)=>{ const o=a.createOscillator(),g=a.createGain(),t0=a.currentTime+i*.09; o.type='square'; o.frequency.value=f; g.gain.setValueAtTime(.05,t0); g.gain.exponentialRampToValueAtTime(.001,t0+.12); o.connect(g); g.connect(a.destination); o.start(t0); o.stop(t0+.13); });
+    setTimeout(()=>a.close(),900); }catch(e){} };
+  const logoTap=()=>{
+    const r=eggRef.current, now=Date.now();
+    r.n = now-r.t<1500 ? r.n+1 : 1; r.t=now;
+    if(r.n===4) ensureArcadeFont();
+    if(r.n>=4&&r.n<8){ showEgg(`${8-r.n}…`); return; }
+    if(r.n>=8){
+      r.n=0;
+      const on=theme!=='arcade';
+      if(on){ r.prev=theme; ensureArcadeFont(); setTheme('arcade'); } else setTheme(r.prev&&r.prev!=='arcade'?r.prev:'nuit');
+      showEgg(on?'MODE ARCADE ACTIVÉ':'MODE ARCADE DÉSACTIVÉ',2200);
+      chiptune(on);
+      try{ navigator.vibrate&&navigator.vibrate(on?[30,40,30,40,60]:[60]); }catch(e){}
+    }
+  };
   const [variantAsk,setVariantAsk]=useState(null); // choix version normale / variante (écran rôles)
   const [shotTarget,setShotTarget]=useState(''); // Tireur d'élite : cible choisie
   const [shotResult,setShotResult]=useState(null); // Tireur d'élite : résultat du tir
+  const [sagePick,setSagePick]=useState([]); // Le Sage : les 3 joueurs désignés
+  const [sageResult,setSageResult]=useState(null); // Le Sage : réponse du meneur
   const [immuneAsk,setImmuneAsk]=useState(null); // Avocat : confirmation avant de tuer un joueur défendu
   const [showRecap,setShowRecap]=useState(false); // grand récap plein écran après la nuit
   const [winSeen,setWinSeen]=useState(null); // écran de victoire déjà fermé (signature)
@@ -772,8 +935,8 @@ function App(){
   // ── Ambiance (préférence conservée même après une nouvelle partie)
   React.useEffect(()=>{
     save('ptg_theme',theme);
-    if(theme==='gold') document.documentElement.setAttribute('data-theme','gold'); else document.documentElement.removeAttribute('data-theme');
-    const m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute('content',theme==='gold'?'#050403':'#06071a');
+    if(theme==='gold'||theme==='arcade') document.documentElement.setAttribute('data-theme',theme); else document.documentElement.removeAttribute('data-theme');
+    const m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute('content',theme==='gold'?'#050403':theme==='arcade'?'#0F2A27':'#06071a');
   },[theme]);
 
   // ── SAUVEGARDE AUTOMATIQUE dans localStorage
@@ -798,13 +961,13 @@ function App(){
   },[count]);
 
   const totalR=Object.entries(activeRoles).reduce((s,[k,v])=>s+v*(k==='TROIS_FRERES'?3:k==='DEUX_SOEURS'?2:1),0);
-  const voleurBonus2=(activeRoles['VOLEUR']||0)*2; // 2 cartes bonus pour le Voleur
+  const voleurBonus2=(activeRoles['VOLEUR']||0)*(hasVar('VOLEUR',variants)?0:2); // 2 cartes bonus pour le Voleur
   const rem=(count+voleurBonus2)-totalR;
 
   // Poids de chaque rôle (nombre de joueurs qu'il occupe)
   const roleWeight=rk=>rk==='TROIS_FRERES'?3:rk==='DEUX_SOEURS'?2:1;
   // Slots bonus accordés au meneur (Voleur nécessite 2 cartes supplémentaires)
-  const voleurBonus=(activeRoles['VOLEUR']||0)*2;
+  const voleurBonus=(activeRoles['VOLEUR']||0)*(hasVar('VOLEUR',variants)?0:2);
   const totalRSlots=Object.entries(activeRoles).reduce((s,[k,v])=>s+v*roleWeight(k),0);
 
   const toggleRole=rk=>{
@@ -912,6 +1075,23 @@ function App(){
 
   const setNA=u=>setNaState(prev=>({...prev,...u}));
 
+  // Porc-Épic dévoré la nuit précédente : les loups sont blessés et ne tuent personne cette nuit
+  const wolvesHurt=hasVar('CHEVALIER',variants)&&players.some(p=>p.role==='CHEVALIER'&&p.quillHit!=null&&p.quillHit===nightCount-1);
+
+  // Le Sage : question publique sur 3 joueurs ; un loup → vote limité à ces 3, sinon il perd sa voix
+  const sageAsk=(sageId,ids)=>{
+    const wolf=ids.some(id=>isWolf(players.find(p=>p.id===id)));
+    setPlayers(prev=>prev.map(p=>{
+      let u=p;
+      if(p.id===sageId) u={...u,sageUsed:true};
+      if(wolf&&ids.includes(p.id)) u={...u,sageSuspect:true};
+      if(!wolf&&p.id===sageId) u={...u,noVote:true,noVoteBy:p.noVote?'both':'sage'};
+      return u;
+    }));
+    setSageResult({sageId,ids,wolf});
+    setSagePick([]);
+  };
+
   const nightSlides=useMemo(()=>{
     const slides=FIRST_NIGHT.filter(s=>{
       if(s.role==='LOVER') return activeRoles['CUPIDON']>0;
@@ -919,10 +1099,11 @@ function App(){
       if(s.role==='LEURRE_INFECT') return activeRoles['INFECT_PERE']>0;
       if(s.role==='COLOSSE_RIPOSTE') return activeRoles['COLOSSE']>0;
       if(s.role==='LOUP') return players.some(p=>p.alive&&isWolf(p)) || Object.keys(activeRoles).some(k=>ROLES[k]?.team==='loups');
-      if(s.role==='SORCIERE'&&s.pos) return activeRoles['SORCIERE']>0 && (s.pos==='early')===hasVar('SORCIERE',variants);
+      if(s.role==='SORCIERE'&&s.pos) return activeRoles['SORCIERE']>0 && (s.pos==='early')===sorcEarly(variants);
       return activeRoles[s.role]>0;
     });
-    return[...slides,{role:'RECAP',name:'Récap de la Nuit',note:''}];
+    const fixed=slides.map(s=>s.role==='LOUP_BLANC'&&hasVar('LOUP_BLANC',variants)?{...s,note:"Se réveille seul pour découvrir son rôle. Il ne se réveille jamais avec les Loups et jouera à partir de la 2e nuit."}:s);
+    return[...fixed,{role:'RECAP',name:'Récap de la Nuit',note:''}];
   },[activeRoles,variants]);
 
   // Slides pour chaque nuit (filtrés par joueur vivant)
@@ -932,11 +1113,13 @@ function App(){
       {role:'POUPEE',    name:'La Poupée',   note:"Réveillez le porteur de la poupée : il la donne à un autre joueur. Touchez l'épaule du nouveau porteur.",emoji:'🧸'},
       {role:'NOCTAMBULE',name:'Noctambule',  note:'Choisit chez qui il va dormir cette nuit.'},
       {role:'LOVER',     name:'Les Amoureux', note:'Se réveillent ensemble : 30 secondes pour se parler par gestes, sans aucun bruit.'},
+      {role:'VOLEUR',    name:'Le Miroir',note:"Copie le rôle d'un joueur.",pick:true},
       {role:'COMEDIEN',  name:'Comédien',    note:'Choisit un pouvoir parmi les cartes au centre.'},
       {role:'SINGE_SAVANT',name:'Singe Savant',note:'Sort-il de sa cage cette nuit ? Une seule fois dans la partie.'},
       {role:'VOYANTE',   name:'Voyante',     note:"Regarde secrètement la carte d'un joueur."},
       {role:'CORBEAU',   name:'Corbeau',     note:'Désigne un joueur qui aura +2 voix au prochain vote.'},
       {role:'SALVATORE', name:'Salvateur',   note:'Désigne un joueur à protéger cette nuit.'},
+      {role:'TRAPPEUR',  name:'Trappeur',    note:'Pose son piège devant une maison (pas la même que la nuit dernière).'},
       {role:'LOUP',      name:'Tous les Loups-Garous', note:'Choisissent leur victime.'},
       {role:'LOUP_VEGAN',name:'Loup Vegan',  note:'Se réveille seul et lèche un joueur.'},
       {role:'PUISSANTE_MERE',name:'Puissante Mère des Loups',note:'Se réveille seule et retire son pouvoir à un Villageois.'},
@@ -944,7 +1127,7 @@ function App(){
       {role:'LEURRE_INFECT',name:'Réveil Infecté',note:'Réveillez discrètement la personne infectée par l\'Infect Père.',emoji:'🦠'},
       {role:'GRAND_MECHANT_LOUP',name:'Grand Méchant Loup',note:"Peut désigner une 2ème victime."},
       {role:'SORCIERE',  name:'Sorcière',    note:'Voit la victime. Peut utiliser ses potions.',pos:'early'},
-      {role:'LOUP_BLANC', name:'Loup Blanc', note:loupBlancActif?'Cette nuit il peut tuer un loup de son choix (non obligatoire).':'Nuit de repos — le Loup Blanc ne se réveille pas cette nuit.', actif:loupBlancActif},
+      {role:'LOUP_BLANC', name:'Loup Blanc', note:hasVar('LOUP_BLANC',variants)?(loupBlancActif?'Se réveille seul et tue le joueur de son choix (non obligatoire).':"Nuit de repos — le Loup de l'Aurore ne se réveille pas cette nuit."):loupBlancActif?'Cette nuit il peut tuer un loup de son choix (non obligatoire).':'Nuit de repos — le Loup Blanc ne se réveille pas cette nuit.', actif:loupBlancActif},
       {role:'RENARD',    name:'Renard',      note:'Inspecte 3 joueurs adjacents.'},
       {role:'SORCIERE',  name:'Sorcière',    note:'Voit la victime. Peut utiliser ses potions.',pos:'late'},
       {role:'JOUEUR_FLUTE',name:'Joueur de Flûte',note:'Enchante 2 joueurs de son choix.'},
@@ -963,7 +1146,9 @@ function App(){
     const slides=EVERY_NIGHT_DETAIL.filter(s=>{
       if(s.role==='LOVER') return activeRoles['CUPIDON']>0 && !!variants.CUPIDON && players.filter(p=>p.alive&&p.lover).length===2;
       if(s.role==='POUPEE') return activeRoles['PETITE_FILLE']>0 && hasVar('PETITE_FILLE',variants) && players.some(p=>p.alive&&p.role==='PETITE_FILLE') && players.some(p=>p.alive&&p.doll);
-      if(s.role==='SORCIERE' && (s.pos==='early')!==hasVar('SORCIERE',variants)) return false;
+      if(s.role==='SORCIERE' && (s.pos==='early')!==sorcEarly(variants)) return false;
+      if(s.role==='TRAPPEUR') return activeRoles['TRAPPEUR']>0 && players.some(p=>p.alive&&p.role==='TRAPPEUR'&&!p.trapUsed);
+      if(s.role==='VOLEUR') return nightCount===3 && activeRoles['VOLEUR']>0 && hasVar('VOLEUR',variants) && players.some(p=>p.alive&&(p.role==='VOLEUR'||p.pickNight===3));
       if(s.role==='CHARMED') return activeRoles['JOUEUR_FLUTE']>0 && players.some(p=>p.alive&&p.enchanted);
       if(s.role==='LEURRE_INFECT') return activeRoles['INFECT_PERE']>0 && players.some(p=>p.alive&&p.role==='INFECT_PERE');
       if(s.role==='LOUP') return players.some(p=>p.alive&&isWolf(p)); // inclus si au moins 1 loup vivant (rôle OU transformation manuelle)
@@ -976,7 +1161,7 @@ function App(){
       return activeRoles[s.role]>0;
     });
     return [...slides,{role:'RECAP',name:'Récap de la Nuit',note:''}];
-  },[activeRoles, nightCount, variants, players.map(p=>`${p.id}-${p.alive}-${p.role}-${p.lover}-${p.doll}`).join(',')]);
+  },[activeRoles, nightCount, variants, players.map(p=>`${p.id}-${p.alive}-${p.role}-${p.lover}-${p.doll}-${p.trapUsed}-${p.pickNight}`).join(',')]);
 
   const applyNight=()=>{
     const out=computeNight(players,na);
@@ -996,12 +1181,29 @@ function App(){
 
         // Morts de la nuit (loups, GMG, potion, Loup Blanc, Singe, riposte du Colosse, chagrin)
         if(justDied.has(p.id)){ u.alive = false; u.diedNight = nightCount; }
+        if(out.aurHit===p.id) u.aurLifeUsed=true;
 
         // Avocat : son client ne peut pas être éliminé au vote du jour qui suit
         u.voteImmune = avocatOn && p.id===na.salvateurTarget;
 
         // Empoisonneuse / Guérisseuse : potions consommées
-        if(p.role==='SORCIERE' && sorcVar) u.potionsUsed=(p.potionsUsed||0)+(sorcVar==='EMPOISONNEUSE'?(na.poisonTargets||[]).filter(Boolean).length:(na.healTargets||[]).filter(Boolean).length);
+        if(p.role==='SORCIERE' && sorcVar==='ALCHIMISTE'){
+          const used=[['VIE',na.alchLife],['MORT',na.alchDeath],['SOMMEIL',na.alchSleep],['VERITE',na.alchTruth]].filter(x=>x[1]).map(x=>x[0]);
+          u.alchUsed=[...(p.alchUsed||[]),...used];
+        }
+        // Potion de Sommeil : le joueur ne vote pas le lendemain
+        // Corbeau Messager : le joueur désigné ne vote pas le lendemain
+        const sleepIt=sorcVar==='ALCHIMISTE' && !!na.alchSleep && p.id===na.alchSleep;
+        const msgIt=hasVar('CORBEAU',variants) && !!na.corbeauTarget && p.id===na.corbeauTarget;
+        u.noVote = sleepIt||msgIt;
+        u.sageSuspect = false;
+        u.noVoteBy = sleepIt&&msgIt?'both':sleepIt?'alch':msgIt?'corbeau':null;
+        // Porc-Épic dévoré : les loups sont blessés la nuit suivante
+        if(p.role==='CHEVALIER' && hasVar('CHEVALIER',variants) && justDied.has(p.id) && (p.id===out.wolfKill||(p.id===na.gmgVictim&&!out.gmgHealed))) u.quillHit=nightCount;
+        // Trappeur : un seul piège ; on retient la maison pour interdire la même la nuit suivante
+        if(p.role==='TRAPPEUR'){ u.lastTrap=na.trapTarget||null; if(out.trapTriggered) u.trapUsed=true; }
+
+        if(p.role==='SORCIERE' && sorcVar && sorcVar!=='ALCHIMISTE') u.potionsUsed=(p.potionsUsed||0)+(sorcVar==='EMPOISONNEUSE'?(na.poisonTargets||[]).filter(Boolean).length:(na.healTargets||[]).filter(Boolean).length);
 
         // Loup Vegan : les loups ont dévoré l'un des leurs (une seule fois dans la partie)
         if(p.role==='LOUP_VEGAN' && wolfAteWolf) u.vegHuntUsed=true;
@@ -1022,7 +1224,7 @@ function App(){
         if(p.role==='SINGE_SAVANT' && na.singeOut) u.singeUsed=true;
 
         // Effets non-mortels
-        if(p.id===na.corbeauTarget) u.cursed=true;
+        if(p.id===na.corbeauTarget && !hasVar('CORBEAU',variants)) u.cursed=true;
         if(na.newEnchanted && na.newEnchanted.includes(p.id)) u.enchanted=true;
         if(p.id===na.salvateurTarget&&!avocatOn) u.protected=true;
 
@@ -1036,7 +1238,7 @@ function App(){
         }
 
         // Renard : perd son pouvoir si aucun loup parmi ses 3 cibles
-        if(p.role==='RENARD' && p.alive && na.renardTargets.some(id=>id!==null)) {
+        if(p.role==='RENARD' && p.alive && !hasVar('RENARD',variants) && na.renardTargets.some(id=>id!==null)) {
           const hasWolf = na.renardTargets.some(id=>{const t=prev.find(x=>x.id===id);return t&&isWolf(t);});
           if(!hasWolf) u.foxPower=false;
         }
@@ -1071,8 +1273,8 @@ function App(){
       isFirstNight:nightCount===1,
       // Loups
       wolfVictimId:na.wolfVictim,
-      wolfVictimSaved:salSaved2||psaved2,
-      saviorType:salSaved2?'salvateur':psaved2?'potion':null,
+      wolfVictimSaved:salSaved2||psaved2||out.wolfTrapped,
+      saviorType:out.wolfTrapped?'piege':salSaved2?'salvateur':psaved2?'potion':null,
       gmgVictimId:na.gmgVictim,
       infectTransformed:out.infected?na.wolfVictim:null,
       loupBlancId:na.loupBlancTarget,
@@ -1128,6 +1330,21 @@ function App(){
       healIds:(na.healTargets||[]).filter(Boolean),
       gmgHealed:out.gmgHealed,
       vegLickId:na.vegLick,
+      wolvesHurt:!!wolvesHurt,
+      aurHitId:out.aurHit||null,
+      aurore:hasVar('LOUP_BLANC',variants),
+      quillHitId:hasVar('CHEVALIER',variants)?(players.find(p=>p.role==='CHEVALIER'&&p.alive&&out.dead.includes(p.id)&&(p.id===out.wolfKill||(p.id===na.gmgVictim&&!out.gmgHealed)))?.id||null):null,
+      corbeauMessager:hasVar('CORBEAU',variants),
+      fouineIds:hasVar('RENARD',variants)?(na.fouineTargets||[]).filter(Boolean):[],
+      fouineSame:(na.fouineTargets||[]).filter(Boolean).length===2?(()=>{const [a,b]=na.fouineTargets.map(id=>players.find(p=>p.id===id));return campOf(a)===campOf(b);})():null,
+      pickId:na.pickTarget?players.find(p=>p.pickFrom===na.pickTarget)?.id||null:null,
+      pickTargetId:na.pickTarget||null,
+      pickRole:na.pickTarget?players.find(p=>p.pickFrom===na.pickTarget)?.role||null:null,
+      trapTargetId:out.trapAt||null,
+      trapTriggered:out.trapTriggered,
+      trapWolfId:out.trapWolf,
+      alchimiste:getVar('SORCIERE',variants)?.key==='ALCHIMISTE',
+      alchLifeId:na.alchLife, alchDeathId:na.alchDeath, alchSleepId:na.alchSleep, alchTruthId:na.alchTruth,
       wolfAteWolf:!!(na.wolfVictim&&isWolf(players.find(p=>p.id===na.wolfVictim)||{})),
     });
     // Mémoriser la cible du Salvateur pour la nuit suivante
@@ -1170,8 +1387,9 @@ function App(){
   /* ── ÉCRAN 1 : COUNT ── */
   if(screen==='count') return(
     <div className="cs">
+      {egg&&<div className="egg">{egg}</div>}
       <div className="ph">
-        <BrandLogo/>
+        <BrandLogo theme={theme} onTap={logoTap}/>
       </div>
       <div className="orn">&#10022;</div>
       <div className="cs-card">
@@ -1179,6 +1397,7 @@ function App(){
         <div className="thm">
           <button className={`thm-o${theme==='nuit'?' on':''}`} onClick={()=>setTheme('nuit')}><span className="thm-s nuit"/>Nuit étoilée</button>
           <button className={`thm-o${theme==='gold'?' on':''}`} onClick={()=>setTheme('gold')}><span className="thm-s gold"/>Noir &amp; or</button>
+          {theme==='arcade'&&<button className="thm-o on"><span className="thm-s arc"/>Arcade</button>}
         </div>
         <div style={{fontFamily:"inherit",fontSize:'13px',letterSpacing:'.24em',textTransform:'uppercase',color:'var(--gold-bright)',textAlign:'center',marginBottom:'22px'}}>Combien de joueurs&nbsp;?</div>
         <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:'14px',marginBottom:'24px'}}>
@@ -1213,7 +1432,7 @@ function App(){
   const incRole=rk=>{
     const w=roleWeight(rk);
     setActiveRoles(prev=>{
-      const bonus=(prev['VOLEUR']||0)*2;
+      const bonus=(prev['VOLEUR']||0)*(hasVar('VOLEUR',variants)?0:2);
       const tot=Object.entries(prev).reduce((s,[k,v])=>s+v*roleWeight(k),0);
       if(tot+w>count+bonus) return prev;
       return {...prev,[rk]:(prev[rk]||0)+1};
@@ -1230,8 +1449,9 @@ function App(){
 
   if(screen==='roles') return(
     <div className="rs" onClick={()=>setTooltip(null)}>
+      {egg&&<div className="egg">{egg}</div>}
       <div className="ph">
-        <BrandLogo/>
+        <BrandLogo theme={theme} onTap={logoTap}/>
         <p style={{fontSize:'14px',letterSpacing:'.24em',color:'rgba(var(--ink-rgb),.70)',textTransform:'uppercase'}}>S&eacute;lection des r&ocirc;les</p>
       </div>
       <div className="orn">&#10022;</div>
@@ -1407,7 +1627,9 @@ function App(){
     'INFECT_PERE','GRAND_MECHANT_LOUP','JOUEUR_FLUTE','LOUP_BLANC','SINGE_SAVANT','PUISSANTE_MERE','COLOSSE','NOCTAMBULE','LOUP_VEGAN'];
   const nightBarItems=EVERY_NIGHT.filter(it=>{
     if(it.role==='POUPEE') return activeRoles['PETITE_FILLE']>0 && hasVar('PETITE_FILLE',variants) && players.some(p=>p.alive&&p.role==='PETITE_FILLE') && players.some(p=>p.alive&&p.doll);
-    if(it.role==='SORCIERE' && (it.pos==='early')!==hasVar('SORCIERE',variants)) return false;
+    if(it.role==='SORCIERE' && (it.pos==='early')!==sorcEarly(variants)) return false;
+    if(it.role==='TRAPPEUR') return activeRoles['TRAPPEUR']>0 && players.some(p=>p.alive&&p.role==='TRAPPEUR'&&!p.trapUsed);
+    if(it.role==='VOLEUR') return nightCount===3 && activeRoles['VOLEUR']>0 && hasVar('VOLEUR',variants) && players.some(p=>p.alive&&p.role==='VOLEUR');
     if(it.role==='LOVER') return activeRoles['CUPIDON']>0 && !!variants.CUPIDON && players.filter(p=>p.alive&&p.lover).length===2;
     if(it.role==='CHARMED') return activeRoles['JOUEUR_FLUTE']>0 && players.some(p=>p.alive&&p.enchanted);
     if(it.role==='LOUP') return players.some(p=>p.alive&&isWolf(p));
@@ -1453,11 +1675,15 @@ function App(){
 
                 // ── MORTS
                 const lnv=lastNight?.wolfVictimId?players.find(p=>p.id===lastNight.wolfVictimId):null;
-                if(lnv) events.push(<Bloc key="w"><S>🐺 Dévoré par les loups</S><V bold>{lnv.name} <span style={{fontSize:'13px',opacity:.6}}>({ROLES[lnv.role]?.name})</span></V>{lastNight.puppetId===lnv.id&&<V><span style={{color:'var(--green)',fontSize:'13px'}}>🪆 Sa marionnette meurt à sa place</span></V>}{lastNight.wolfVictimSaved&&<V><span style={{color:'var(--green)',fontSize:'13px'}}>{lastNight.saviorType==='salvateur'?'🛡️ Sauvé par le Salvateur':'🧪 Sauvé par la potion'}</span></V>}</Bloc>);
-                else events.push(<Bloc key="nw"><S>🐺 Les loups</S><V>Aucune victime</V></Bloc>);
-                if(lastNight.gmgVictimId) events.push(<Bloc key="g"><S>👹 2ème victime (Grand Méchant Loup)</S><V bold>{N(lastNight.gmgVictimId)} <span style={{fontSize:'13px',opacity:.6}}>({ROLES[players.find(p=>p.id===lastNight.gmgVictimId)?.role]?.name})</span></V>{lastNight.gmgHealed&&<V><span style={{color:'var(--green)',fontSize:'13px'}}>💚 Sauvé par la Guérisseuse</span></V>}</Bloc>);
+                if(lnv) events.push(<Bloc key="w"><S>🐺 Dévoré par les loups</S><V bold>{lnv.name} <span style={{fontSize:'13px',opacity:.6}}>({roleName(lnv.role,variants)})</span></V>{lastNight.puppetId===lnv.id&&<V><span style={{color:'var(--green)',fontSize:'13px'}}>🪆 Sa marionnette meurt à sa place</span></V>}{lastNight.wolfVictimSaved&&<V><span style={{color:'var(--green)',fontSize:'13px'}}>{lastNight.saviorType==='piege'?'🪤 Sauvé par le piège du Trappeur':lastNight.saviorType==='salvateur'?'🛡️ Sauvé par le Salvateur':'🧪 Sauvé par la potion'}</span></V>}</Bloc>);
+                else events.push(<Bloc key="nw"><S>🐺 Les loups</S><V>{lastNight.wolvesHurt?'Blessés par le Porc-Épic : aucune victime':'Aucune victime'}</V></Bloc>);
+                if(lastNight.aurHitId) events.push(<Bloc key="aur"><S>🌅 Loup de l'Aurore attaqué par les Loups</S><V bold>{N(lastNight.aurHitId)} survit</V><V><span style={{fontSize:'13px',opacity:.65}}>Il perd une vie : la prochaine attaque le tuera</span></V></Bloc>);
+                if(lastNight.quillHitId) events.push(<Bloc key="quill"><S>🦔 Le Porc-Épic a été dévoré</S><V>Ses piquants blessent les loups : <b>aucune victime la nuit prochaine</b></V></Bloc>);
+                if(lastNight.pickTargetId) events.push(<Bloc key="pick"><S>🪞 Le Miroir a copié un rôle</S><V bold>{N(lastNight.pickId)} devient {roleName(lastNight.pickRole,variants)||'?'}</V><V><span style={{fontSize:'13px',opacity:.65}}>Copié sur {N(lastNight.pickTargetId)}</span></V></Bloc>);
+                if(lastNight.fouineIds?.length===2) events.push(<Bloc key="fouine"><S>🦡 La Fouine a comparé</S><V bold>{lastNight.fouineIds.map(id=>N(id)).join(' et ')}</V><V><span style={{fontSize:'13px',color:lastNight.fouineSame?'var(--green)':'var(--blood)'}}>{lastNight.fouineSame?'Même camp':'Camps différents'}</span></V></Bloc>);
+                if(lastNight.gmgVictimId) events.push(<Bloc key="g"><S>👹 2ème victime (Grand Méchant Loup)</S><V bold>{N(lastNight.gmgVictimId)} <span style={{fontSize:'13px',opacity:.6}}>({roleName(players.find(p=>p.id===lastNight.gmgVictimId)?.role,variants)})</span></V>{lastNight.gmgHealed&&<V><span style={{color:'var(--green)',fontSize:'13px'}}>{lastNight.trapTriggered&&lastNight.trapTargetId===lastNight.gmgVictimId?'🪤 Sauvé par le piège du Trappeur':lastNight.alchLifeId===lastNight.gmgVictimId?'⚗️ Sauvé par la potion de vie':'💚 Sauvé par la Guérisseuse'}</span></V>}</Bloc>);
                 if(lastNight.infectTransformed) events.push(<Bloc key="inf"><S>🦠 Transformé en loup (Infect Père)</S><V bold>{N(lastNight.infectTransformed)}</V></Bloc>);
-                if(lastNight.loupBlancId) events.push(<Bloc key="lb"><S>🤍 Tué par le Loup Blanc</S><V bold>{N(lastNight.loupBlancId)}</V></Bloc>);
+                if(lastNight.loupBlancId&&!(lastNight.trapTriggered&&lastNight.loupBlancId===lastNight.trapTargetId)) events.push(<Bloc key="lb"><S>{lastNight.aurore?"🌅 Tué par le Loup de l'Aurore":'🤍 Tué par le Loup Blanc'}</S><V bold>{N(lastNight.loupBlancId)}</V></Bloc>);
                 const lnp=lastNight?.potionDeathId?players.find(p=>p.id===lastNight.potionDeathId):null;
                 if(lnp) events.push(<Bloc key="pd"><S color="var(--purple)">☠️ Tué par la potion de mort</S><V bold>{lnp.name}</V></Bloc>);
 
@@ -1465,6 +1691,12 @@ function App(){
                 if(lastNight.potionLifeUsed&&lastNight.potionLifeTargetId) events.push(<Bloc key="pv"><S color="var(--green)">🧪 Potion de vie utilisée</S><V bold>{N(lastNight.potionLifeTargetId)} — survit</V></Bloc>);
                 if(lastNight.poisonIds?.length) events.push(<Bloc key="pois"><S>☠️ Empoisonné</S><V bold>{lastNight.poisonIds.map(id=>N(id)).join(', ')}</V></Bloc>);
                 if(lastNight.healIds?.length) events.push(<Bloc key="heal"><S>💚 Soigné par la Guérisseuse</S><V bold>{lastNight.healIds.map(id=>N(id)).join(', ')} — survit</V></Bloc>);
+                if(lastNight.trapTriggered) events.push(<Bloc key="trap"><S>🪤 Le piège du Trappeur s'est refermé</S><V>Devant la maison de <b>{N(lastNight.trapTargetId)}</b></V>{lastNight.trapWolfId?<V bold>{N(lastNight.trapWolfId)} <span style={{fontSize:'13px',opacity:.6}}>({roleName(players.find(p=>p.id===lastNight.trapWolfId)?.role,variants)})</span> — mort dans le piège</V>:<V>Aucun loup n'a pu être pris</V>}<V><span style={{fontSize:'13px',opacity:.65}}>Le Trappeur n'a plus de piège</span></V></Bloc>);
+                else if(lastNight.trapTargetId) events.push(<Bloc key="trap0"><S>🪤 Piège posé devant</S><V bold>{N(lastNight.trapTargetId)}</V><V><span style={{fontSize:'13px',opacity:.65}}>Personne n'est tombé dedans</span></V></Bloc>);
+                if(lastNight.alchLifeId) events.push(<Bloc key="alv"><S>⚗️ Potion de vie (Alchimiste)</S><V bold>{N(lastNight.alchLifeId)} — survit</V></Bloc>);
+                if(lastNight.alchDeathId) events.push(<Bloc key="ald"><S>⚗️ Potion de mort (Alchimiste)</S><V bold>{N(lastNight.alchDeathId)}</V></Bloc>);
+                if(lastNight.alchSleepId) events.push(<Bloc key="als"><S>💤 Potion de sommeil (Alchimiste)</S><V bold>{N(lastNight.alchSleepId)}</V><V><span style={{fontSize:'13px',opacity:.65}}>Ne vote pas aujourd'hui</span></V></Bloc>);
+                if(lastNight.alchTruthId) events.push(<Bloc key="alt"><S>🔍 Potion de vérité (Alchimiste)</S><V bold>{N(lastNight.alchTruthId)} <span style={{fontSize:'13px',opacity:.6}}>({roleName(players.find(p=>p.id===lastNight.alchTruthId)?.role,variants)})</span></V></Bloc>);
                 if(lastNight.noctId) events.push(<Bloc key="noct"><S>🌙 Le Noctambule a dormi chez</S><V bold>{N(lastNight.noctId)}</V><V><span style={{fontSize:'13px',opacity:.65}}>Pouvoir supprimé pour la nuit</span></V></Bloc>);
                 if(lastNight.dollToId) events.push(<Bloc key="doll"><S>🧸 La poupée est chez</S><V bold>{N(lastNight.dollToId)}</V></Bloc>);
                 if(lastNight.vegLickId) events.push(<Bloc key="veg"><S>🥬 Léché par le Loup Vegan</S><V bold>{N(lastNight.vegLickId)}</V></Bloc>);
@@ -1473,7 +1705,8 @@ function App(){
                 if(lastNight.salvateurId&&!lastNight.avocat) events.push(<Bloc key="salv"><S color="var(--green)">🛡️ Protégé par le Salvateur</S><V bold>{N(lastNight.salvateurId)}</V></Bloc>);
 
                 // ── CORBEAU
-                if(lastNight.corbeauId) events.push(<Bloc key="corb"><S color="rgba(var(--ink-rgb),1)">🦅 Curseur Corbeau (+2 votes)</S><V bold>{N(lastNight.corbeauId)}</V></Bloc>);
+                if(lastNight.corbeauId&&lastNight.corbeauMessager) events.push(<Bloc key="corbm"><S>✉️ Corbeau Messager</S><V bold>{N(lastNight.corbeauId)}</V><V><span style={{fontSize:'13px',opacity:.65}}>Ne vote pas aujourd'hui</span></V></Bloc>);
+                else if(lastNight.corbeauId) events.push(<Bloc key="corb"><S color="rgba(var(--ink-rgb),1)">🦅 Curseur Corbeau (+2 votes)</S><V bold>{N(lastNight.corbeauId)}</V></Bloc>);
 
                 // ── VOYANTE
                 if(lastNight.voyanteTargetId) events.push(<Bloc key="voy"><S color="rgba(196,181,255,1)">🔮 Voyante a inspecté</S><V bold>{N(lastNight.voyanteTargetId)}</V><V><span style={{color:lastNight.voyanteTargetIsWolf?'var(--blood)':'var(--green)',fontSize:'13px'}}>{lastNight.voyanteTargetIsWolf?"🐺 C'est un loup !":'✅ Pas un loup'}</span></V></Bloc>);
@@ -1599,8 +1832,8 @@ function App(){
                 <text textAnchor="middle" y="0" dominantBaseline="central" style={{fontSize:`${emojiFS*.92}px`}}>{role?.emoji||'❓'}</text>
                 <rect x={-pillW/2} y={nameDY-nameFS*1.18} width={pillW} height={pillH} rx={pillH/2} fill="rgba(var(--deep-rgb),.86)" stroke="rgba(255,255,255,.12)" strokeWidth=".15"/>
                 <text textAnchor="middle" y={nameDY-nameFS*.05} style={{fontSize:`${nameFS}px`,fill:'var(--ink)',fontWeight:600,textDecoration:dead?'line-through':'none'}}>{label}</text>
-                {!dead&&(p.doll||p.voteImmune)&&(
-                  <text x={-nodeR*.8} y={-nodeR*.7} textAnchor="middle" dominantBaseline="central" style={{fontSize:`${nameFS*1.1}px`}}>{p.doll?'🧸':'💼'}</text>
+                {!dead&&(p.doll||p.voteImmune||p.noVote||p.sageSuspect)&&(
+                  <text x={-nodeR*.8} y={-nodeR*.7} textAnchor="middle" dominantBaseline="central" style={{fontSize:`${nameFS*1.1}px`}}>{p.doll?'🧸':p.voteImmune?'💼':p.noVoteBy==='corbeau'?'✉️':p.noVoteBy==='sage'?'🦉':p.noVote?'💤':'⚖️'}</text>
                 )}
                 {!dead&&(p.mute||p.powerless)&&(
                   <text x={nodeR*.8} y={-nodeR*.7} textAnchor="middle" dominantBaseline="central" style={{fontSize:`${nameFS*1.1}px`}}>{p.powerless?'⛔':'🤐'}</text>
@@ -1675,7 +1908,29 @@ function App(){
               {p.role==='LOUP_VEGAN'&&<div className="minfo" style={{color:'var(--green)'}}>🥬 Se réveille avec les Loups mais joue pour le Village{p.vegHuntUsed?' · les loups ont déjà dévoré l\'un des leurs':''}</div>}
               {p.doll&&<div className="minfo" style={{color:'var(--purple)'}}>🧸 Porte la poupée d'Annabelle</div>}
               {p.voteImmune&&p.alive&&<div className="minfo" style={{color:'var(--amber)'}}>💼 Défendu par l'Avocat : ne peut pas être éliminé au vote aujourd'hui</div>}
-              {p.role==='SORCIERE'&&hasVar('SORCIERE',variants)&&<div className="minfo" style={{color:'var(--muted)'}}>{getVar('SORCIERE',variants).emoji} Potions restantes : {Math.max(0,2-(p.potionsUsed||0))} / 2</div>}
+              {p.role==='SORCIERE'&&hasVar('SORCIERE',variants)&&getVar('SORCIERE',variants).key!=='ALCHIMISTE'&&<div className="minfo" style={{color:'var(--muted)'}}>{getVar('SORCIERE',variants).emoji} Potions restantes : {Math.max(0,2-(p.potionsUsed||0))} / 2</div>}
+              {p.role==='SORCIERE'&&getVar('SORCIERE',variants)?.key==='ALCHIMISTE'&&<div className="minfo" style={{color:'var(--muted)'}}>⚗️ Potions à boire : {Math.max(0,2-(p.alchUsed||[]).length)} / 2{(p.alchUsed||[]).length?` · déjà bu : ${(p.alchUsed||[]).map(alchLabel).join(', ')}`:''}</div>}
+              {isAurore(p)&&p.alive&&<div className="minfo" style={{color:'var(--muted)'}}>🌅 {p.aurLifeUsed?'Plus qu\'une vie : la prochaine attaque des Loups le tuera':'Deux vies contre les Loups'} · une seule s'il est brûlé ou empoisonné</div>}
+              {p.role==='TRAPPEUR'&&<div className="minfo" style={{color:'var(--muted)'}}>🪤 {p.trapUsed?'Piège déjà déclenché — plus de piège':'Piège disponible'}</div>}
+              {p.noVote&&p.alive&&<div className="minfo" style={{color:'var(--amber)'}}>{p.noVoteBy==='sage'?"🦉 Le Sage s'est trompé — il ne vote pas aujourd'hui":p.noVoteBy==='corbeau'?"✉️ Désigné par le Corbeau Messager — ne vote pas aujourd'hui":p.noVoteBy==='both'?"💤 Endormi et désigné par le Corbeau Messager — ne vote pas aujourd'hui":"💤 Endormi par la potion de sommeil — ne vote pas aujourd'hui"}</div>}
+              {p.sageSuspect&&p.alive&&<div className="minfo" style={{color:'var(--amber)'}}>⚖️ Désigné par le Sage : le vote du jour se fait uniquement entre {players.filter(x=>x.sageSuspect&&x.alive).map(x=>x.name).join(', ')}</div>}
+              {p.role==='CHEVALIER'&&hasVar('CHEVALIER',variants)&&!p.alive&&p.quillHit!=null&&p.quillHit===nightCount-1&&<div className="minfo" style={{color:'var(--amber)'}}>🦔 Les loups sont blessés : ils ne tueront personne la nuit prochaine</div>}
+              {/* LE SAGE : question publique, une fois */}
+              {p.role==='ANCIEN'&&hasVar('ANCIEN',variants)&&p.alive&&(
+                p.sageUsed?<div className="shot used">🦉 Question déjà posée</div>
+                :p.powerless?<div className="shot used">🦉 Pouvoir supprimé : il ne peut plus poser sa question</div>
+                :(
+                  <div className="shot">
+                    <div className="shot-t">🦉 Poser la question du Sage</div>
+                    <div className="shot-s">Il désigne 3 joueurs à voix haute. S'il y a un loup parmi eux, le vote du jour se fait uniquement entre ces 3. Sinon, il perd sa voix pour ce vote.</div>
+                    <div style={{marginTop:'8px'}}>
+                      <MultiPick options={players.filter(x=>x.alive&&x.id!==p.id).map(x=>({id:x.id,label:x.name}))} selected={sagePick} max={3}
+                        onToggle={id=>setSagePick(L=>L.includes(id)?L.filter(x=>x!==id):(L.length<3?[...L,id]:L))}/>
+                    </div>
+                    <button className="mb kill" style={{width:'100%',marginTop:'8px',padding:'10px 14px'}} disabled={sagePick.length!==3} onClick={()=>sageAsk(p.id,sagePick)}>Donner la réponse</button>
+                  </div>
+                )
+              )}
               {p.mute&&<div className="minfo" style={{color:'var(--amber)'}}>🪆 Marionnette utilisée — ne peut plus parler, seulement voter</div>}
               {p.powerless&&<div className="minfo" style={{color:'var(--blood)'}}>👑 Pouvoir supprimé par la Mère des Loups</div>}
               {p.role==='SINGE_SAVANT'&&p.singeUsed&&<div className="minfo" style={{color:'rgba(var(--ink-rgb),.69)'}}>🐒 Pouvoir déjà utilisé</div>}
@@ -1792,6 +2047,26 @@ function App(){
         );
       })()}
 
+      {/* Réponse du meneur à la question du Sage */}
+      {sageResult&&(()=>{
+        const N=id=>players.find(x=>x.id===id)?.name||'?';
+        const close=()=>{setSageResult(null);setSelId(null);};
+        return(
+          <div className="ov" style={{zIndex:320}} onClick={close}>
+            <div className="pmod" style={{textAlign:'center'}} onClick={e=>e.stopPropagation()}>
+              <div style={{fontSize:'44px'}}>{sageResult.wolf?'🐺':'🦉'}</div>
+              <div className="mod-name" style={{marginTop:'4px'}}>{sageResult.ids.map(N).join(', ')}</div>
+              <div className={`shotres ${sageResult.wolf?'g':'r'}`}>
+                {sageResult.wolf
+                  ?<>Annoncez à tous : <b>OUI, il y a au moins un loup</b> parmi ces 3 joueurs. Le vote d'aujourd'hui se fait <b>uniquement entre eux</b>.</>
+                  :<>Annoncez à tous : <b>NON, aucun loup</b> parmi ces 3 joueurs. {N(sageResult.sageId)} perd sa voix pour le vote d'aujourd'hui.</>}
+              </div>
+              <button className="mb cls" style={{width:'100%',marginTop:'12px'}} onClick={close}>OK</button>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* ── MODALE RESET ── */}
       {/* ── MODAL RÉORGANISATION ── */}
       {showReorder&&(
@@ -1885,13 +2160,21 @@ function App(){
               const L=[];
               const so=A('SORCIERE');
               if(so){ const v=getVar('SORCIERE',variants);
-                if(v) L.push([v.emoji,v.rename,`${Math.max(0,2-(so.potionsUsed||0))} potion(s) restante(s)`]);
+                if(v?.key==='ALCHIMISTE'){ const u=so.alchUsed||[]; L.push(['⚗️',"L'Alchimiste",u.length>=2?`Plus de potion (bu : ${u.map(alchLabel).join(', ')})`:`${2-u.length} potion(s) à boire${u.length?` · déjà bu : ${u.map(alchLabel).join(', ')}`:''}`]); }
+                else if(v) L.push([v.emoji,v.rename,`${Math.max(0,2-(so.potionsUsed||0))} potion(s) restante(s)`]);
                 else L.push(['🧪','Sorcière',`Vie : ${so.potionLifeUsed?'utilisée':'disponible'} · Mort : ${so.potionDeathUsed?'utilisée':'disponible'}`]); }
-              const rn=A('RENARD'); if(rn) L.push(['🦊','Renard',rn.foxPower===false?'Pouvoir perdu':'Pouvoir actif']);
+              const rn=A('RENARD'); if(rn) L.push(hasVar('RENARD',variants)?['🦡','La Fouine','Compare 2 joueurs chaque nuit']:['🦊','Renard',rn.foxPower===false?'Pouvoir perdu':'Pouvoir actif']);
               const ip=A('INFECT_PERE'); if(ip) L.push(['🦠','Infect Père',ip.infectUsed?'Infection déjà utilisée':'Infection disponible']);
               const sg=A('SINGE_SAVANT'); if(sg) L.push(['🐒','Singe Savant',sg.singeUsed?'Déjà sorti':'Peut encore sortir']);
               const mn=A('MARIONNETTISTE'); if(mn) L.push(['🪆','Marionnettiste',mn.marionnetteUsed?'Marionnette utilisée (muet)':'Marionnette disponible']);
               const tr=A('CHASSEUR'); if(tr&&hasVar('CHASSEUR',variants)) L.push(['🎯',"Tireur d'élite",tr.shotUsed?'Tir utilisé':'Tir disponible']);
+              const tp=A('TRAPPEUR'); if(tp) L.push(['🪤','Trappeur',tp.trapUsed?'Piège déjà déclenché':`Piège disponible${tp.lastTrap?` · pas devant ${players.find(p=>p.id===tp.lastTrap)?.name||'?'} la nuit prochaine`:''}`]);
+              const nv=players.filter(p=>p.noVote&&p.alive); if(nv.length) L.push(['🚫','Pas de vote',`${nv.map(p=>p.name).join(', ')} ne vote${nv.length>1?'nt':''} pas aujourd'hui`]);
+              const sg2=A('ANCIEN'); if(sg2&&hasVar('ANCIEN',variants)) L.push(['🦉','Le Sage',sg2.sageUsed?'Question déjà posée':'Question disponible (pendant le jour)']);
+              const sus=players.filter(p=>p.sageSuspect&&p.alive); if(sus.length) L.push(['⚖️','Vote limité',`Le vote du jour se fait uniquement entre ${sus.map(p=>p.name).join(', ')}`]);
+              const au=players.find(p=>isAurore(p)&&p.alive); if(au) L.push(['🌅',"Loup de l'Aurore",`${au.aurLifeUsed?'Une seule vie restante':'Deux vies contre les Loups'} · ${nightCount%2===0?'se réveille la nuit prochaine':'ne se réveille pas la nuit prochaine'}`]);
+              if(wolvesHurt) L.push(['🦔','Porc-Épic','Les loups sont blessés : aucune victime la nuit prochaine']);
+              const pk=A('VOLEUR'); if(pk&&hasVar('VOLEUR',variants)) L.push(['🪞','Le Miroir',nightCount<=3?'Copiera un rôle la 3e nuit':'N\'a copié aucun rôle']);
               const vg=A('LOUP_VEGAN'); if(vg) L.push(['🥬','Loup Vegan',vg.vegHuntUsed?'Les loups ont déjà dévoré un des leurs':'Les loups peuvent encore dévorer un des leurs']);
               const sv=A('SALVATORE'); if(sv&&lastSalvateurTarget) L.push([hasVar('SALVATORE',variants)?'💼':'🛡️',roleName('SALVATORE',variants),`Ne peut pas choisir ${players.find(p=>p.id===lastSalvateurTarget)?.name||'?'} la nuit prochaine`]);
               const holder=players.find(p=>p.doll&&p.alive); if(holder) L.push(['🧸','Poupée',`Chez ${holder.name}`]);
@@ -1914,7 +2197,7 @@ function App(){
                   <div key={p.id} className={`bigpl-i${p.alive?'':' dead'}${isRealWolf(p)?' w':''}`}>
                     <span className="bigpl-e">{p.role?roleEmoji(p.role,variants):'❓'}</span>
                     <div style={{minWidth:0}}>
-                      <div className="bigpl-n">{p.name}{p.lover?' 💘':''}{p.enchanted?' 🎵':''}{p.doll?' 🧸':''}{p.voteImmune&&p.alive?' 💼':''}{p.mute?' 🤐':''}{p.powerless?' ⛔':''}</div>
+                      <div className="bigpl-n">{p.name}{p.lover?' 💘':''}{p.enchanted?' 🎵':''}{p.doll?' 🧸':''}{p.voteImmune&&p.alive?' 💼':''}{p.noVote&&p.alive?(p.noVoteBy==='corbeau'?' ✉️':p.noVoteBy==='sage'?' 🦉':' 💤'):''}{p.sageSuspect&&p.alive?' ⚖️':''}{p.mute?' 🤐':''}{p.powerless?' ⛔':''}</div>
                       <div className="bigpl-r">{p.role?roleName(p.role,variants):'Rôle inconnu'}{p.isInfected?' · infecté':''}{!p.alive?' · mort':''}</div>
                     </div>
                   </div>
@@ -1948,8 +2231,8 @@ function App(){
         </div>
       )}
 
-      {showNight&&<NightSlide slides={nightSlides} idx={nightIdx} setIdx={setNightIdx} players={players} setPlayers={setPlayers} na={na} setNA={setNA} onClose={()=>setShowNight(false)} onFinish={()=>{applyNight();setNightCount(n=>n+1);setShowRecap(true);}} assignRole={assignRole} title="Première nuit" isFirstNight={true} voleurChosenRole={voleurChosenRole} setVoleurChosenRole={setVoleurChosenRole} activeRoles={activeRoles} setPlayers={setPlayers} lastSalvateurTarget={null} variants={variants}/>}
-      {showEveryNight&&<NightSlide slides={everyNightSlides} idx={everyNightIdx} setIdx={setEveryNightIdx} players={players} setPlayers={setPlayers} na={na} setNA={setNA} onClose={()=>setShowEveryNight(false)} onFinish={()=>{applyNight();setNightCount(n=>n+1);setShowEveryNight(false);setShowRecap(true);}} assignRole={assignRole} title={`Nuit ${nightCount}`} isFirstNight={false} activeRoles={activeRoles} lastSalvateurTarget={lastSalvateurTarget} variants={variants}/>}
+      {showNight&&<NightSlide slides={nightSlides} idx={nightIdx} setIdx={setNightIdx} players={players} setPlayers={setPlayers} na={na} setNA={setNA} onClose={()=>setShowNight(false)} onFinish={()=>{applyNight();setNightCount(n=>n+1);}} assignRole={assignRole} title="Première nuit" isFirstNight={true} voleurChosenRole={voleurChosenRole} setVoleurChosenRole={setVoleurChosenRole} activeRoles={activeRoles} setPlayers={setPlayers} lastSalvateurTarget={null} variants={variants} wolvesHurt={false}/>}
+      {showEveryNight&&<NightSlide slides={everyNightSlides} idx={everyNightIdx} setIdx={setEveryNightIdx} players={players} setPlayers={setPlayers} na={na} setNA={setNA} onClose={()=>setShowEveryNight(false)} onFinish={()=>{applyNight();setNightCount(n=>n+1);setShowEveryNight(false);}} assignRole={assignRole} title={`Nuit ${nightCount}`} isFirstNight={false} activeRoles={activeRoles} lastSalvateurTarget={lastSalvateurTarget} variants={variants} wolvesHurt={wolvesHurt}/>}
     </div>
   );
 }
@@ -2005,7 +2288,7 @@ function ChipSelect({value,onChange,children,style}){
   );
 }
 
-function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFinish,assignRole,title,isFirstNight,voleurChosenRole,setVoleurChosenRole,activeRoles,lastSalvateurTarget,variants}){
+function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFinish,assignRole,title,isFirstNight,voleurChosenRole,setVoleurChosenRole,activeRoles,lastSalvateurTarget,variants,wolvesHurt}){
   const slide=slides[idx];
   // Minuteur 30 s (amoureux en variante)
   const [tLeft,setTLeft]=React.useState(null);
@@ -2026,7 +2309,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
   // Coche / décoche un joueur pour un rôle, sans dépasser le nombre prévu
   const unassignRole=rk=>setPlayers(prev=>prev.map(p=>p.role===rk?{...p,role:null,team:null}:p));
   // Rôles spéciaux de loup : choisis parmi les Loups-Garous déjà cochés ; décocher = redevient Loup-Garou
-  const isSpecialWolf=rk=>SPECIAL_WOLVES.includes(rk);
+  const isSpecialWolf=rk=>SPECIAL_WOLVES.includes(rk)&&packRoles().includes(rk);
   const canTake=(p,rk)=>p.role===rk||(isSpecialWolf(rk)?p.role==='LOUP':!p.role);
   const toggleAssign=(id,rk)=>setPlayers(prev=>{
     const p=prev.find(x=>x.id===id); if(!p) return prev;
@@ -2038,18 +2321,21 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
   });
   const pickOpts=rk=>players.filter(p=>p.alive).map(p=>({id:p.id,label:p.name,sub:p.role&&p.role!==rk?roleName(p.role,variants):null,disabled:!canTake(p,rk)}));
   // Écran des Loups : toute la meute (loups simples + rôles spéciaux de loup + Loup Vegan)
-  const packMax=PACK_ROLES.reduce((n,r)=>n+(activeRoles?.[r]||0),0);
+  const packMax=packRoles().reduce((n,r)=>n+(activeRoles?.[r]||0),0);
   const togglePack=id=>setPlayers(prev=>{
     const p=prev.find(x=>x.id===id); if(!p) return prev;
-    if(PACK_ROLES.includes(p.role)) return prev.map(x=>x.id===id?{...x,role:null,team:null}:x);
+    if(packRoles().includes(p.role)) return prev.map(x=>x.id===id?{...x,role:null,team:null}:x);
     if(p.role) return prev;
-    if(prev.filter(x=>PACK_ROLES.includes(x.role)).length>=packMax) return prev;
+    if(prev.filter(x=>packRoles().includes(x.role)).length>=packMax) return prev;
     return prev.map(x=>x.id===id?{...x,role:'LOUP',team:'loups'}:x);
   });
   // Ajoute / retire un joueur d'une liste de cibles (max atteint = bloqué), complétée par des null si len
   const toggleIn=(arr,id,max,len)=>{const c=(arr||[]).filter(Boolean);const n=c.includes(id)?c.filter(x=>x!==id):(c.length<max?[...c,id]:c);return len?[...n,...Array(Math.max(0,len-n.length)).fill(null)]:n;};
   const rolePicker=rk=><MultiPick options={pickOpts(rk)} selected={players.filter(p=>p.role===rk).map(p=>p.id)} max={maxFor(rk)} onToggle={id=>toggleAssign(id,rk)}/>;
   const avoc=hasVar('SALVATORE',variants);
+  // Maison piégée par le Trappeur (info réservée au meneur)
+  const trapOn=id=>{const tp=players.find(p=>p.role==='TRAPPEUR'&&p.alive&&!p.trapUsed&&!isPowerless(p,na));return !!id&&!!tp&&na.trapTarget===id;};
+  const TrapHint=({id})=>trapOn(id)?<div className="nscfm a">🪤 Maison piégée ! L'attaque échouera et un loup tombera dans le piège (voir le récap)</div>:null;
   const tc={loups:'tl',village:'tv',solo:'ts',variable:'ta',recap:'tr'}[team]||'tv';
 
   const getAssigned=r=>{
@@ -2102,7 +2388,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
               </div>
               {deadThisNight.length===0
                 ?<div style={{fontFamily:"inherit",fontSize:'15px',fontStyle:'normal',color:'var(--green)'}}>Personne n'est mort cette nuit</div>
-                :<div style={{display:'flex',flexDirection:'column',gap:'3px'}}>{deadThisNight.map(p=><div key={p.id} style={{fontFamily:"inherit",fontSize:'15px',fontWeight:'bold',color:'var(--blood)'}}>• {p.name} <span style={{fontWeight:'normal',opacity:.6,fontSize:'13px'}}>({ROLES[p.role]?.name})</span></div>)}</div>
+                :<div style={{display:'flex',flexDirection:'column',gap:'3px'}}>{deadThisNight.map(p=><div key={p.id} style={{fontFamily:"inherit",fontSize:'15px',fontWeight:'bold',color:'var(--blood)'}}>• {p.name} <span style={{fontWeight:'normal',opacity:.6,fontSize:'13px'}}>({roleName(p.role,variants)})</span></div>)}</div>
               }
             </div>
             <div className="nsdiv"/>
@@ -2110,19 +2396,43 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
               <div className="rct">🐺 Les loups ont dévoré</div>
               {wolfVP?(
                 <div>
-                  <div className="rctx" style={{fontWeight:'bold'}}>{wolfVP.name} <span style={{opacity:.55,fontSize:'14px'}}>({ROLES[wolfVP.role]?.name})</span></div>
+                  <div className="rctx" style={{fontWeight:'bold'}}>{wolfVP.name} <span style={{opacity:.55,fontSize:'14px'}}>({roleName(wolfVP.role,variants)})</span></div>
+                  {out.wolfTrapped&&<div className="rctx" style={{color:'var(--green)',fontSize:'14px',marginTop:'4px'}}>🪤 Sa maison était piégée — l'attaque échoue, reste en vie</div>}
                   {out.saved&&<div className="rctx" style={{color:'var(--green)',fontSize:'14px',marginTop:'4px'}}>🛡️ Sauvé par le Salvateur — reste en vie</div>}
-                  {out.psaved&&!out.saved&&<div className="rctx" style={{color:'var(--green)',fontSize:'14px',marginTop:'4px'}}>🧪 Sauvé par la potion de vie — reste en vie</div>}
+                  {out.psaved&&!out.saved&&!out.wolfTrapped&&<div className="rctx" style={{color:'var(--green)',fontSize:'14px',marginTop:'4px'}}>🧪 Sauvé par la potion de vie — reste en vie</div>}
                   {out.puppet===wolfVP.id&&<div className="rctx" style={{color:'var(--green)',fontSize:'14px',marginTop:'4px'}}>🪆 Sa marionnette meurt à sa place — il ne pourra plus parler</div>}
                   {out.infected&&<div className="rctx" style={{color:'var(--blood)',fontSize:'14px',marginTop:'4px'}}>🦠 Transformé en loup — survit</div>}
                   {out.dead.includes(wolfVP.id)&&<div className="rctx" style={{color:'var(--blood)',fontSize:'14px',marginTop:'4px'}}>💀 Éliminé cette nuit</div>}
                 </div>
-              ):<div className="rctx" style={{opacity:.4,fontStyle:'normal'}}>Personne n'a été ciblé</div>}
+              ):<div className="rctx" style={{opacity:.4,fontStyle:'normal'}}>{wolvesHurt?'🦔 Blessés par le Porc-Épic : aucune victime cette nuit':"Personne n'a été ciblé"}</div>}
             </div>
+            {hasVar('CHEVALIER',variants)&&players.some(p=>p.role==='CHEVALIER'&&p.alive&&out.dead.includes(p.id)&&(p.id===out.wolfKill||(p.id===na.gmgVictim&&!out.gmgHealed)))&&(
+              <div className="rc d" style={{width:'100%'}}>
+                <div className="rct">🦔 Le Porc-Épic a été dévoré</div>
+                <div className="rctx">Ses piquants blessent les loups : <strong>aucune victime la nuit prochaine</strong></div>
+              </div>
+            )}
+            {out.aurHit&&(
+              <div className="rc c" style={{width:'100%'}}>
+                <div className="rct">🌅 Loup de l'Aurore</div>
+                <div className="rctx">{P(out.aurHit)?.name} est attaqué par les Loups mais <strong>survit</strong> : il perd une vie</div>
+              </div>
+            )}
+            {na.pickTarget&&(
+              <div className="rc c" style={{width:'100%'}}>
+                <div className="rct">🪞 Miroir</div>
+                <div className="rctx">{players.find(p=>p.pickFrom===na.pickTarget)?.name} devient {roleName(players.find(p=>p.pickFrom===na.pickTarget)?.role,variants)} (copié sur {P(na.pickTarget)?.name})</div>
+              </div>
+            )}
+            {(na.fouineTargets||[]).filter(Boolean).length===2&&(()=>{const [a,b]=na.fouineTargets.filter(Boolean).map(P);const same=campOf(a)===campOf(b);return(
+              <div className="rc c" style={{width:'100%'}}>
+                <div className="rct">🦡 Fouine</div>
+                <div className="rctx">{a?.name} et {b?.name} : <strong style={{color:same?'var(--green)':'var(--blood)'}}>{same?'même camp':'camps différents'}</strong></div>
+              </div>);})()}
             {out.infected&&wolfVP&&(
               <div className="rc d" style={{width:'100%'}}>
                 <div className="rct">🦠 Infecté par l'Infect Père</div>
-                <div className="rctx" style={{fontWeight:'bold'}}>{wolfVP.name} <span style={{opacity:.55,fontSize:'14px'}}>({ROLES[wolfVP.role]?.name})</span></div>
+                <div className="rctx" style={{fontWeight:'bold'}}>{wolfVP.name} <span style={{opacity:.55,fontSize:'14px'}}>({roleName(wolfVP.role,variants)})</span></div>
                 <div className="rctx" style={{color:'var(--blood)',fontSize:'14px',marginTop:'2px'}}>Rejoint les loups — ne meurt pas</div>
               </div>
             )}
@@ -2131,7 +2441,28 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                 <div className="rct">👹 Grand Méchant Loup</div>
                 <div className="rctx" style={{fontWeight:'bold'}}>{P(na.gmgVictim)?.name}</div>
                 {out.puppet===na.gmgVictim&&<div className="rctx" style={{color:'var(--green)',fontSize:'14px'}}>🪆 Sa marionnette meurt à sa place</div>}
-                {out.gmgHealed&&<div className="rctx" style={{color:'var(--green)',fontSize:'14px'}}>💚 Sauvé par la Guérisseuse</div>}
+                {out.gmgHealed&&<div className="rctx" style={{color:'var(--green)',fontSize:'14px'}}>{out.trapTriggered&&out.trapAt===na.gmgVictim?'🪤 Sa maison était piégée — survit':na.alchLife===na.gmgVictim?'⚗️ Sauvé par la potion de vie':'💚 Sauvé par la Guérisseuse'}</div>}
+              </div>
+            )}
+            {out.trapTriggered&&(
+              <div className="rc d" style={{width:'100%'}}>
+                <div className="rct">🪤 Le piège se referme !</div>
+                <div className="rctx">Devant la maison de <strong>{P(out.trapAt)?.name}</strong></div>
+                {out.trapTies.length>1&&<>
+                  <div className="rctx" style={{fontSize:'14px',marginTop:'4px'}}>⚖️ {out.trapTies.length} loups sont à égale distance : choisissez, pour le bien du jeu, celui qui tombe dans le piège</div>
+                  <MultiPick options={out.trapTies.map(id=>({id,label:P(id)?.name}))} selected={out.trapWolf?[out.trapWolf]:[]} max={1}
+                    onToggle={id=>setNA({trapWolf:id})}/>
+                </>}
+                {out.trapWolf
+                  ?<div className="rctx" style={{color:'var(--blood)',fontSize:'14px',marginTop:'4px'}}>💀 {P(out.trapWolf)?.name} <span style={{opacity:.6}}>({roleName(P(out.trapWolf)?.role,variants)})</span> meurt dans le piège</div>
+                  :<div className="rctx" style={{fontSize:'14px',marginTop:'4px',opacity:.7}}>Aucun loup n'a pu être pris</div>}
+                <div className="rctx" style={{fontSize:'13px',opacity:.6,marginTop:'2px'}}>Le Trappeur n'a plus de piège</div>
+              </div>
+            )}
+            {!out.trapTriggered&&na.trapTarget&&players.some(p=>p.role==='TRAPPEUR'&&p.alive&&!p.trapUsed)&&(
+              <div className="rc c" style={{width:'100%'}}>
+                <div className="rct">🪤 Trappeur</div>
+                <div className="rctx">{out.trapAt?`Piège devant ${P(na.trapTarget)?.name} — personne n'est tombé dedans`:"Privé de pouvoir : aucun piège posé cette nuit"}</div>
               </div>
             )}
             {out.colosseKill&&(
@@ -2163,6 +2494,15 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
               <div className="rc c" style={{width:'100%'}}>
                 <div className="rct">💚 Guérisseuse</div>
                 <div className="rctx">{(na.healTargets||[]).filter(Boolean).map(id=>P(id)?.name).join(' et ')} — sauvé{(na.healTargets||[]).filter(Boolean).length>1?'s':''}</div>
+              </div>
+            )}
+            {(na.alchLife||na.alchDeath||na.alchSleep||na.alchTruth)&&(
+              <div className="rc c" style={{width:'100%'}}>
+                <div className="rct">⚗️ Alchimiste</div>
+                {na.alchLife&&<div className="rctx">💚 Vie : {P(na.alchLife)?.name} survit</div>}
+                {na.alchDeath&&<div className="rctx" style={{color:'var(--blood)'}}>☠️ Mort : {P(na.alchDeath)?.name}</div>}
+                {na.alchSleep&&<div className="rctx">💤 Sommeil : {P(na.alchSleep)?.name} ne votera pas demain</div>}
+                {na.alchTruth&&<div className="rctx">🔍 Vérité : {P(na.alchTruth)?.name} est {roleName(P(na.alchTruth)?.role,variants)||'?'}</div>}
               </div>
             )}
             {na.salvateurTarget&&hasVar('SALVATORE',variants)&&(
@@ -2215,8 +2555,8 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
             )}
             {corbP&&(
               <div className="rc c" style={{width:'100%'}}>
-                <div className="rct">🦅 Corbeau</div>
-                <div className="rctx">{corbP.name} aura <strong>+2 voix</strong> au prochain vote</div>
+                <div className="rct">{hasVar('CORBEAU',variants)?'✉️ Corbeau Messager':'🦅 Corbeau'}</div>
+                <div className="rctx">{hasVar('CORBEAU',variants)?<>{corbP.name} <strong>ne votera pas</strong> demain</>:<>{corbP.name} aura <strong>+2 voix</strong> au prochain vote</>}</div>
               </div>
             )}
           </div>
@@ -2232,6 +2572,15 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
             <p className="nsnote">{getVar(role,variants)?.note||slide.note}</p>
             {roleDesc(role,variants)&&<p className="nsdesc">{roleDesc(role,variants)}</p>}
             <div className="nsdiv"/>
+
+            {/* MIROIR : il a copié ce rôle, deux joueurs le jouent */}
+            {(()=>{
+              if(slide.pick||role==='RECAP'||packRoles().includes(role)) return null;
+              const mi=players.find(p=>p.alive&&p.pickFrom&&p.role===role);
+              const orig=mi&&players.find(p=>p.alive&&p.role===role&&p.id!==mi.id);
+              if(!mi||!orig) return null;
+              return <div className="nscfm a" style={{width:'100%',marginBottom:'6px'}}>🪞 {mi.name} (Miroir) joue aussi ce rôle et se réveille avec {orig.name}. L'app n'enregistre qu'une action : si le Miroir en fait une autre, appliquez-la à la main sur la table.</div>;
+            })()}
 
             {/* BLOC BLOQUÉ : joueur infecté / transformé manuellement */}
             {(()=>{
@@ -2344,7 +2693,17 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                   {cur.length>0&&<div className="nscfm g">✓ {cur[0].name}</div>}
                   <div className="nsdiv"/>
                 </>}
-                {cur.length>0&&(cur[0].foxPower!==false)?(
+                {cur.length>0&&hasVar('RENARD',variants)?(()=>{
+                  const ft=(na.fouineTargets||[]).filter(Boolean);
+                  const same=ft.length===2?campOf(players.find(p=>p.id===ft[0]))===campOf(players.find(p=>p.id===ft[1])):null;
+                  return <>
+                    <div className="nslbl">Désigne 2 joueurs</div>
+                    <MultiPick options={players.filter(p=>p.alive).map(p=>({id:p.id,label:p.name,sub:p.role?roleName(p.role,variants):null}))}
+                      selected={ft} max={2} onToggle={id=>setNA({fouineTargets:toggleIn(na.fouineTargets,id,2)})}/>
+                    {same!==null&&<div className={`nscfm ${same?'g':'r'}`}>{same?'👍 Même camp':'👎 Camps différents'}</div>}
+                    {same!==null&&<div style={{fontSize:'13px',color:'var(--muted)'}}>{hasVar('LOUP_BLANC',variants)?"Le Loup Vegan compte comme un loup, le Loup de l'Aurore comme un villageois (indétectable). Chaque autre rôle solo est seul dans son camp.":'Loup Vegan et Loup Blanc comptent comme des loups. Chaque rôle solo est seul dans son camp.'}</div>}
+                  </>;
+                })():cur.length>0&&(cur[0].foxPower!==false)?(
                   <>
                     <div className="nslbl">Inspecter 3 joueurs côte à côte</div>
                     <MultiPick options={players.filter(p=>p.alive).map(p=>({id:p.id,label:p.name,sub:p.role?roleName(p.role,variants):null}))}
@@ -2363,7 +2722,51 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
             )}
 
             {/* VOLEUR : choisir son rôle parmi les cartes bonus */}
-            {role==='VOLEUR'&&isFirstNight&&(
+            {/* MIROIR : 1ère nuit, on repère seulement le joueur */}
+            {role==='VOLEUR'&&isFirstNight&&hasVar('VOLEUR',variants)&&(
+              <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
+                <div className="nslbl">Qui est le Miroir ?</div>
+                {rolePicker('VOLEUR')}
+                {cur.length>0&&<div className="nscfm g">✓ {cur[0].name}</div>}
+                <div style={{fontSize:'13px',color:'var(--muted)'}}>Aucun pouvoir pour l'instant : il sera réveillé la 3e nuit pour copier un rôle.</div>
+              </div>
+            )}
+
+            {/* MIROIR : 3e nuit, copie le rôle d'un joueur */}
+            {role==='VOLEUR'&&!isFirstNight&&slide.pick&&(()=>{
+              const pp=players.find(p=>p.alive&&(p.pickNight===3||p.role==='VOLEUR'));
+              if(!pp) return null;
+              const done=pp.pickNight===3;
+              if(!done&&isPowerless(pp,na)) return <div className="nsoff">⛔ Le Miroir est privé de pouvoir cette nuit : il ne copie aucun rôle (pouvoir perdu).</div>;
+              const copy=tid=>{
+                const tg=players.find(p=>p.id===tid); if(!tg) return;
+                const pick=o=>Object.fromEntries(CARD_FIELDS.map(k=>[k,o[k]]));
+                const blank=mkP(0);
+                const team=tg.role==='CHIEN_LOUP'?tg.team:(ROLES[tg.role]?.team==='loups'?'loups':(roleTeam(tg.role,variants)==='solo'?'solo':'village'));
+                setNA({pickTarget:tid,pickUndo:{pp:{...pick(pp),wasVoleur:pp.wasVoleur||false}}});
+                setPlayers(prev=>prev.map(p=>p.id===pp.id?{...p,...pick(blank),role:tg.role,team,pickNight:3,pickFrom:tid,wasVoleur:true}:p));
+              };
+              const undo=()=>{
+                const u=na.pickUndo; if(!u) return;
+                setPlayers(prev=>prev.map(p=>p.id===pp.id?{...p,...u.pp,pickNight:null,pickFrom:null}:p));
+                setNA({pickTarget:null,pickUndo:null});
+              };
+              return(
+                <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
+                  <div className="nscfm g" style={{marginBottom:'2px'}}>🪞 {pp.name}</div>
+                  <div className="nslbl">Quel joueur copie-t-il ?</div>
+                  <MultiPick options={players.filter(p=>p.alive&&p.id!==pp.id).map(p=>({id:p.id,label:p.name,sub:p.role?roleName(p.role,variants):null}))}
+                    selected={na.pickTarget?[na.pickTarget]:[]} max={1}
+                    onToggle={id=>{ if(na.pickTarget===id) undo(); else if(!na.pickTarget) copy(id); }}/>
+                  {done&&na.pickTarget&&<>
+                    <div className="vtbox"><div className="vtlbl">Montrez-lui la carte</div><div className="vtnm">{pp.name} devient {roleEmoji(pp.role,variants)} {roleName(pp.role,variants)||'?'}</div></div>
+                    <div style={{fontSize:'13px',color:'var(--muted)'}}>{players.find(p=>p.id===na.pickTarget)?.name} garde son rôle. Si ce rôle agit plus tard cette nuit, le Miroir se réveillera aussi à ce moment-là. Ses pouvoirs sont neufs.</div>
+                  </>}
+                </div>
+              );
+            })()}
+
+            {role==='VOLEUR'&&isFirstNight&&!hasVar('VOLEUR',variants)&&(
               <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
                 <div className="nslbl">Qui joue ce rôle ?</div>
                 {(()=>{
@@ -2619,6 +3022,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                   <div className="nscfm g" style={{marginBottom:'4px'}}>👹 {players.find(p=>p.role==='GRAND_MECHANT_LOUP'&&p.alive).name}</div>
                 )}
                 {(()=>{
+                  if(wolvesHurt) return <div className="nsoff">🦔 Blessé par le Porc-Épic : pas de 2ème victime cette nuit.</div>;
                   // Un loup est mort = perd son pouvoir
                   const aWolfDied=players.some(p=>!p.alive&&isWolf(p));
                   if(aWolfDied) return(
@@ -2638,6 +3042,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                         ))}
                       </ChipSelect>
                       {na.gmgVictim&&<div className="nscfm r">👹 {players.find(p=>p.id===na.gmgVictim)?.name} sera aussi tué</div>}
+                      {trapOn(na.gmgVictim)&&<div className="nscfm a">🪤 Maison piégée ! Le Grand Méchant Loup tombera dans le piège</div>}
                     </>
                   );
                 })()}
@@ -2650,7 +3055,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                 {!lbActif?(
                   <div style={{textAlign:'center',padding:'12px',background:'rgba(var(--ink-rgb),.08)',borderRadius:'16px',border:'1px solid rgba(var(--ink-rgb),.17)'}}>
                     <div style={{fontSize:'32px',marginBottom:'6px'}}>😴</div>
-                    <div style={{fontFamily:"inherit",fontSize:'13px',color:'rgba(var(--ink-rgb),.50)',letterSpacing:'.1em'}}>Le Loup Blanc ne se réveille pas cette nuit</div>
+                    <div style={{fontFamily:"inherit",fontSize:'13px',color:'rgba(var(--ink-rgb),.50)',letterSpacing:'.1em'}}>{roleName('LOUP_BLANC',variants)} ne se réveille pas cette nuit</div>
                   </div>
                 ):(
                   <div style={{display:'flex',flexDirection:'column',gap:'8px'}}>
@@ -2663,6 +3068,8 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                       {players.filter(p=>p.alive&&p.role!=='LOUP_BLANC').map(p=><option key={p.id} value={p.id}>{p.name} ({ROLES[p.role]?.name||'?'})</option>)}
                     </ChipSelect>
                     {na.loupBlancTarget&&<div className="nscfm r">🗡️ {players.find(p=>p.id===na.loupBlancTarget)?.name}</div>}
+                    {hasVar('LOUP_BLANC',variants)&&(()=>{const a=players.find(p=>p.role==='LOUP_BLANC'&&p.alive);return a&&<div style={{fontSize:'13px',color:'var(--muted)'}}>🌅 {a.name} : {a.aurLifeUsed?'plus qu\'une vie':'deux vies contre les Loups'}</div>;})()}
+                    {trapOn(na.loupBlancTarget)&&na.wolfVictim!==na.loupBlancTarget&&na.gmgVictim!==na.loupBlancTarget&&<div className="nscfm a">🪤 Maison piégée ! Le {roleName('LOUP_BLANC',variants)} tombera dans le piège</div>}
                   </div>
                 )}
               </div>
@@ -2681,15 +3088,19 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                   {isFirstNight&&packMax>0&&(
                     <div style={{marginTop:'10px'}}>
                       <div className="nslbl" style={{marginBottom:'6px'}}>🐺 Qui se réveille avec la meute ? (les rôles spéciaux seront précisés ensuite)</div>
-                      <MultiPick options={players.filter(p=>p.alive).map(p=>({id:p.id,label:p.name,sub:p.role&&!PACK_ROLES.includes(p.role)?roleName(p.role,variants):(p.role&&p.role!=='LOUP'?roleName(p.role,variants):null),disabled:!!p.role&&!PACK_ROLES.includes(p.role)}))}
-                        selected={players.filter(p=>PACK_ROLES.includes(p.role)).map(p=>p.id)} max={packMax} onToggle={togglePack}/>
+                      <MultiPick options={players.filter(p=>p.alive).map(p=>({id:p.id,label:p.name,sub:p.role&&!packRoles().includes(p.role)?roleName(p.role,variants):(p.role&&p.role!=='LOUP'?roleName(p.role,variants):null),disabled:!!p.role&&!packRoles().includes(p.role)}))}
+                        selected={players.filter(p=>packRoles().includes(p.role)).map(p=>p.id)} max={packMax} onToggle={togglePack}/>
                     </div>
                   )}
                 </div>
                 <div className="nsdiv"/>
                 <div>
                   <div className="nslbl">🩸 Qui les loups dévorent ?</div>
-                  {(()=>{
+                  {wolvesHurt?<div className="nsblock" style={{marginTop:'6px'}}>
+                    <div style={{fontSize:'30px'}}>🦔</div>
+                    <div className="nsblock-t">LES LOUPS SONT BLESSÉS</div>
+                    <div className="nsblock-s">Les piquants du Porc-Épic les ont blessés : ils ne tuent personne cette nuit. Réveillez-les quand même, puis rendormez-les.</div>
+                  </div>:(()=>{
                     const veg=players.find(p=>p.role==='LOUP_VEGAN'&&p.alive);
                     const hunt=!!veg&&!veg.vegHuntUsed;
                     return <>
@@ -2701,6 +3112,7 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                     </>;
                   })()}
                   {na.wolfVictim&&<div className="nscfm r">🩸 {players.find(p=>p.id===na.wolfVictim)?.name}</div>}
+                  <TrapHint id={na.wolfVictim}/>
                 </div>
               </div>
             )}
@@ -2794,7 +3206,51 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
             })()}
 
             {/* EMPOISONNEUSE / GUÉRISSEUSE */}
-            {role==='SORCIERE'&&sv&&(()=>{
+            {/* ALCHIMISTE */}
+            {role==='SORCIERE'&&sv==='ALCHIMISTE'&&(()=>{
+              const sorc=players.find(p=>p.role==='SORCIERE');
+              const past=sorc?.alchUsed||[];
+              const tonight=ALCH_POTIONS.filter(x=>na[x.f]);
+              const left=Math.max(0,2-past.length-tonight.length);
+              const victims=[...new Set([na.wolfVictim,na.gmgVictim].filter(Boolean))];
+              const optsFor=x=>x.k==='VIE'?players.filter(p=>victims.includes(p.id)):players.filter(p=>p.alive&&p.id!==sorc?.id);
+              return(
+                <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'10px'}}>
+                  {isFirstNight&&<>
+                    <div className="nslbl">Qui est l'Alchimiste ?</div>
+                    {rolePicker('SORCIERE')}
+                    <div className="nsdiv"/>
+                  </>}
+                  {!isFirstNight&&sorc&&<div className="nscfm g" style={{marginBottom:'2px'}}>⚗️ {sorc.name}</div>}
+                  <div className="vtbox">
+                    <div className="vtlbl">Victime{victims.length>1?'s':''} des loups cette nuit</div>
+                    <div className="vtnm">{victims.length?victims.map(id=>players.find(p=>p.id===id)?.name).join(' et '):<span style={{opacity:.5,fontSize:'15px'}}>Aucune victime</span>}</div>
+                  </div>
+                  <div className="nscfm a">⚗️ Potions encore à boire : {left} / 2{past.length?` · déjà bu : ${past.map(alchLabel).join(', ')}`:''}</div>
+                  {ALCH_POTIONS.map(x=>{
+                    const usedBefore=past.includes(x.k), chosen=!!na[x.f];
+                    const lost=!usedBefore&&!chosen&&left===0;
+                    if(usedBefore||lost) return <div key={x.k} className="nsoff" style={{textDecoration:usedBefore?'line-through':'none'}}>{x.e} Potion de {x.l} — {usedBefore?'déjà bue':'perdue'}</div>;
+                    const opts=optsFor(x);
+                    return <div key={x.k}>
+                      <div className="nslbl">{x.e} Potion de {x.l}{x.k==='VIE'?' (sauve une victime des loups)':x.k==='MORT'?' (tue un joueur)':x.k==='SOMMEIL'?' (ne vote pas demain)':' (découvre un rôle)'}</div>
+                      {x.k==='VIE'&&!opts.length?<div style={{fontSize:'14px',opacity:.55,marginTop:'4px'}}>Aucune victime à sauver</div>:
+                      <ChipSelect className="nssel" style={{marginTop:'6px'}} value={na[x.f]||''} onChange={e=>setNA({[x.f]:parseInt(e.target.value)||null})}>
+                        <option value="">— Ne pas boire —</option>
+                        {opts.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+                      </ChipSelect>}
+                      {x.k==='VERITE'&&na.alchTruth&&<div className="vtbox" style={{marginTop:'6px'}}><div className="vtlbl">Montrez-lui la carte</div><div className="vtnm">{roleEmoji(players.find(p=>p.id===na.alchTruth)?.role,variants)} {roleName(players.find(p=>p.id===na.alchTruth)?.role,variants)||'Rôle inconnu'}</div></div>}
+                      {x.k==='MORT'&&na.alchDeath&&<div className="nscfm r">☠️ {players.find(p=>p.id===na.alchDeath)?.name} meurt cette nuit</div>}
+                      {x.k==='SOMMEIL'&&na.alchSleep&&<div className="nscfm a">💤 {players.find(p=>p.id===na.alchSleep)?.name} ne votera pas demain</div>}
+                      {x.k==='VIE'&&na.alchLife&&<div className="nscfm g">💚 {players.find(p=>p.id===na.alchLife)?.name} est sauvé</div>}
+                    </div>;
+                  })}
+                  {left===0&&past.length<2&&<div style={{fontSize:'13px',color:'var(--muted)'}}>2 potions choisies : les autres seront perdues.</div>}
+                </div>
+              );
+            })()}
+
+            {role==='SORCIERE'&&sv&&sv!=='ALCHIMISTE'&&(()=>{
               const sorc=players.find(p=>p.role==='SORCIERE');
               const left=Math.max(0,2-(sorc?.potionsUsed||0));
               const victims=[...new Set([na.wolfVictim,na.gmgVictim].filter(Boolean))];
@@ -2917,6 +3373,32 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
               </div>
             )}
 
+            {/* TRAPPEUR */}
+            {role==='TRAPPEUR'&&(()=>{
+              const tp=players.find(p=>p.role==='TRAPPEUR');
+              const off=tp&&isPowerless(tp,na);
+              return(
+              <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
+                {isFirstNight&&<>
+                  <div className="nslbl">Qui est le Trappeur ?</div>
+                  {rolePicker('TRAPPEUR')}
+                  {tp&&<div className="nscfm g">✓ {tp.name}</div>}
+                  <div className="nsdiv"/>
+                </>}
+                {!isFirstNight&&tp&&<div className="nscfm g" style={{marginBottom:'4px'}}>🪤 {tp.name}</div>}
+                {off?<div className="nsoff">⛔ Le Trappeur est privé de pouvoir cette nuit : il ne pose pas de piège.</div>:<>
+                  <div className="nslbl">Devant quelle maison pose-t-il son piège ?</div>
+                  {tp?.lastTrap&&<div style={{fontSize:'14px',color:'rgba(var(--ink-rgb),.62)',marginBottom:'2px'}}>⛔ Pas devant {players.find(p=>p.id===tp.lastTrap)?.name||'?'} (déjà la nuit dernière)</div>}
+                  <ChipSelect className="nssel" value={na.trapTarget||''} onChange={e=>setNA({trapTarget:parseInt(e.target.value)||null,trapWolf:null})}>
+                    <option value="">— Choisir une maison —</option>
+                    {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id} disabled={p.id===tp?.lastTrap}>{p.name}{p.id===tp?.id?' (sa propre maison)':''}</option>)}
+                  </ChipSelect>
+                  {na.trapTarget&&<div className="nscfm a">🪤 Piège devant la maison de {players.find(p=>p.id===na.trapTarget)?.name}</div>}
+                  <div style={{fontSize:'13px',color:'var(--muted)'}}>Si les Loups attaquent cette maison, la victime survit et le loup assis le plus près d'elle meurt. Le piège ne sert qu'une fois.</div>
+                </>}
+              </div>);
+            })()}
+
             {/* CORBEAU */}
             {role==='CORBEAU'&&(
               <div style={{width:'100%',display:'flex',flexDirection:'column',gap:'8px'}}>
@@ -2927,12 +3409,12 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                   <div className="nsdiv"/>
                 </>}
                 {!isFirstNight&&players.find(p=>p.role==='CORBEAU')&&<div className="nscfm g" style={{marginBottom:'4px'}}>🦅 {players.find(p=>p.role==='CORBEAU').name}</div>}
-                <div className="nslbl">Curseur +2 votes sur qui ?</div>
+                <div className="nslbl">{hasVar('CORBEAU',variants)?'Qui ne pourra pas voter demain ?':'Curseur +2 votes sur qui ?'}</div>
                 <ChipSelect className="nssel" value={na.corbeauTarget||''} onChange={e=>setNA({corbeauTarget:parseInt(e.target.value)||null})}>
                   <option value="">— Choisir un joueur —</option>
                   {players.filter(p=>p.alive).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
                 </ChipSelect>
-                {na.corbeauTarget&&<div className="nscfm a">🦅 {players.find(p=>p.id===na.corbeauTarget)?.name} +2 votes</div>}
+                {na.corbeauTarget&&<div className="nscfm a">{hasVar('CORBEAU',variants)?`✉️ ${players.find(p=>p.id===na.corbeauTarget)?.name} ne votera pas demain`:`🦅 ${players.find(p=>p.id===na.corbeauTarget)?.name} +2 votes`}</div>}
               </div>
             )}
 
@@ -2953,6 +3435,13 @@ function NightSlide({slides,idx,setIdx,players,setPlayers,na,setNA,onClose,onFin
                 </ChipSelect>
                 {na.voyanteTarget&&(()=>{
                   const t=players.find(p=>p.id===na.voyanteTarget),wolf=t&&isWolf(t);
+                  if(isAurore(t)) return(
+                    <div style={{borderRadius:'16px',padding:'10px',textAlign:'center',background:'rgba(94,234,169,.08)',border:'1px solid rgba(94,234,169,.22)'}}>
+                      <div style={{fontSize:'13px',color:'rgba(var(--ink-rgb),.47)',marginBottom:'4px'}}>visible meneur uniquement</div>
+                      <div style={{fontSize:'15px',color:'var(--green)',fontWeight:'700'}}>🌅 Loup de l'Aurore — indétectable</div>
+                      <div style={{fontSize:'13px',color:'var(--muted)',marginTop:'4px'}}>Montrez-lui une carte Simple Villageois.</div>
+                    </div>
+                  );
                   return(
                     <div style={{borderRadius:'16px',padding:'10px',textAlign:'center',background:wolf?'rgba(255,107,129,.11)':'rgba(94,234,169,.08)',border:`1px solid ${wolf?'rgba(255,107,129,.29)':'rgba(94,234,169,.22)'}`}}>
                       <div style={{fontFamily:"inherit",fontSize:'13px',fontStyle:'normal',color:'rgba(var(--ink-rgb),.47)',marginBottom:'4px'}}>visible meneur uniquement</div>
